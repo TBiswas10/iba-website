@@ -2,10 +2,10 @@ export function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="container footer-grid">
-        <div>
+        <div className="footer-brand">
           <h3>Illawarra Bengali Association</h3>
           <p>Community, culture, care, and connection across generations.</p>
-          <p>&copy; Made by Tirtha Biswas and Arnab Biswas</p>
+          <p className="copyright">&copy; Made by Tirtha Biswas and Arnab Biswas</p>
         </div>
         <div>
           <h4>Social</h4>
