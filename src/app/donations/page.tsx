@@ -25,7 +25,7 @@ function ThankYouMessage() {
       <p style={{ fontSize: "1.2rem", fontWeight: "bold", color: "var(--teal)" }}>
         Every donation makes a difference. Thank you for being part of the IBA family!
       </p>
-      <div style={{ marginTop: "2rem", display: "flex", gap: "1rem", justifyContent: "center" }}>
+      <div className="button-row" style={{ marginTop: "2rem", justifyContent: "center" }}>
         <a href="/" className="btn-primary">Go Back to Home Page</a>
         <a href="/donations" className="btn-primary">Make Another Donation</a>
       </div>
