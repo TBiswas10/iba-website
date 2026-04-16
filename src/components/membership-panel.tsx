@@ -144,7 +144,7 @@ export function MembershipPanel() {
         <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>👋</div>
         <h2>Welcome back!</h2>
         <p>{user.displayName || user.email}</p>
-        <span className="member-badge">{user.role || "MEMBER"}</span>
+        <span className="member-badge" style={{ marginTop: "0.75rem", display: "inline-block" }}>{user.role || "MEMBER"}</span>
         
         {isActive ? (
           <div style={{ marginTop: "1.5rem" }}>
@@ -192,7 +192,7 @@ export function MembershipPanel() {
   return (
     <div className="panel-stack">
       <section className="glass-panel">
-        <h2>Join Illawarra Bengali Association</h2>
+        <h2 style={{ marginBottom: "1.5rem" }}>Join Illawarra Bengali Association</h2>
 
         <form className="grid-form" onSubmit={handleSignup}>
           <label>
@@ -245,7 +245,7 @@ export function MembershipPanel() {
           <span>or</span>
         </div>
 
-        <h3>Already a member?</h3>
+        <h3 style={{ marginTop: "1.5rem", marginBottom: "1rem" }}>Already a member?</h3>
         <form className="grid-form" onSubmit={handleLogin}>
           <label>
             Email

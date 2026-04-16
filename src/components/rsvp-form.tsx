@@ -128,7 +128,7 @@ export function RsvpForm() {
         ) : null}
       </section>
 
-      <section className="glass-panel">
+      <section className="glass-panel rsvp-form">
         {isLoading ? <p>Loading upcoming events...</p> : null}
         <form className="grid-form" onSubmit={submit}>
           <label className="span-2">
