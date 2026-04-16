@@ -271,16 +271,16 @@ export function LandingPage() {
         <motion.aside className="hero-aside glass-panel" variants={fadeUpVariant}>
           <div className="hero-photo-grid" aria-label="Event photos">
             <div className="photo-tile photo-tile-v1">
-              <span>🎉</span>
+              <span>Photo placeholder 1</span>
             </div>
             <div className="photo-tile photo-tile-h1">
-              <span>🪔</span>
+              <span>Photo placeholder 2</span>
             </div>
             <div className="photo-tile photo-tile-v2">
-              <span>🎊</span>
+              <span>Photo placeholder 3</span>
             </div>
             <div className="photo-tile photo-tile-h2">
-              <span>🧘</span>
+              <span>Photo placeholder 4</span>
             </div>
           </div>
           <div className="hero-card featured-card">

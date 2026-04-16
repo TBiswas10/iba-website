@@ -116,24 +116,6 @@ export function SiteHeader() {
               {tCommon("rsvp")}
             </Link>
           </div>
-          <div className="mobile-lang-group" role="group" aria-label={tCommon("languageSwitcher")}>
-            <button
-              className={locale === "en" ? "lang-btn active" : "lang-btn"}
-              onClick={() => setLang("en")}
-              type="button"
-              aria-pressed={locale === "en"}
-            >
-              EN
-            </button>
-            <button
-              className={locale === "bn" ? "lang-btn active" : "lang-btn"}
-              onClick={() => setLang("bn")}
-              type="button"
-              aria-pressed={locale === "bn"}
-            >
-              BN
-            </button>
-          </div>
         </nav>
 
         <div className="nav-right">
