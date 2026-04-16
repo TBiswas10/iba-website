@@ -30,6 +30,7 @@ const bengali = Noto_Sans_Bengali({
 export const metadata: Metadata = {
   title: "Illawarra Bengali Association",
   description: "Community events, membership, donations, and cultural resources.",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
 export default async function RootLayout({

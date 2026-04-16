@@ -93,8 +93,8 @@ export function SiteHeader() {
               height={36}
               className="brand-logo"
             />
-            <span className="brand-sep">|</span>
             <span className="brand-name">Illawarra Bengali Association</span>
+            <span className="brand-name-mobile">IBA</span>
           </Link>
         </div>
 
