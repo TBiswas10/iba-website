@@ -277,6 +277,16 @@ h4 { font-size: 1.1rem; }
 .section-head { display: grid; gap: 0.85rem; }
 .section-head .eyebrow { margin-bottom: 0.15rem; }
 
+.events-intro { max-width: 800px; margin: 0 auto; text-align: center; }
+.events-intro h1 { font-size: clamp(1.75rem, 3vw, 2.5rem); }
+
+.about-intro { max-width: 700px; margin: 0 auto; }
+.about-intro h1 { margin-bottom: 1.5rem; }
+.about-intro p { margin-bottom: 1rem; }
+.about-intro .note { margin-top: 2rem; font-style: italic; color: var(--ink); opacity: 0.8; }
+
+.calendar-subtitle { margin-bottom: 1.5rem; }
+
 .info-card {
   padding: 1.5rem;
   border-radius: 18px;
@@ -537,9 +547,17 @@ h4 { font-size: 1.1rem; }
 .volunteer-banner .btn-ghost:hover { border-color: var(--ink); background: rgba(16, 16, 16, 0.05); }
 
 /* Forms */
+.grid-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.grid-form .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+.grid-form .form-group label { font-weight: 500; color: var(--ink); }
+.grid-form .form-group input { padding: 0.75rem; border: 1px solid rgba(122,45,70,0.2); border-radius: 8px; font-size: 1rem; }
+.grid-form .form-group input:focus { outline: none; border-color: var(--neon-red); }
+
 .grid-form label { display: grid; gap: 0.35rem; font-size: 0.9rem; font-weight: 500; color: var(--ink); }
-.grid-form input, .grid-form textarea, .grid-form select { padding: 0.65rem 0.85rem; border: 1px solid rgba(29,35,59,0.2); border-radius: 8px; font-family: var(--font-body); font-size: 0.95rem; background: white; transition: border-color 0.15s ease; }
-.grid-form input:focus, .grid-form textarea:focus, .grid-form select:focus { outline: none; border-color: var(--berry); }
+.grid-form input, .grid-form textarea, .grid-form select { padding: 0.65rem 0.85rem; border: 1px solid rgba(29,35,59,0.2); border-radius: 8px; font-family: var(--font-body); font-size: 0.95rem; background: white; transition: border-color 0.15s ease; width: 100%; box-sizing: border-box; }
+.grid-form input:focus, .grid-form textarea:focus, .grid-form select:focus { outline: none; border-color: var(--teal); }
+.grid-form textarea { min-height: 120px; resize: vertical; }
+.grid-form button[type="submit"] { grid-column: span 2; margin-top: 0.5rem; }
 .span-2 { grid-column: span 2; }
 
 /* Site Header */
@@ -785,5 +803,7 @@ h4 { font-size: 1.1rem; }
   .tier-select { flex-direction: column; width: 100%; }
   .tier-btn { width: 100%; }
   .grid-form { grid-template-columns: 1fr; }
+  .grid-form button[type="submit"] { grid-column: 1; }
   .span-2 { grid-column: 1; }
+  .about-intro { padding: 1rem; }
 }

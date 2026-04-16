@@ -149,7 +149,7 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
       <section className="glass-panel">
         <div className="section-head">
           <h2>Events Calendar</h2>
-          <p>Plan festivals, workshops, and community gatherings with a single source of truth.</p>
+          <p className="calendar-subtitle">Plan festivals, workshops, and community gatherings with a single source of truth.</p>
         </div>
         <Calendar
           localizer={localizer}

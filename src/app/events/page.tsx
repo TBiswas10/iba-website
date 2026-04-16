@@ -24,7 +24,7 @@ async function getNextEvent() {
 export default async function EventsPage() {
   return (
     <section className="panel-stack">
-      <section className="glass-panel content-grid events-intro">
+      <section className="glass-panel events-intro">
         <div className="section-head">
           <p className="eyebrow">Events</p>
           <h1>One calendar for the year, one RSVP flow for the next gathering.</h1>
