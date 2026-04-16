@@ -46,7 +46,7 @@ export default function DonationsPage() {
   }
 
   return (
-    <section className="panel-stack">
+    <section className="panel-stack form-full-width">
       <section className="glass-panel">
         <h1>Donations</h1>
         <p>

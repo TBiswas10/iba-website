@@ -547,7 +547,7 @@ h4 { font-size: 1.1rem; }
 .volunteer-banner .btn-ghost:hover { border-color: var(--ink); background: rgba(16, 16, 16, 0.05); }
 
 /* Forms */
-.grid-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.grid-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; width: 100%; }
 .grid-form .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
 .grid-form .form-group label { font-weight: 500; color: var(--ink); }
 .grid-form .form-group input { padding: 0.75rem; border: 1px solid rgba(122,45,70,0.2); border-radius: 8px; font-size: 1rem; }
@@ -559,6 +559,9 @@ h4 { font-size: 1.1rem; }
 .grid-form textarea { min-height: 120px; resize: vertical; }
 .grid-form button[type="submit"] { grid-column: span 2; margin-top: 0.5rem; }
 .span-2 { grid-column: span 2; }
+
+.form-full-width { width: 100%; }
+.form-full-width .grid-form { max-width: 100%; }
 
 /* Site Header */
 .site-header {

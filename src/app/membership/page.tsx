@@ -19,7 +19,7 @@ export default function MembershipPage() {
   }
 
   return (
-    <section className="panel-stack">
+    <section className="panel-stack form-full-width">
       <section className="glass-panel">
         <h1>Membership</h1>
         <p>Join as a family, individual, or student member and access community programs.</p>
