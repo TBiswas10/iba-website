@@ -92,6 +92,10 @@ type HighlightEvent = {
   location: string | null;
 } | null;
 
+type LandingPageProps = {
+  nextEvent: HighlightEvent;
+};
+
 function AnimatedStat({ value, label, trigger, index }: { value: string; label: string; trigger: boolean; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -221,16 +225,8 @@ const volunteerVariant: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
-export function LandingPage() {
+export function LandingPage({ nextEvent }: LandingPageProps) {
   const copy = useCopy();
-  const [nextEvent, setNextEvent] = useState<HighlightEvent>(null);
-
-  useEffect(() => {
-    fetch("/api/events/next")
-      .then((res) => res.json())
-      .then((data) => setNextEvent(data.data))
-      .catch(() => setNextEvent(null));
-  }, []);
 
   const statsRef = useRef<HTMLDivElement>(null);
   const isStatsInView = useInView(statsRef, { once: true, margin: "-100px" });
