@@ -94,6 +94,7 @@ export function SiteHeader() {
           />
           <span className="brand-sep">|</span>
           <span className="brand-name">Illawarra Bengali Association</span>
+          <span className="brand-name-mobile">Illawarra Bengali Association</span>
         </Link>
 
         <nav className={`nav-container ${isOpen ? "open" : ""}`} aria-label="Primary">
@@ -115,6 +116,24 @@ export function SiteHeader() {
             <Link href="/events/rsvp" className="nav-link nav-cta">
               {tCommon("rsvp")}
             </Link>
+          </div>
+          <div className="nav-right-mobile" role="group" aria-label={tCommon("languageSwitcher")}>
+            <button
+              className={locale === "en" ? "lang-btn-mobile active" : "lang-btn-mobile"}
+              onClick={() => setLang("en")}
+              type="button"
+              aria-pressed={locale === "en"}
+            >
+              EN
+            </button>
+            <button
+              className={locale === "bn" ? "lang-btn-mobile active" : "lang-btn-mobile"}
+              onClick={() => setLang("bn")}
+              type="button"
+              aria-pressed={locale === "bn"}
+            >
+              BN
+            </button>
           </div>
         </nav>
 

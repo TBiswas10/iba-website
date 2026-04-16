@@ -636,6 +636,7 @@ h4 { font-size: 1.1rem; }
 }
 
 .brand-name { font-family: var(--font-heading); font-weight: 700; font-size: 0.95rem; color: var(--ink); white-space: nowrap; }
+.brand-name-mobile { display: none; }
 .brand-sep { color: rgba(16, 16, 16, 0.3); }
 
 .nav-link {
@@ -727,6 +728,7 @@ h4 { font-size: 1.1rem; }
   .shell-row { padding: 0 0.5rem; }
   .brand-logo { width: 32px; height: 32px; }
   .brand-name { display: none; }
+  .brand-sep { color: rgba(16, 16, 16, 0.3); }
   
   .mobile-menu-btn { display: flex !important; }
   .hamburger { display: block; }
@@ -735,21 +737,29 @@ h4 { font-size: 1.1rem; }
     display: none !important;
     position: fixed;
     top: 60px;
-    left: 0;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 2rem);
+    max-width: 400px;
     background: white;
     padding: 1rem;
     flex-direction: column;
     gap: 0.5rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     z-index: 99;
+    border-radius: 16px;
   }
   
   .nav-container.open { display: flex !important; }
   .nav-grid { flex-direction: column !important; gap: 0.5rem; width: 100%; }
   .nav-link { font-size: 1rem; padding: 0.75rem; text-align: center; border-radius: 8px; display: block; }
   .nav-link:hover { background: rgba(122,45,70,0.1); }
-  .nav-right { display: flex; }
+  .nav-right { display: none; }
+  .nav-right-mobile { display: flex; justify-content: center; margin-top: 0.5rem; padding-top: 0.75rem; border-top: 1px solid rgba(122,45,70,0.1); width: 100%; }
+  .lang-group-mobile { display: flex; gap: 0.25rem; padding: 0.3rem; background: rgba(122,45,70,0.08); border-radius: 8px; }
+  .lang-btn-mobile { padding: 0.35rem 0.6rem; border: none; background: transparent; font-size: 0.75rem; font-weight: 600; color: var(--ink); opacity: 0.5; cursor: pointer; border-radius: 6px; transition: all 0.2s ease; }
+  .lang-btn-mobile:hover { opacity: 0.8; }
+  .lang-btn-mobile.active { background: var(--berry); color: white; opacity: 1; }
   
   .trust-strip { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
   .footer-grid { grid-template-columns: 1fr; gap: 1.5rem; }
