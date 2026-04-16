@@ -835,7 +835,7 @@ h1, h2, h3, h4, p, li, a, button {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border-radius: 24px;
   padding: 0.5rem 0;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.12s ease, box-shadow 0.12s ease, backdrop-filter 0.12s ease, padding 0.12s ease, border-radius 0.12s ease;
 }
 
 .shell-row {
