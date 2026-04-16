@@ -507,11 +507,19 @@ h4 { font-size: 1.1rem; }
 .tier-name { font-weight: 600; color: var(--ink); font-size: 1rem; }
 .tier-price { font-size: 0.85rem; color: rgba(16, 16, 16, 0.6); margin-top: 0.25rem; }
 
-.grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 400px; margin: 0 auto; }
+.grid-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; width: 100%; box-sizing: border-box; }
 .grid-form .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
 .grid-form .form-group label { font-weight: 500; color: var(--ink); }
-.grid-form input { padding: 0.75rem; border: 1px solid rgba(122,45,70,0.2); border-radius: 8px; font-size: 1rem; }
-.grid-form input:focus { outline: none; border-color: var(--neon-red); }
+.grid-form .form-group input { padding: 0.75rem; border: 1px solid rgba(122,45,70,0.2); border-radius: 8px; font-size: 1rem; }
+.grid-form .form-group input:focus { outline: none; border-color: var(--neon-red); }
+
+.grid-form label { display: grid; gap: 0.35rem; font-size: 0.9rem; font-weight: 500; color: var(--ink); }
+.grid-form input, .grid-form textarea, .grid-form select { padding: 0.65rem 0.85rem; border: 1px solid rgba(29,35,59,0.2); border-radius: 8px; font-family: var(--font-body); font-size: 0.95rem; background: white; transition: border-color 0.15s ease; width: 100%; box-sizing: border-box; }
+.grid-form input:focus, .grid-form textarea:focus, .grid-form select:focus { outline: none; border-color: var(--teal); }
+.grid-form textarea { min-height: 120px; resize: vertical; }
+.grid-form button[type="submit"] { grid-column: span 2; margin-top: 0.5rem; }
+
+.grid-form-auth { max-width: 400px; margin: 0 auto; }
 
 .auth-sep { display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0; }
 .auth-sep::before, .auth-sep::after { content: ""; flex: 1; height: 1px; background: rgba(122,45,70,0.15); }
@@ -547,17 +555,6 @@ h4 { font-size: 1.1rem; }
 .volunteer-banner .btn-ghost:hover { border-color: var(--ink); background: rgba(16, 16, 16, 0.05); }
 
 /* Forms */
-.grid-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; width: 100%; }
-.grid-form .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-.grid-form .form-group label { font-weight: 500; color: var(--ink); }
-.grid-form .form-group input { padding: 0.75rem; border: 1px solid rgba(122,45,70,0.2); border-radius: 8px; font-size: 1rem; }
-.grid-form .form-group input:focus { outline: none; border-color: var(--neon-red); }
-
-.grid-form label { display: grid; gap: 0.35rem; font-size: 0.9rem; font-weight: 500; color: var(--ink); }
-.grid-form input, .grid-form textarea, .grid-form select { padding: 0.65rem 0.85rem; border: 1px solid rgba(29,35,59,0.2); border-radius: 8px; font-family: var(--font-body); font-size: 0.95rem; background: white; transition: border-color 0.15s ease; width: 100%; box-sizing: border-box; }
-.grid-form input:focus, .grid-form textarea:focus, .grid-form select:focus { outline: none; border-color: var(--teal); }
-.grid-form textarea { min-height: 120px; resize: vertical; }
-.grid-form button[type="submit"] { grid-column: span 2; margin-top: 0.5rem; }
 .span-2 { grid-column: span 2; }
 
 .form-full-width { width: 100%; }
@@ -791,6 +788,7 @@ h4 { font-size: 1.1rem; }
   .feature-list, .feature-grid { grid-template-columns: 1fr; }
   .volunteer-banner { flex-direction: column; text-align: center; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .hero-content { text-align: center; }
   .hero-title { font-size: 2.5rem; }
 }
@@ -858,6 +856,7 @@ h4 { font-size: 1.1rem; }
   .tier-select { flex-direction: column; width: 100%; }
   .tier-btn { width: 100%; }
   .grid-form { grid-template-columns: 1fr; }
+  .grid-form-auth { max-width: 100%; }
   .grid-form button[type="submit"] { grid-column: 1; }
   .span-2 { grid-column: 1; }
   .about-intro { padding: 1rem; }

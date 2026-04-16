@@ -194,7 +194,7 @@ export function MembershipPanel() {
       <section className="glass-panel">
         <h2 style={{ marginBottom: "1.5rem" }}>Join Illawarra Bengali Association</h2>
 
-        <form className="grid-form" onSubmit={handleSignup}>
+        <form className="grid-form grid-form-auth" onSubmit={handleSignup}>
           <label>
             Full name
             <input required name="name" placeholder="Your name" />
@@ -246,7 +246,7 @@ export function MembershipPanel() {
         </div>
 
         <h3 style={{ marginTop: "1.5rem", marginBottom: "1rem" }}>Already a member?</h3>
-        <form className="grid-form" onSubmit={handleLogin}>
+        <form className="grid-form grid-form-auth" onSubmit={handleLogin}>
           <label>
             Email
             <input required type="email" name="email" placeholder="you@example.com" />
