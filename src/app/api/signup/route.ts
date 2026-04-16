@@ -32,6 +32,10 @@ export async function POST(request: Request) {
     }
 
     const { email, name, password, tier = "FAMILY" } = parsed.data;
+    
+    if (!password || password.length < 8) {
+      return fail("Password must be at least 8 characters", 400);
+    }
     const emailRate = checkSignupEmailRateLimit(email);
     if (!emailRate.allowed) {
       const response = NextResponse.json(
@@ -67,7 +71,7 @@ export async function POST(request: Request) {
       data: {
         email,
         name,
-        passwordHash: password ? await hash(password, 10) : null,
+        passwordHash: await hash(password, 12),
         memberships: {
           create: {
             tier,
