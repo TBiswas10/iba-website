@@ -21,7 +21,6 @@
 
 *, *::before, *::after {
   box-sizing: border-box;
-  max-width: 100%;
 }
 
 html, body {
@@ -832,15 +831,16 @@ h1, h2, h3, h4, p, li, a, button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
   width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
 }
 
-.brand-section { display: flex; align-items: center; flex-shrink: 0; margin-right: 0.5rem; }
+.brand-section { display: flex; align-items: center; flex-shrink: 1; min-width: 0; margin-right: 0.5rem; }
 
 .brand-name { display: inline; }
 
@@ -848,7 +848,7 @@ h1, h2, h3, h4, p, li, a, button {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   gap: 1.25rem;
   min-width: 0;
 }
@@ -860,7 +860,7 @@ h1, h2, h3, h4, p, li, a, button {
   min-width: 0;
 }
 
-.nav-right { display: flex; align-items: center; flex-shrink: 0; margin-left: auto; }
+.nav-right { display: flex; align-items: center; flex-shrink: 1; min-width: 0; margin-left: auto; }
 
 .lang-group {
   display: flex;

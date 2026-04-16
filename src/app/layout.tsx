@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Outfit, IBM_Plex_Sans, Noto_Sans_Bengali } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -30,7 +30,12 @@ const bengali = Noto_Sans_Bengali({
 export const metadata: Metadata = {
   title: "Illawarra Bengali Association",
   description: "Community events, membership, donations, and cultural resources.",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default async function RootLayout({
