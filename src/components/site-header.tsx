@@ -84,18 +84,19 @@ export function SiteHeader() {
   return (
     <header className={`site-header ${scrolled ? "scrolled" : ""}`}>
       <div className="shell-row">
-        <Link href="/" className="brand-mark">
-          <Image
-            src="/logo.png"
-            alt={tCommon("brand")}
-            width={36}
-            height={36}
-            className="brand-logo"
-          />
-          <span className="brand-sep">|</span>
-          <span className="brand-name">Illawarra Bengali Association</span>
-          <span className="brand-name-mobile">Illawarra Bengali Association</span>
-        </Link>
+        <div className="brand-section">
+          <Link href="/" className="brand-mark">
+            <Image
+              src="/logo.png"
+              alt={tCommon("brand")}
+              width={36}
+              height={36}
+              className="brand-logo"
+            />
+            <span className="brand-sep">|</span>
+            <span className="brand-name">Illawarra Bengali Association</span>
+          </Link>
+        </div>
 
         <nav className={`nav-container ${isOpen ? "open" : ""}`} aria-label="Primary">
           <div className="nav-grid">
@@ -116,24 +117,6 @@ export function SiteHeader() {
             <Link href="/events/rsvp" className="nav-link nav-cta">
               {tCommon("rsvp")}
             </Link>
-          </div>
-          <div className="nav-right-mobile" role="group" aria-label={tCommon("languageSwitcher")}>
-            <button
-              className={locale === "en" ? "lang-btn-mobile active" : "lang-btn-mobile"}
-              onClick={() => setLang("en")}
-              type="button"
-              aria-pressed={locale === "en"}
-            >
-              EN
-            </button>
-            <button
-              className={locale === "bn" ? "lang-btn-mobile active" : "lang-btn-mobile"}
-              onClick={() => setLang("bn")}
-              type="button"
-              aria-pressed={locale === "bn"}
-            >
-              BN
-            </button>
           </div>
         </nav>
 
