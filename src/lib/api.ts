@@ -10,7 +10,7 @@ export function fail(message: string, status = 400, details?: unknown) {
       ok: false,
       error: {
         message,
-        details: details ?? null,
+        details: status >= 500 ? null : details ?? null,
       },
     },
     { status }

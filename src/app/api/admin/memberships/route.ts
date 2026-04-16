@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
+
+const updateMembershipSchema = z.object({
+  id: z.number().int().positive(),
+  status: z.enum(["ACTIVE", "EXPIRED", "PENDING"]),
+});
 
 export async function GET() {
   const denied = await requireAdmin();
@@ -29,15 +35,17 @@ export async function PUT(request: Request) {
 
   try {
     const body = await request.json();
-    const { id, status } = body;
+    const parsed = updateMembershipSchema.safeParse(body);
 
-    if (!id || !status) {
-      return NextResponse.json({ ok: false, error: "ID and status required" }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json({ ok: false, error: "Invalid request body" }, { status: 400 });
     }
+
+    const { id, status } = parsed.data;
 
     const membership = await prisma.membership.update({
       where: { id },
-      data: { status: status as "ACTIVE" | "EXPIRED" | "PENDING" },
+      data: { status },
     });
 
     return NextResponse.json({ ok: true, data: membership });
