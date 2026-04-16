@@ -283,19 +283,7 @@ export function LandingPage() {
               <span>Photo placeholder 4</span>
             </div>
           </div>
-          <div className="hero-card featured-card">
-            <p className="eyebrow">{copy.home.events.highlight.label}</p>
-            <h2>{nextEvent?.title || copy.home.events.highlight.title}</h2>
-            <p>
-              {nextEvent ? 
-                new Date(nextEvent.start).toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" }) +
-                (nextEvent.location ? ` · ${nextEvent.location}` : "")
-              : copy.home.events.highlight.body}
-            </p>
-            <Link className="btn-ghost" href="/events">
-              View Events
-            </Link>
-          </div>
+          
         </motion.aside>
       </motion.section>
 
@@ -433,9 +421,6 @@ export function LandingPage() {
         <div className="button-row">
           <Link className="btn-primary" href="/contact">
             {copy.home.volunteer.cta}
-          </Link>
-          <Link className="btn-ghost" href={nextEvent ? `/events/rsvp?eventId=${nextEvent.id}` : "/events/rsvp"}>
-            {nextEvent ? `RSVP for ${nextEvent.title}` : copy.home.events.highlight.cta}
           </Link>
         </div>
       </motion.section>
