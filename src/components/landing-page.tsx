@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useLayoutEffect, useState } from "react";
 import Link from "next/link";
 import { motion, useInView, Variants } from "framer-motion";
 
@@ -231,9 +231,11 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
   const statsRef = useRef<HTMLDivElement>(null);
   const isStatsInView = useInView(statsRef, { once: true, margin: "-100px" });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    document.documentElement.classList.add("home-page");
     document.body.classList.add("home-page");
     return () => {
+      document.documentElement.classList.remove("home-page");
       document.body.classList.remove("home-page");
     };
   }, []);

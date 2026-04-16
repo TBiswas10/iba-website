@@ -42,11 +42,13 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+html.home-page,
 body.home-page {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
+html.home-page::-webkit-scrollbar,
 body.home-page::-webkit-scrollbar {
   display: none;
   width: 0;
