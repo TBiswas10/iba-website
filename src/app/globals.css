@@ -630,9 +630,6 @@ h4 { font-size: 1.1rem; }
   height: 40px;
   border-radius: 10px;
   background: linear-gradient(135deg, var(--berry), var(--sunset));
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .brand-name { font-family: var(--font-heading); font-weight: 700; font-size: 0.95rem; color: var(--ink); white-space: nowrap; }
@@ -710,7 +707,6 @@ h4 { font-size: 1.1rem; }
   .nav-container { gap: 0.75rem; padding-right: 0.5rem; }
   .nav-grid { gap: 0.5rem; }
   .nav-link { font-size: 0.75rem; }
-  .brand-name { display: none; }
   .nav-right { margin-left: 0.5rem; }
   
   .split-hero { grid-template-columns: 1fr; }
