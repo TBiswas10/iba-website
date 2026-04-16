@@ -26,15 +26,14 @@
 
 html, body {
   width: 100%;
-  overflow-x: clip;
-  overflow-y: auto;
+  overflow-x: hidden;
+  overflow-y: visible;
   overscroll-behavior-x: none;
 }
 
 body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  min-height: 100dvh;
+  display: block;
   color: var(--ink);
   background: var(--paper);
   font-family: var(--font-body);
@@ -72,10 +71,10 @@ h4 { font-size: 1.1rem; }
 .page-shell {
   padding-top: 5rem;
   padding-bottom: 2rem;
-  min-height: calc(100vh - 200px);
+  min-height: auto;
   width: 100%;
   max-width: 100%;
-  overflow-x: clip;
+  overflow-x: hidden;
   box-sizing: border-box;
 }
 
@@ -159,7 +158,7 @@ h4 { font-size: 1.1rem; }
   gap: 1rem;
   width: 100%;
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .hero {
@@ -168,6 +167,7 @@ h4 { font-size: 1.1rem; }
   padding: 3rem 0;
   width: 100%;
   max-width: 100%;
+  min-width: 0;
 }
 
 .split-hero {
@@ -238,6 +238,7 @@ h4 { font-size: 1.1rem; }
 .hero-aside {
   display: grid;
   gap: 1rem;
+  min-width: 0;
 }
 
 .hero-card {
@@ -254,6 +255,7 @@ h4 { font-size: 1.1rem; }
   gap: 0.5rem;
   max-width: 100%;
   overflow: hidden;
+  min-width: 0;
 }
 
 .photo-tile {
@@ -950,6 +952,48 @@ h4 { font-size: 1.1rem; }
 }
 
 @media (max-width: 768px) {
+  .hero {
+    padding: 2rem 0 1.5rem;
+  }
+
+  .button-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .button-row .btn-primary,
+  .button-row .btn-ghost {
+    width: 100%;
+  }
+
+  .pill-row {
+    flex-wrap: wrap;
+  }
+
+  .trust-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .volunteer-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-photo-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+  }
+
+  .photo-tile-v1,
+  .photo-tile-v2 {
+    grid-row: span 1;
+  }
+
+  .feature-grid,
+  .feature-list {
+    grid-template-columns: 1fr;
+  }
+
   .nav-link { display: none; }
   .nav-cta { display: inline-flex; }
 }
@@ -987,10 +1031,6 @@ h4 { font-size: 1.1rem; }
   .lang-btn-mobile:hover { opacity: 0.8; }
   .lang-btn-mobile.active { background: var(--berry); color: white; opacity: 1; }
 
-  .hero-photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .photo-tile-v1, .photo-tile-v2 { grid-row: span 1; }
-  .feature-grid { grid-template-columns: 1fr; }
-  .feature-list { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr; gap: 1.5rem; padding: 1rem; }
   .footer-brand h3 { font-size: 1rem; }
   .footer-brand p { font-size: 0.85rem; }
