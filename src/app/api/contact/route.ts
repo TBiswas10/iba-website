@@ -3,6 +3,15 @@ import { prisma } from "@/lib/prisma";
 import { contactSchema } from "@/lib/validators";
 import nodemailer from "nodemailer";
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
@@ -42,12 +51,12 @@ export async function POST(request: Request) {
           text: `Name: ${parsed.data.name}\nEmail: ${parsed.data.email}\nPhone: ${parsed.data.phone || "N/A"}\n\nMessage:\n${parsed.data.message}`,
           html: `
             <h2>New Contact Form Submission</h2>
-            <p><strong>Name:</strong> ${parsed.data.name}</p>
-            <p><strong>Email:</strong> ${parsed.data.email}</p>
-            <p><strong>Phone:</strong> ${parsed.data.phone || "N/A"}</p>
+            <p><strong>Name:</strong> ${escapeHtml(parsed.data.name)}</p>
+            <p><strong>Email:</strong> ${escapeHtml(parsed.data.email)}</p>
+            <p><strong>Phone:</strong> ${escapeHtml(parsed.data.phone || "N/A")}</p>
             <hr/>
             <p><strong>Message:</strong></p>
-            <p>${parsed.data.message}</p>
+            <p>${escapeHtml(parsed.data.message)}</p>
           `,
         });
       } catch (emailError) {
