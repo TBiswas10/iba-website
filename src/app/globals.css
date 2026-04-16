@@ -567,22 +567,22 @@ h4 { font-size: 1.1rem; }
 
 .shell-row {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
   width: 100%;
   box-sizing: border-box;
-  position: relative;
 }
 
-.brand-section { display: flex; align-items: center; flex-shrink: 0; position: absolute; left: 0; }
+.brand-section { display: flex; align-items: center; flex-shrink: 0; margin-right: auto; }
 
 .nav-container {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
   gap: 1.25rem;
 }
 
@@ -592,7 +592,7 @@ h4 { font-size: 1.1rem; }
   gap: 1.25rem;
 }
 
-.nav-right { display: flex; align-items: center; flex-shrink: 0; position: absolute; right: 0; }
+.nav-right { display: flex; align-items: center; flex-shrink: 0; margin-left: auto; }
 
 .mobile-menu-btn {
   display: none;
@@ -729,9 +729,6 @@ h4 { font-size: 1.1rem; }
 }
 
 @media (max-width: 768px) {
-  .brand-section { position: static; }
-  .nav-right { position: static; }
-  .nav-container { display: none; }
   .nav-link { display: none; }
   .nav-cta { display: inline-flex; }
 }
