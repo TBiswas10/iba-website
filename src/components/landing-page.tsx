@@ -231,6 +231,13 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
   const statsRef = useRef<HTMLDivElement>(null);
   const isStatsInView = useInView(statsRef, { once: true, margin: "-100px" });
 
+  useEffect(() => {
+    document.body.classList.add("home-page");
+    return () => {
+      document.body.classList.remove("home-page");
+    };
+  }, []);
+
   return (
     <div className="panel-stack landing-shell">
       <motion.section

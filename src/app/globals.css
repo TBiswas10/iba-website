@@ -42,6 +42,17 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+body.home-page {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+body.home-page::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 a {
   color: inherit;
   text-decoration: none;
