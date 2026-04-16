@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IBA Design Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@400;500;700&family=Noto+Sans+Bengali:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #f8f3e8;
+      --ink: #101010;
+      --sunset: #ff6a3d;
+      --teal: #0d7f78;
+      --gold: #f9a826;
+      --deep: #152833;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 10%, #fff4df 0%, #f8f3e8 35%, #efe7d5 100%);
+      min-height: 100vh;
+    }
+
+    .container {
+      width: min(1100px, 92vw);
+      margin: 0 auto;
+      padding: 2rem 0 3rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .panel {
+      border: 1px solid rgba(21, 40, 51, 0.12);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: 0 14px 38px rgba(16, 16, 16, 0.08);
+      padding: 1rem;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-family: "Bebas Neue", sans-serif;
+      letter-spacing: 0.03em;
+      font-weight: 400;
+    }
+
+    h1 { font-size: clamp(2rem, 6vw, 4rem); }
+    h2 { font-size: clamp(1.4rem, 3vw, 2.2rem); }
+
+    .eyebrow {
+      margin: 0 0 0.4rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--teal);
+    }
+
+    .tokens {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .token {
+      border-radius: 14px;
+      border: 1px solid rgba(21, 40, 51, 0.1);
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .swatch {
+      height: 84px;
+    }
+
+    .token-meta {
+      padding: 0.6rem;
+      font-size: 0.88rem;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 0.58rem 0.96rem;
+      font-weight: 600;
+      cursor: default;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(130deg, var(--sunset), var(--gold));
+    }
+
+    .btn-ghost {
+      border-color: rgba(21, 40, 51, 0.26);
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .btn-accent {
+      color: #fff;
+      background: linear-gradient(140deg, var(--deep), var(--teal));
+    }
+
+    .bn {
+      font-family: "Noto Sans Bengali", sans-serif;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="panel">
+      <p class="eyebrow">Design System</p>
+      <h1>Illawarra Bengali Association</h1>
+      <p>Trust-first visual baseline with selective festival accents.</p>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow">Color Tokens</p>
+      <div class="tokens">
+        <div class="token">
+          <div class="swatch" style="background: var(--paper)"></div>
+          <div class="token-meta">--paper<br>#f8f3e8</div>
+        </div>
+        <div class="token">
+          <div class="swatch" style="background: var(--ink)"></div>
+          <div class="token-meta">--ink<br>#101010</div>
+        </div>
+        <div class="token">
+          <div class="swatch" style="background: var(--sunset)"></div>
+          <div class="token-meta">--sunset<br>#ff6a3d</div>
+        </div>
+        <div class="token">
+          <div class="swatch" style="background: var(--teal)"></div>
+          <div class="token-meta">--teal<br>#0d7f78</div>
+        </div>
+        <div class="token">
+          <div class="swatch" style="background: var(--gold)"></div>
+          <div class="token-meta">--gold<br>#f9a826</div>
+        </div>
+        <div class="token">
+          <div class="swatch" style="background: var(--deep)"></div>
+          <div class="token-meta">--deep<br>#152833</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow">Typography</p>
+      <h2>Heading Font: Bebas Neue</h2>
+      <p>Body Font: IBM Plex Sans</p>
+      <p class="bn">বাংলা টাইপোগ্রাফি: Noto Sans Bengali</p>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow">Actions</p>
+      <div class="button-row">
+        <button class="btn btn-primary">Primary</button>
+        <button class="btn btn-ghost">Ghost</button>
+        <button class="btn btn-accent">Accent</button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

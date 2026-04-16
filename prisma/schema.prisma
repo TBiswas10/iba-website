@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  email        String       @unique
+  name         String?
+  passwordHash String?
+  role         UserRole     @default(MEMBER)
+  memberships  Membership[]
+  donations    Donation[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  start       DateTime
+  end         DateTime
+  location    String?
+  description String?
+  imageUrl    String?
+  rsvps       Rsvp[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Rsvp {
+  id                         Int      @id @default(autoincrement())
+  eventId                    Int
+  name                       String
+  email                      String
+  phone                      String
+  attendees                  Int
+  volunteerInterest          String
+  kidsCount                  Int?
+  dietaryNotes               String?
+  donationIntent             String?
+  additionalNotes            String?
+  confirmationEmailSentAt    DateTime?
+  confirmationEmailError     String?
+  event                      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  @@index([eventId])
+  @@index([email])
+  @@index([createdAt])
+}
+
+model Membership {
+  id         Int              @id @default(autoincrement())
+  userId     Int
+  tier       MembershipTier
+  status     MembershipStatus @default(PENDING)
+  startDate  DateTime
+  expiryDate DateTime
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@index([userId])
+}
+
+model Donation {
+  id            Int      @id @default(autoincrement())
+  userId        Int?
+  amountCents   Int
+  currency      String   @default("AUD")
+  status        String
+  provider      String   @default("stripe")
+  providerRef   String?
+  donorName     String?
+  donorEmail    String?
+  message       String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model GalleryItem {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  mediaUrl    String
+  mediaType   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Resource {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  category    String?
+  url         String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ContactSubmission {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WebhookEvent {
+  id              Int       @id @default(autoincrement())
+  provider        String
+  providerEventId String    @unique
+  eventType       String
+  processedAt     DateTime?
+  error           String?
+  createdAt       DateTime  @default(now())
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+}
+
+enum MembershipTier {
+  FAMILY
+  INDIVIDUAL
+  STUDENT
+}
+
+enum MembershipStatus {
+  ACTIVE
+  EXPIRED
+  PENDING
+}

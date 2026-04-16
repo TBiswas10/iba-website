@@ -1,0 +1,29 @@
+{
+  "common": {
+    "brand": "Illawarra Bengali Association",
+    "rsvp": "RSVP",
+    "languageSwitcher": "Language switcher"
+  },
+  "nav": {
+    "home": "Home",
+    "events": "Events",
+    "gallery": "Gallery",
+    "resources": "Resources",
+    "membership": "Membership",
+    "donations": "Donations",
+    "contact": "Contact",
+    "about": "About"
+  },
+  "home": {
+    "heroTitle": "Celebrate Culture. Build Community. Shape the Future.",
+    "heroSubtitle": "A living digital home for Bengali families in Illawarra with events, membership, resources, and collective giving.",
+    "ctaPrimary": "Explore Events",
+    "ctaSecondary": "Become a Member",
+    "highlight1Title": "Events Engine",
+    "highlight1Body": "Seasonal festivals, kids programs, and cultural nights managed end-to-end.",
+    "highlight2Title": "Membership Hub",
+    "highlight2Body": "Simple onboarding for families, students, and individual members with role-aware access.",
+    "highlight3Title": "Donation Flow",
+    "highlight3Body": "Transparent, secure contribution workflows with ledger-ready tracking."
+  }
+}
