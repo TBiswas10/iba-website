@@ -50,7 +50,7 @@ export const donationSchema = z.object({
 export const signupSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters").optional().or(z.literal("")),
   tier: z.nativeEnum(MembershipTier).default("FAMILY"),
 });
 
