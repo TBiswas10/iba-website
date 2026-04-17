@@ -4,10 +4,7 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Vercel automatically sets these env vars
-  env: {
-    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
-  },
+  trailingSlash: true,
 };
 
 export default withNextIntl(nextConfig);
