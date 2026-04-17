@@ -81,12 +81,17 @@ export default function AdminRsvpsPage() {
   }, [selectedEventId]);
 
   async function deleteRsvp(id: number) {
+    if (!confirm("Are you sure you want to delete this RSVP?")) return;
     await fetch(`/api/rsvps?id=${id}`, { method: "DELETE" });
     setRsvps(rsvps.filter(r => r.id !== id));
   }
 
   const totalAttendees = rsvps.reduce((sum, r) => sum + r.attendees, 0);
   const totalKids = rsvps.reduce((sum, r) => sum + (r.kidsCount || 0), 0);
+  const totalDonations = rsvps.reduce((sum, r) => {
+    const match = r.donationIntent?.match(/\$?(\d+)/);
+    return sum + (match ? parseInt(match[1]) : 0);
+  }, 0);
 
   if (!user) {
     return (
@@ -100,16 +105,17 @@ export default function AdminRsvpsPage() {
     <section className="panel-stack">
       <section className="glass-panel">
         <h1>RSVPs</h1>
-        <p>View RSVPs for events.</p>
+        <p>View and manage event RSVPs.</p>
         <a href="/admin" className="btn-ghost">← Back to Admin</a>
       </section>
 
       <section className="glass-panel">
-        <label>
+        <label className="event-select-label">
           Select Event
           <select 
             value={selectedEventId} 
             onChange={(e) => setSelectedEventId(e.target.value ? Number(e.target.value) : "")}
+            className="event-select"
           >
             <option value="">— Select an event —</option>
             {events.map(event => (
@@ -122,60 +128,93 @@ export default function AdminRsvpsPage() {
       </section>
 
       {selectedEventId && (
-        <section className="glass-panel">
-          <div style={{ display: "flex", gap: "2rem", marginBottom: "1rem" }}>
-            <div>
-              <strong>Total RSVPs:</strong> {rsvps.length}
+        <>
+          <section className="glass-panel stats-row">
+            <div className="stat-item">
+              <span className="stat-value">{rsvps.length}</span>
+              <span className="stat-label">Total RSVPs</span>
             </div>
-            <div>
-              <strong>Total Attendees:</strong> {totalAttendees}
+            <div className="stat-item">
+              <span className="stat-value">{totalAttendees}</span>
+              <span className="stat-label">Adults</span>
             </div>
-            <div>
-              <strong>Total Kids:</strong> {totalKids}
+            <div className="stat-item">
+              <span className="stat-value">{totalKids}</span>
+              <span className="stat-label">Kids</span>
             </div>
-          </div>
+            <div className="stat-item">
+              <span className="stat-value">${totalDonations}</span>
+              <span className="stat-label">Donations</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-value">{rsvps.filter(r => r.volunteerInterest && r.volunteerInterest !== "No").length}</span>
+              <span className="stat-label">Volunteers</span>
+            </div>
+          </section>
 
-          {rsvps.length === 0 ? (
-            <p>No RSVPs for this event yet.</p>
-          ) : (
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>Attendees</th>
-                  <th>Kids</th>
-                  <th>Volunteer</th>
-                  <th>Dietary</th>
-                  <th>Donation</th>
-                  <th>Notes</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+          <section className="glass-panel">
+            {rsvps.length === 0 ? (
+              <p className="empty-state">No RSVPs for this event yet.</p>
+            ) : (
+              <div className="rsvp-cards">
                 {rsvps.map(rsvp => (
-                  <tr key={rsvp.id}>
-                    <td>{rsvp.name}</td>
-                    <td>{rsvp.email}</td>
-                    <td>{rsvp.phone || "—"}</td>
-                    <td>{rsvp.attendees}</td>
-                    <td>{rsvp.kidsCount ?? 0}</td>
-                    <td>{rsvp.volunteerInterest || "—"}</td>
-                    <td>{rsvp.dietaryNotes || "—"}</td>
-                    <td>{rsvp.donationIntent || "—"}</td>
-                    <td>{rsvp.additionalNotes || "—"}</td>
-                    <td>
-                      <button className="btn-danger" onClick={() => deleteRsvp(rsvp.id)}>
+                  <div key={rsvp.id} className="rsvp-card">
+                    <div className="rsvp-card-header">
+                      <h3>{rsvp.name}</h3>
+                      <span className="rsvp-count">{rsvp.attendees} {rsvp.attendees === 1 ? "person" : "people"}</span>
+                    </div>
+                    <div className="rsvp-card-body">
+                      <div className="rsvp-row">
+                        <span className="rsvp-label">Email</span>
+                        <span className="rsvp-value">{rsvp.email}</span>
+                      </div>
+                      <div className="rsvp-row">
+                        <span className="rsvp-label">Phone</span>
+                        <span className="rsvp-value">{rsvp.phone || "—"}</span>
+                      </div>
+                      {rsvp.kidsCount !== null && rsvp.kidsCount > 0 && (
+                        <div className="rsvp-row">
+                          <span className="rsvp-label">Kids</span>
+                          <span className="rsvp-value">{rsvp.kidsCount}</span>
+                        </div>
+                      )}
+                      {rsvp.volunteerInterest && rsvp.volunteerInterest !== "No" && (
+                        <div className="rsvp-row">
+                          <span className="rsvp-label">Volunteer</span>
+                          <span className="rsvp-value rsvp-badge">{rsvp.volunteerInterest}</span>
+                        </div>
+                      )}
+                      {rsvp.dietaryNotes && (
+                        <div className="rsvp-row">
+                          <span className="rsvp-label">Dietary</span>
+                          <span className="rsvp-value">{rsvp.dietaryNotes}</span>
+                        </div>
+                      )}
+                      {rsvp.donationIntent && (
+                        <div className="rsvp-row">
+                          <span className="rsvp-label">Donation</span>
+                          <span className="rsvp-value">{rsvp.donationIntent}</span>
+                        </div>
+                      )}
+                      {rsvp.additionalNotes && (
+                        <div className="rsvp-row">
+                          <span className="rsvp-label">Notes</span>
+                          <span className="rsvp-value">{rsvp.additionalNotes}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="rsvp-card-footer">
+                      <span className="rsvp-date">{new Date(rsvp.createdAt).toLocaleDateString("en-AU")}</span>
+                      <button className="btn-danger btn-sm" onClick={() => deleteRsvp(rsvp.id)}>
                         Delete
                       </button>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          )}
-        </section>
+              </div>
+            )}
+          </section>
+        </>
       )}
     </section>
   );

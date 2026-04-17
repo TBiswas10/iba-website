@@ -23,21 +23,15 @@ export function SiteFooter() {
         <div>
           <h4>Social</h4>
           <div className="social-links">
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="social-link">
-              Facebook
-            </a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="social-link">
-              Instagram
-            </a>
-            <a href="https://youtube.com" target="_blank" rel="noreferrer" className="social-link">
-              YouTube
+            <a href="https://m.me/j/AbYuVDAYIIaIrs1k/?send_source=gc:copy_invite_link_c" target="_blank" rel="noreferrer" className="social-link">
+              Messenger Group
             </a>
           </div>
         </div>
         <div>
           <h4>Contact</h4>
           <p>Wollongong, NSW, Australia</p>
-          <p>hello@illawarrabengali.org</p>
+          <p>iba.illawarra@gmail.com</p>
         </div>
       </div>
     </footer>
