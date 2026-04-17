@@ -30,10 +30,15 @@ export async function POST(request: Request) {
     console.log("Stripe webhook: checkout.session.completed", { userId, tier, email, donationId });
 
     if (donationId) {
-        await prisma.donation.update({
-            where: { id: parseInt(donationId) },
-            data: { status: "COMPLETED" },
-        });
+        try {
+            await prisma.donation.update({
+                where: { id: parseInt(donationId) },
+                data: { status: "COMPLETED" },
+            });
+            console.log("Donation updated to COMPLETED");
+        } catch (e) {
+            console.error("Error updating donation:", e);
+        }
     } else if (userId && email) {
       console.log("Processing membership for userId:", userId, "email:", email, "tier:", tier);
 
@@ -47,33 +52,42 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Invalid userId" }, { status: 400 });
       }
 
-      // Check if membership exists for this user, get the most recent one
-      const existingMembership = await prisma.membership.findFirst({
-        where: { userId: parsedUserId },
-        orderBy: { createdAt: "desc" },
-      });
+      try {
+        // Check if membership exists for this user, get the most recent one
+        const existingMembership = await prisma.membership.findFirst({
+          where: { userId: parsedUserId },
+          orderBy: { createdAt: "desc" },
+        });
 
-      if (existingMembership) {
-        // Update existing membership
-        await prisma.membership.update({
-          where: { id: existingMembership.id },
-          data: {
-            status: "ACTIVE",
-            expiryDate: expiry,
-            tier: tier as any,
-          },
-        });
-      } else {
-        // Create new membership
-        await prisma.membership.create({
-          data: {
-            userId: parsedUserId,
-            tier: tier as any,
-            status: "ACTIVE",
-            startDate: now,
-            expiryDate: expiry,
-          },
-        });
+        console.log("Existing membership:", existingMembership);
+
+        if (existingMembership) {
+          // Update existing membership
+          const updated = await prisma.membership.update({
+            where: { id: existingMembership.id },
+            data: {
+              status: "ACTIVE",
+              expiryDate: expiry,
+              tier: tier as any,
+            },
+          });
+          console.log("Membership updated:", updated);
+        } else {
+          // Create new membership
+          const created = await prisma.membership.create({
+            data: {
+              userId: parsedUserId,
+              tier: tier as any,
+              status: "ACTIVE",
+              startDate: now,
+              expiryDate: expiry,
+            },
+          });
+          console.log("Membership created:", created);
+        }
+      } catch (e) {
+        console.error("Error creating/updating membership:", e);
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
       }
     }
   }
