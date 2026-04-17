@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { LandingV2 } from "@/components/landing-v2";
 
+export const dynamic = 'force-dynamic';
+
 async function getNextEvent() {
   const now = new Date();
   return prisma.event.findFirst({

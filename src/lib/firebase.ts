@@ -4,11 +4,9 @@ import {
   Auth,
   GoogleAuthProvider,
   EmailAuthProvider,
-  GithubAuthProvider,
-  PhoneAuthProvider,
 } from "firebase/auth";
 
-const firebaseConfig = {
+const getFirebaseConfig = () => ({
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -16,12 +14,27 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-};
+});
 
-const app: FirebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-export const auth = getAuth(app);
+function getFirebaseApp(): FirebaseApp {
+  if (getApps().length === 0) {
+    return initializeApp(getFirebaseConfig());
+  }
+  return getApps()[0];
+}
 
-export const googleProvider = new GoogleAuthProvider();
-export const emailProvider = new EmailAuthProvider();
+let _auth: Auth | undefined;
+export function getFirebaseAuth(): Auth {
+  if (!_auth) {
+    _auth = getAuth(getFirebaseApp());
+  }
+  return _auth;
+}
 
-export default app;
+export function getGoogleProvider(): GoogleAuthProvider {
+  return new GoogleAuthProvider();
+}
+
+export function getEmailProvider(): EmailAuthProvider {
+  return new EmailAuthProvider();
+}

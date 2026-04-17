@@ -16,7 +16,7 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { auth, googleProvider, emailProvider } from "@/lib/firebase";
+import { getFirebaseAuth, getGoogleProvider, getEmailProvider } from "@/lib/firebase";
 
 type FirebaseUser = User & {
   role?: string;
@@ -38,6 +38,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const auth = getFirebaseAuth();
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         const idToken = await firebaseUser.getIdToken();
@@ -69,6 +70,8 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function signInWithGoogle() {
+    const auth = getFirebaseAuth();
+    const googleProvider = getGoogleProvider();
     const result = await signInWithPopup(auth, googleProvider);
     if (result.user) {
       // Sync with our database
@@ -85,15 +88,18 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signInWithEmail(email: string, password: string) {
+    const auth = getFirebaseAuth();
     await signInWithEmailAndPassword(auth, email, password);
   }
 
   async function signUpWithEmail(email: string, password: string, name: string) {
+    const auth = getFirebaseAuth();
     const result = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(result.user, { displayName: name });
   }
 
   async function logout() {
+    const auth = getFirebaseAuth();
     await signOut(auth);
   }
 

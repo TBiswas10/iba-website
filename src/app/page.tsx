@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 import { LandingPage } from "@/components/landing-page";
 
 async function getNextEvent() {
