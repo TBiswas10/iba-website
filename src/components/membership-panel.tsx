@@ -94,8 +94,6 @@ export function MembershipPanel() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           tier: selectedTier,
-          userId: user?.uid,
-          email: user?.email,
         }),
       });
       const json = await response.json();

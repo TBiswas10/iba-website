@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import Stripe from "stripe";
 import { env } from "@/lib/env";
+import { cookies } from "next/headers";
 
 const stripe = env.STRIPE_SECRET_KEY ? new Stripe(env.STRIPE_SECRET_KEY) : null;
 
@@ -11,7 +12,20 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { tier, userId, email } = await request.json();
+    const { tier } = await request.json();
+
+    // Get user from session cookie - don't trust client-side userId
+    const cookieStore = await cookies();
+    const email = cookieStore.get("userEmail")?.value;
+
+    if (!email) {
+      return NextResponse.json({ ok: false, error: "Not authenticated" }, { status: 401 });
+    }
+
+    const dbUser = await prisma.user.findUnique({ where: { email } });
+    if (!dbUser) {
+      return NextResponse.json({ ok: false, error: "User not found" }, { status: 404 });
+    }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
@@ -32,7 +46,7 @@ export async function POST(request: Request) {
       success_url: `${baseUrl}/dashboard?success=true`,
       cancel_url: `${baseUrl}/membership?canceled=true`,
       metadata: {
-        userId: String(userId),
+        userId: String(dbUser.id), // Use database user ID, not Firebase UID
         email: email,
         tier: tier,
       },
