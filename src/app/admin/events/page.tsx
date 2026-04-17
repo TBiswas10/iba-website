@@ -53,10 +53,17 @@ export default function AdminEventsPage() {
   }
 
   async function createEvent(formData: FormData) {
+    const startVal = formData.get("start") as string;
+    const endVal = formData.get("end") as string;
+    
+    // Parse as local time (Australia/Sydney) and convert to ISO string
+    const start = new Date(startVal).toISOString();
+    const end = new Date(endVal).toISOString();
+    
     const payload = {
       title: formData.get("title"),
-      start: formData.get("start"),
-      end: formData.get("end"),
+      start,
+      end,
       location: formData.get("location"),
       description: formData.get("description"),
       imageUrl: formData.get("imageUrl"),
