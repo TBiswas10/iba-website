@@ -1,25 +1,7 @@
-import { prisma } from "@/lib/prisma";
-
 export const dynamic = 'force-dynamic';
 
-import { LandingPage } from "@/components/landing-page";
+import { redirect } from 'next/navigation';
 
-async function getNextEvent() {
-  const now = new Date();
-  return prisma.event.findFirst({
-    where: {
-      start: {
-        gte: now,
-      },
-    },
-    orderBy: {
-      start: "asc",
-    },
-  });
-}
-
-export default async function HomePage() {
-  const nextEvent = await getNextEvent();
-
-  return <LandingPage nextEvent={nextEvent ? { id: nextEvent.id, title: nextEvent.title, start: nextEvent.start.toISOString(), location: nextEvent.location } : null} />;
+export default function HomePage() {
+  redirect('/landing-v2/');
 }

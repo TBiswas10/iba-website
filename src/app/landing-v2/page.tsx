@@ -2,19 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { LandingV2 } from "@/components/landing-v2";
 
 export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 
 async function getNextEvent() {
-  const now = new Date();
-  return prisma.event.findFirst({
-    where: {
-      start: {
-        gte: now,
+  try {
+    const now = new Date();
+    return await prisma.event.findFirst({
+      where: {
+        start: { gte: now },
       },
-    },
-    orderBy: {
-      start: "asc",
-    },
-  });
+      orderBy: { start: "asc" },
+    });
+  } catch (error) {
+    console.error("Failed to fetch event:", error);
+    return null;
+  }
 }
 
 export default async function LandingV2Page() {
