@@ -150,3 +150,25 @@ export async function POST(request: Request) {
     return fail("Error submitting RSVP", 500, error);
   }
 }
+
+export async function DELETE(request: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return fail("RSVP ID required", 400);
+    }
+
+    await prisma.rsvp.delete({
+      where: { id: Number(id) },
+    });
+
+    return ok({ message: "RSVP deleted" });
+  } catch (error) {
+    return fail("Error deleting RSVP", 500, error);
+  }
+}

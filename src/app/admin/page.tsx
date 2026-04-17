@@ -90,13 +90,13 @@ export default function AdminPage() {
           <h3>{counts?.donations || 0}</h3>
           <p>Donations</p>
         </Link>
+        <Link href="/admin/rsvps" className="stat-card">
+          <h3>{counts?.rsvps || 0}</h3>
+          <p>RSVPs</p>
+        </Link>
         <Link href="/admin/gallery" className="stat-card">
           <h3>{counts?.gallery || 0}</h3>
           <p>Gallery</p>
-        </Link>
-        <Link href="/admin/contact" className="stat-card">
-          <h3>{counts?.rsvps || 0}</h3>
-          <p>RSVPs</p>
         </Link>
         <Link href="/admin/email" className="stat-card">
           <h3>✉️</h3>
