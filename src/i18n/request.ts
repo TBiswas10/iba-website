@@ -14,11 +14,24 @@ function resolveLocale(value: string | undefined): Locale {
 }
 
 export default getRequestConfig(async () => {
-  const cookieStore = cookies();
-  const locale = resolveLocale(cookieStore.get("NEXT_LOCALE")?.value);
+  let locale: Locale = defaultLocale;
+  
+  try {
+    const cookieStore = cookies();
+    locale = resolveLocale(cookieStore.get("NEXT_LOCALE")?.value);
+  } catch {
+    // Cookies not available during build, use default
+  }
+
+  let messages = {};
+  try {
+    messages = (await import(`../messages/${locale}.json`)).default;
+  } catch {
+    // Fallback to empty messages if import fails
+  }
 
   return {
     locale,
-    messages: (await import(`../messages/${locale}.json`)).default,
+    messages,
   };
 });
