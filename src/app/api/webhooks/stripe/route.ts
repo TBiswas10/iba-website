@@ -37,21 +37,40 @@ export async function POST(request: Request) {
       const expiry = new Date(now);
       expiry.setFullYear(expiry.getFullYear() + 1);
 
-      // Create or update membership
-      await prisma.membership.upsert({
-        where: { id: parseInt(userId) }, 
-        update: {
-          status: "ACTIVE",
-          expiryDate: expiry,
-        },
-        create: {
-          userId: parseInt(userId),
-          tier: tier as any,
-          status: "ACTIVE",
-          startDate: now,
-          expiryDate: expiry,
-        },
+      const parsedUserId = parseInt(userId);
+      if (isNaN(parsedUserId)) {
+        console.error("Invalid userId in webhook:", userId);
+        return NextResponse.json({ error: "Invalid userId" }, { status: 400 });
+      }
+
+      // Check if membership exists for this user, get the most recent one
+      const existingMembership = await prisma.membership.findFirst({
+        where: { userId: parsedUserId },
+        orderBy: { createdAt: "desc" },
       });
+
+      if (existingMembership) {
+        // Update existing membership
+        await prisma.membership.update({
+          where: { id: existingMembership.id },
+          data: {
+            status: "ACTIVE",
+            expiryDate: expiry,
+            tier: tier as any,
+          },
+        });
+      } else {
+        // Create new membership
+        await prisma.membership.create({
+          data: {
+            userId: parsedUserId,
+            tier: tier as any,
+            status: "ACTIVE",
+            startDate: now,
+            expiryDate: expiry,
+          },
+        });
+      }
     }
   }
 
