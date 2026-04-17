@@ -27,12 +27,16 @@ export async function POST(request: Request) {
     const session = event.data.object as Stripe.Checkout.Session;
     const { userId, tier, email, donationId } = session.metadata || {};
 
+    console.log("Stripe webhook: checkout.session.completed", { userId, tier, email, donationId });
+
     if (donationId) {
         await prisma.donation.update({
             where: { id: parseInt(donationId) },
             data: { status: "COMPLETED" },
         });
     } else if (userId && email) {
+      console.log("Processing membership for userId:", userId, "email:", email, "tier:", tier);
+
       const now = new Date();
       const expiry = new Date(now);
       expiry.setFullYear(expiry.getFullYear() + 1);

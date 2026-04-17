@@ -33,6 +33,11 @@ export async function POST(request: Request) {
 
     const { email, name, password, tier = "FAMILY" } = parsed.data;
     
+    // Validate password for email signup (not required for Google)
+    if (password !== undefined && password.length > 0 && password.length < 8) {
+      return fail("Password must be at least 8 characters", 400);
+    }
+    
     const emailRate = checkSignupEmailRateLimit(email);
     if (!emailRate.allowed) {
       const response = NextResponse.json(
