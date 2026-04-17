@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 const navItems = [
   { href: "/", key: "home" },
@@ -31,9 +30,7 @@ type User = {
 export function SiteHeader() {
   const tNav = useTranslations("nav");
   const tCommon = useTranslations("common");
-  const locale = useLocale();
   const pathname = usePathname();
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user: firebaseUser } = useFirebaseAuth();
@@ -52,22 +49,6 @@ export function SiteHeader() {
       setUser(null);
     }
   }, [firebaseUser]);
-
-  const setLang = async (nextLocale: "en" | "bn") => {
-    if (nextLocale === locale) {
-      return;
-    }
-
-    await fetch("/api/locale", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ locale: nextLocale }),
-    });
-
-    router.refresh();
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -120,27 +101,6 @@ export function SiteHeader() {
             </Link>
           </div>
         </nav>
-
-        <div className="nav-right">
-          <div className="lang-group" role="group" aria-label={tCommon("languageSwitcher")}>
-            <button
-              className={locale === "en" ? "lang-btn active" : "lang-btn"}
-              onClick={() => setLang("en")}
-              type="button"
-              aria-pressed={locale === "en"}
-            >
-              EN
-            </button>
-            <button
-              className={locale === "bn" ? "lang-btn active" : "lang-btn"}
-              onClick={() => setLang("bn")}
-              type="button"
-              aria-pressed={locale === "bn"}
-            >
-              BN
-            </button>
-          </div>
-        </div>
 
         <button
           className="mobile-menu-btn"
