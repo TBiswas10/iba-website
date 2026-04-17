@@ -24,6 +24,15 @@ export default function AdminEventsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    start: "",
+    end: "",
+    location: "",
+    description: "",
+    imageUrl: "",
+  });
 
   useEffect(() => {
     fetch("/api/session")
@@ -52,32 +61,51 @@ export default function AdminEventsPage() {
     setLoading(false);
   }
 
-  async function createEvent(formData: FormData) {
-    const startVal = formData.get("start") as string;
-    const endVal = formData.get("end") as string;
-    
-    // Parse as local time (Australia/Sydney) and convert to ISO string
-    const start = new Date(startVal).toISOString();
-    const end = new Date(endVal).toISOString();
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     
     const payload = {
-      title: formData.get("title"),
-      start,
-      end,
-      location: formData.get("location"),
-      description: formData.get("description"),
-      imageUrl: formData.get("imageUrl"),
+      id: editingId,
+      title: formData.title,
+      start: new Date(formData.start).toISOString(),
+      end: new Date(formData.end).toISOString(),
+      location: formData.location,
+      description: formData.description,
+      imageUrl: formData.imageUrl,
     };
 
-    const res = await fetch("/api/admin/events", {
-      method: "POST",
+    const isEdit = editingId !== null;
+    const url = isEdit ? `/api/admin/events` : "/api/admin/events";
+    const method = isEdit ? "PUT" : "POST";
+
+    fetch(url, {
+      method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+    }).then(res => {
+      if (res.ok) {
+        setEditingId(null);
+        setFormData({ title: "", start: "", end: "", location: "", description: "", imageUrl: "" });
+        fetchEvents();
+      }
     });
+  }
 
-    if (res.ok) {
-      fetchEvents();
-    }
+  function startEdit(event: Event) {
+    setEditingId(event.id);
+    setFormData({
+      title: event.title,
+      start: new Date(event.start).toISOString().slice(0, 16),
+      end: new Date(event.end).toISOString().slice(0, 16),
+      location: event.location || "",
+      description: event.description || "",
+      imageUrl: event.imageUrl || "",
+    });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setFormData({ title: "", start: "", end: "", location: "", description: "", imageUrl: "" });
   }
 
   async function deleteEvent(id: number) {
@@ -104,34 +132,75 @@ export default function AdminEventsPage() {
       </section>
 
       <section className="glass-panel">
-        <h2>Create Event</h2>
-        <form action={createEvent as any} className="grid-form">
+        <h2>{editingId ? "Edit Event" : "Create Event"}</h2>
+        <form onSubmit={handleSubmit} className="grid-form">
           <label>
             Title
-            <input required name="title" placeholder="Event title" />
+            <input 
+              required 
+              name="title" 
+              placeholder="Event title" 
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            />
           </label>
           <label>
             Start
-            <input required type="datetime-local" name="start" />
+            <input 
+              required 
+              type="datetime-local" 
+              name="start"
+              value={formData.start}
+              onChange={(e) => setFormData({ ...formData, start: e.target.value })}
+            />
           </label>
           <label>
             End
-            <input required type="datetime-local" name="end" />
+            <input 
+              required 
+              type="datetime-local" 
+              name="end"
+              value={formData.end}
+              onChange={(e) => setFormData({ ...formData, end: e.target.value })}
+            />
           </label>
           <label>
             Location
-            <input name="location" placeholder="Event location" />
+            <input 
+              name="location" 
+              placeholder="Event location"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            />
           </label>
           <label className="span-2">
             Description
-            <textarea name="description" rows={3} placeholder="Event description" />
+            <textarea 
+              name="description" 
+              rows={3} 
+              placeholder="Event description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
           </label>
           <label className="span-2">
             Image URL
-            <input name="imageUrl" placeholder="https://..." />
+            <input 
+              name="imageUrl" 
+              placeholder="https://..."
+              value={formData.imageUrl}
+              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+            />
           </label>
-          <div className="span-2">
-            <button className="btn-primary" type="submit">Create Event</button>
+          <div className="span-2 button-row">
+            <button className="btn-primary" type="submit">
+              {editingId ? "Update Event" : "Create Event"}
+            </button>
+            {editingId && (
+              <button type="button" className="btn-ghost" onClick={cancelEdit}>
+                Cancel
+              </button>
+            )}
           </div>
         </form>
       </section>
@@ -153,12 +222,20 @@ export default function AdminEventsPage() {
                     {new Date(event.start).toLocaleDateString("en-AU")} - {event.location}
                   </small>
                 </div>
-                <button
-                  className="btn-ghost"
-                  onClick={() => deleteEvent(event.id)}
-                >
-                  Delete
-                </button>
+                <div className="button-row">
+                  <button
+                    className="btn-ghost"
+                    onClick={() => startEdit(event)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn-ghost"
+                    onClick={() => deleteEvent(event.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

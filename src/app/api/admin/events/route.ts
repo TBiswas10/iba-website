@@ -46,3 +46,34 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Failed to create event" }, { status: 500 });
   }
 }
+
+export async function PUT(request: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+  try {
+    const body = await request.json();
+    const { id, title, start, end, location, description, imageUrl } = body;
+
+    if (!id || !title || !start || !end) {
+      return NextResponse.json({ ok: false, error: "ID, title, start, and end are required" }, { status: 400 });
+    }
+
+    const event = await prisma.event.update({
+      where: { id: Number(id) },
+      data: {
+        title,
+        start: new Date(start),
+        end: new Date(end),
+        location: location || "",
+        description: description || "",
+        imageUrl: imageUrl || "",
+      },
+    });
+
+    return NextResponse.json({ ok: true, data: event });
+  } catch (error) {
+    console.error("Update event error:", error);
+    return NextResponse.json({ ok: false, error: "Failed to update event" }, { status: 500 });
+  }
+}
