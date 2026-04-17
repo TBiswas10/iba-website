@@ -96,7 +96,7 @@ export function SiteHeader() {
                 Admin
               </Link>
             )}
-            <Link href="/events/rsvp" className="nav-link nav-cta">
+            <Link href="/events/rsvp" className={`nav-link nav-cta ${pathname.startsWith("/events/rsvp") ? "active" : ""}`}>
               {tCommon("rsvp")}
             </Link>
           </div>

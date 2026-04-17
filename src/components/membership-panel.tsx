@@ -124,7 +124,7 @@ export function MembershipPanel() {
           <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>👑</div>
           <h2>Welcome, Administrator</h2>
           <p>{user.email}</p>
-          <span className="member-badge">ADMIN</span>
+          <span className="member-badge" style={{ marginTop: "0.5rem" }}>ADMIN</span>
           <div className="button-row" style={{ marginTop: "1.5rem" }}>
             <Link href="/admin" className="btn-primary">
               Admin Console

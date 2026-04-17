@@ -57,6 +57,28 @@ export default function DonationsPage() {
       <section className="glass-panel">
         <DonationForm />
       </section>
+      <section className="glass-panel direct-transfer">
+        <h2>Or Direct Bank Transfer / PayID</h2>
+        <p className="transfer-subtitle">Donations of any amount welcome</p>
+        <div className="transfer-options">
+          <div className="transfer-card">
+            <span className="transfer-label">PayID</span>
+            <span className="transfer-value">0411633762</span>
+          </div>
+          <div className="transfer-card">
+            <span className="transfer-label">Bank Name</span>
+            <span className="transfer-value">Debabrata Biswas</span>
+          </div>
+          <div className="transfer-card">
+            <span className="transfer-label">BSB</span>
+            <span className="transfer-value">062105</span>
+          </div>
+          <div className="transfer-card">
+            <span className="transfer-label">A/C</span>
+            <span className="transfer-value">10300439</span>
+          </div>
+        </div>
+      </section>
     </section>
   );
 }

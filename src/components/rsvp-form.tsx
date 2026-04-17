@@ -32,6 +32,8 @@ export function RsvpForm() {
   const [message, setMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
     const loadEvents = async () => {
@@ -103,11 +105,8 @@ export function RsvpForm() {
       return;
     }
 
-    const confirmationMessage = json.data.confirmationEmailSent
-      ? "RSVP received. Confirmation email sent."
-      : "RSVP received. We could not send the email right now, but your submission was saved.";
-
-    setMessage(confirmationMessage);
+    setEmailSent(json.data.confirmationEmailSent);
+    setShowModal(true);
     setForm(emptyForm);
     setIsSubmitting(false);
   };
@@ -247,6 +246,24 @@ export function RsvpForm() {
         </form>
         {message ? <p className="note-text">{message}</p> : null}
       </section>
+
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-icon">✓</div>
+            <h2>RSVP Confirmed!</h2>
+            <p className="modal-message">
+              {emailSent
+                ? "Thank you for your RSVP! A confirmation email has been sent to your inbox."
+                : "Your RSVP has been received and saved. We couldn't send a confirmation email right now, but we're excited to see you at the event!"}
+            </p>
+            <p className="modal-event">{selectedEvent?.title}</p>
+            <button className="btn-primary" onClick={() => setShowModal(false)}>
+              Done
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
