@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function SiteFooter() {
   return (
     <footer className="site-footer">
@@ -11,11 +13,11 @@ export function SiteFooter() {
         <div>
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/about">About</a></li>
-            <li><a href="/events">Events</a></li>
-            <li><a href="/membership">Membership</a></li>
-            <li><a href="/resources">Resources</a></li>
+            <li><Link href="/">Home</Link></li>
+            <li><Link href="/about">About</Link></li>
+            <li><Link href="/events">Events</Link></li>
+            <li><Link href="/membership">Membership</Link></li>
+            <li><Link href="/resources">Resources</Link></li>
           </ul>
         </div>
         <div>

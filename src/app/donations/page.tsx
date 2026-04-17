@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { DonationForm } from "@/components/donation-form";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -27,8 +28,8 @@ function ThankYouMessage() {
         Every donation makes a difference. Thank you for being part of the IBA family!
       </p>
       <div className="button-row" style={{ marginTop: "2rem", justifyContent: "center" }}>
-        <a href="/" className="btn-primary">Go Back to Home Page</a>
-        <a href="/donations" className="btn-primary">Make Another Donation</a>
+        <Link href="/" className="btn-primary">Go Back to Home Page</Link>
+        <Link href="/donations" className="btn-primary">Make Another Donation</Link>
       </div>
     </section>
   );
