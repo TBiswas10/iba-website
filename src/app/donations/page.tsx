@@ -2,6 +2,7 @@
 
 import { DonationForm } from "@/components/donation-form";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 function ThankYouMessage() {
   return (
@@ -33,7 +34,7 @@ function ThankYouMessage() {
   );
 }
 
-export default function DonationsPage() {
+function DonationsContent() {
   const searchParams = useSearchParams();
   const success = searchParams.get("success");
 
@@ -80,5 +81,13 @@ export default function DonationsPage() {
         </div>
       </section>
     </section>
+  );
+}
+
+export default function DonationsPage() {
+  return (
+    <Suspense fallback={<div className="panel-stack"><div className="glass-panel">Loading...</div></div>}>
+      <DonationsContent />
+    </Suspense>
   );
 }
