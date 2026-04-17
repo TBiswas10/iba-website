@@ -20,7 +20,7 @@
     "firebase": "^12.12.0",
     "framer-motion": "^12.38.0",
     "moment": "^2.30.1",
-    "next": "14.2.0",
+    "next": "14.2.35",
     "next-auth": "^5.0.0-beta.29",
     "next-intl": "^3.20.0",
     "nodemailer": "^7.0.13",
