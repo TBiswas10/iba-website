@@ -33,9 +33,6 @@ export async function POST(request: Request) {
 
     const { email, name, password, tier = "FAMILY" } = parsed.data;
     
-    if (!password || password.length < 8) {
-      return fail("Password must be at least 8 characters", 400);
-    }
     const emailRate = checkSignupEmailRateLimit(email);
     if (!emailRate.allowed) {
       const response = NextResponse.json(
@@ -67,21 +64,35 @@ export async function POST(request: Request) {
     const expiry = new Date(now);
     expiry.setFullYear(expiry.getFullYear() + 1);
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        name,
-        passwordHash: await hash(password, 12),
-        memberships: {
-          create: {
-            tier,
-            status: "ACTIVE",
-            startDate: now,
-            expiryDate: expiry,
+    // Handle Google signup (no password) vs email signup (with password)
+    if (password && password.length >= 8) {
+      // Email signup with password
+      const user = await prisma.user.create({
+        data: {
+          email,
+          name,
+          passwordHash: await hash(password, 12),
+          memberships: {
+            create: {
+              tier,
+              status: "ACTIVE",
+              startDate: now,
+              expiryDate: expiry,
+            },
           },
         },
-      },
-    });
+      });
+    } else {
+      // Google signup (no password) - create user without membership
+      // Membership will be created by Stripe webhook after payment
+      await prisma.user.create({
+        data: {
+          email,
+          name,
+          // No passwordHash - Google auth
+        },
+      });
+    }
 
     return ok(
       {
