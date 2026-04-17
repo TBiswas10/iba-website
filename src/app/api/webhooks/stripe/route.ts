@@ -3,10 +3,15 @@ import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
 import Stripe from "stripe";
 
-const stripe = new Stripe(env.STRIPE_SECRET_KEY || "");
-const endpointSecret = env.STRIPE_WEBHOOK_SECRET || "";
-
 export async function POST(request: Request) {
+  const stripeKey = env.STRIPE_SECRET_KEY;
+  const endpointSecret = env.STRIPE_WEBHOOK_SECRET;
+
+  if (!stripeKey || !endpointSecret) {
+    return NextResponse.json({ error: "Stripe not configured" }, { status: 500 });
+  }
+
+  const stripe = new Stripe(stripeKey);
   const body = await request.text();
   const signature = request.headers.get("stripe-signature") || "";
 
