@@ -146,7 +146,7 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
 
   return (
     <div className="panel-stack">
-      <section className="glass-panel">
+      <section className="glass-panel events-calendar">
         <div className="section-head">
           <h2>Events Calendar</h2>
           <p className="calendar-subtitle">Plan festivals, workshops, and community gatherings with a single source of truth.</p>
