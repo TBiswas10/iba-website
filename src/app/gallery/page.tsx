@@ -16,17 +16,8 @@ async function getAlbums() {
   return albums;
 }
 
-async function getStandaloneItems() {
-  const items = await prisma.galleryItem.findMany({
-    where: { albumId: null },
-    orderBy: { createdAt: "desc" },
-  });
-  return items;
-}
-
 export default async function GalleryPage() {
   const albums = await getAlbums();
-  const standaloneItems = await getStandaloneItems();
 
   const albumsWithEvent = albums.filter((a) => a.eventId);
   const albumsWithoutEvent = albums.filter((a) => !a.eventId);
@@ -106,32 +97,7 @@ export default async function GalleryPage() {
         </section>
       )}
 
-      {standaloneItems.length > 0 && (
-        <section className="glass-panel">
-          <h2>Photos</h2>
-          <div className="gallery-grid-public">
-            {standaloneItems.map((item) => (
-              <article key={item.id} className="gallery-item-public">
-                <a href={item.mediaUrl} target="_blank" rel="noreferrer" className="gallery-image-link">
-                  <Image
-                    src={item.mediaUrl}
-                    alt={item.title}
-                    width={400}
-                    height={300}
-                    className="gallery-image"
-                  />
-                </a>
-                <div className="gallery-caption">
-                  <h3>{item.title}</h3>
-                  {item.description && <p>{item.description}</p>}
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {albums.length === 0 && standaloneItems.length === 0 && (
+      {albums.length === 0 && (
         <section className="glass-panel">
           <h3>No gallery items yet</h3>
           <p>Add media via admin dashboard.</p>
