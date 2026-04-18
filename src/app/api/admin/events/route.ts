@@ -23,15 +23,18 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { title, start, end, location, description, imageUrl } = body;
+    const { title, slug, start, end, location, description, imageUrl } = body;
 
     if (!title || !start || !end) {
       return NextResponse.json({ ok: false, error: "Title, start, and end are required" }, { status: 400 });
     }
 
+    const slugFinal = slug || title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
     const event = await prisma.event.create({
       data: {
         title,
+        slug: slugFinal,
         start: new Date(start),
         end: new Date(end),
         location: location || "",
@@ -53,16 +56,19 @@ export async function PUT(request: Request) {
 
   try {
     const body = await request.json();
-    const { id, title, start, end, location, description, imageUrl } = body;
+    const { id, title, slug, start, end, location, description, imageUrl } = body;
 
     if (!id || !title || !start || !end) {
       return NextResponse.json({ ok: false, error: "ID, title, start, and end are required" }, { status: 400 });
     }
 
+    const slugFinal = slug || title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
     const event = await prisma.event.update({
       where: { id: Number(id) },
       data: {
         title,
+        slug: slugFinal,
         start: new Date(start),
         end: new Date(end),
         location: location || "",

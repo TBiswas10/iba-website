@@ -13,15 +13,18 @@ const localizer = momentLocalizer(moment);
 type ApiEvent = {
   id: number;
   title: string;
+  slug: string;
   start: string;
   end: string;
   location?: string | null;
   description?: string | null;
+  imageUrl?: string | null;
 };
 
 type CalendarEvent = {
   id: number;
   title: string;
+  slug?: string;
   start: Date;
   end: Date;
   location?: string | null;
@@ -36,6 +39,45 @@ const emptyForm = {
   description: "",
 };
 
+function formatICS(event: CalendarEvent): string {
+  const formatDate = (date: Date) => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const description = event.description ? event.description.replace(/[\n\r]/g, "\\n") : "";
+  return `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//IBA//Events//EN
+BEGIN:VEVENT
+UID:${event.id}@iba.org
+DTSTART:${formatDate(event.start)}
+DTEND:${formatDate(event.end)}
+SUMMARY:${event.title}
+DESCRIPTION:${description}
+LOCATION:${event.location || ""}
+END:VEVENT
+END:VCALENDAR`;
+}
+
+function downloadICS(event: CalendarEvent) {
+  const ics = formatICS(event);
+  const blob = new Blob([ics], { type: "text/calendar" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${event.title.replace(/\s+/g, "-").toLowerCase()}.ics`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function getGoogleCalendarUrl(event: CalendarEvent): string {
+  const title = encodeURIComponent(event.title);
+  const details = event.description ? encodeURIComponent(event.description) : "";
+  const location = event.location ? encodeURIComponent(event.location) : "";
+  const start = event.start.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const end = event.end.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${start}/${end}`;
+}
+
 export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -44,6 +86,10 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
   const [isPending, startTransition] = useTransition();
   const [date, setDate] = useState(new Date());
   const [view, setView] = useState<typeof Views[keyof typeof Views]>(Views.MONTH);
+
+  function getEventSlug(event: CalendarEvent): string {
+    return event.slug || `${event.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${event.id}`;
+  }
 
   const selected = useMemo(
     () => events.find((event) => event.id === selectedId) || null,
@@ -63,6 +109,7 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
     const mapped = (json.data as ApiEvent[]).map((event) => ({
       id: event.id,
       title: event.title,
+      slug: event.slug,
       start: new Date(event.start),
       end: new Date(event.end),
       location: event.location,
@@ -222,6 +269,26 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
             )}
             
             <div className="event-popup-actions">
+              <Link href={`/events/${getEventSlug(selected)}`} className="btn-ghost btn-sm">
+                View Details
+              </Link>
+              <div className="calendar-buttons">
+                <a
+                  href={getGoogleCalendarUrl(selected)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-ghost btn-sm"
+                >
+                  Google Calendar
+                </a>
+                <button
+                  type="button"
+                  className="btn-ghost btn-sm"
+                  onClick={() => downloadICS(selected)}
+                >
+                  Add to Calendar
+                </button>
+              </div>
               {isAdmin && (
                 <>
                   <Link href="/admin/events" className="btn-ghost btn-sm">

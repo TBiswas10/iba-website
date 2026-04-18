@@ -9,7 +9,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres.zqaugesqeehuubcytlfw:9oKTsifFm4c3YWoV@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres"
+  url      = "postgresql://postgres.zqaugesqeehuubcytlfw:9oKTsifFm4c3YWoV@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres?connection_limit=1"
 }
 
 model User {
@@ -27,6 +27,7 @@ model User {
 model Event {
   id          Int      @id @default(autoincrement())
   title       String
+  slug        String   @unique
   start       DateTime
   end         DateTime
   location    String?
@@ -44,11 +45,8 @@ model Rsvp {
   email                      String
   phone                      String
   attendees                  Int
-  volunteerInterest          String
   kidsCount                  Int?
-  dietaryNotes               String?
-  donationIntent             String?
-  additionalNotes            String?
+  kidsAges                   String?
   confirmationEmailSentAt    DateTime?
   confirmationEmailError     String?
   event                      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)

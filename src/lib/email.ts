@@ -14,11 +14,8 @@ type RsvpDetails = {
   email: string;
   phone: string;
   attendees: number;
-  volunteerInterest: string;
   kidsCount?: number | null;
-  dietaryNotes?: string | null;
-  donationIntent?: string | null;
-  additionalNotes?: string | null;
+  kidsAges?: string[] | null;
 };
 
 function getTransport() {
@@ -68,13 +65,11 @@ export async function sendRsvpConfirmationEmail({
     timeStyle: "short",
   })}`;
 
+  const kidsAgesStr = rsvp.kidsAges ? `Ages: ${rsvp.kidsAges.join(", ")}` : null;
   const notes = [
-    `Attendees: ${rsvp.attendees}`,
-    `Volunteer interest: ${rsvp.volunteerInterest}`,
-    rsvp.kidsCount !== undefined && rsvp.kidsCount !== null ? `Kids count: ${rsvp.kidsCount}` : null,
-    rsvp.dietaryNotes ? `Dietary notes: ${rsvp.dietaryNotes}` : null,
-    rsvp.donationIntent ? `Donation intent: ${rsvp.donationIntent}` : null,
-    rsvp.additionalNotes ? `Additional notes: ${rsvp.additionalNotes}` : null,
+    `Adults: ${rsvp.attendees}`,
+    rsvp.kidsCount !== undefined && rsvp.kidsCount !== null ? `Kids: ${rsvp.kidsCount}` : null,
+    kidsAgesStr,
   ]
     .filter(Boolean)
     .join("\n");
@@ -105,12 +100,9 @@ export async function sendRsvpConfirmationEmail({
         <p><strong>Event time:</strong> ${eventRange}</p>
         ${event.location ? `<p><strong>Location:</strong> ${event.location}</p>` : ""}
         <ul>
-          <li><strong>Attendees:</strong> ${rsvp.attendees}</li>
-          <li><strong>Volunteer interest:</strong> ${rsvp.volunteerInterest}</li>
-          ${rsvp.kidsCount !== undefined && rsvp.kidsCount !== null ? `<li><strong>Kids count:</strong> ${rsvp.kidsCount}</li>` : ""}
-          ${rsvp.dietaryNotes ? `<li><strong>Dietary notes:</strong> ${rsvp.dietaryNotes}</li>` : ""}
-          ${rsvp.donationIntent ? `<li><strong>Donation intent:</strong> ${rsvp.donationIntent}</li>` : ""}
-          ${rsvp.additionalNotes ? `<li><strong>Additional notes:</strong> ${rsvp.additionalNotes}</li>` : ""}
+          <li><strong>Adults:</strong> ${rsvp.attendees}</li>
+          ${rsvp.kidsCount !== undefined && rsvp.kidsCount !== null ? `<li><strong>Kids:</strong> ${rsvp.kidsCount}</li>` : ""}
+          ${rsvp.kidsAges ? `<li><strong>Kids ages:</strong> ${rsvp.kidsAges.join(", ")}</li>` : ""}
         </ul>
         <p>We will follow up if anything changes.</p>
       </div>

@@ -578,6 +578,22 @@ h4 { font-size: 1.1rem; }
   margin-top: 1.25rem;
 }
 
+.calendar-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.event-details { max-width: 700px; margin: 0 auto; }
+.event-details h1 { margin-bottom: 1.5rem; }
+.event-details-image { width: 100%; max-height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 1.5rem; }
+.event-details-meta { background: rgba(13,127,120,0.05); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
+.event-detail-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(29,35,59,0.1); }
+.event-detail-row:last-child { border-bottom: none; }
+.event-detail-label { font-weight: 600; color: var(--ink); }
+.event-detail-value { color: rgba(16,16,16,0.8); text-align: right; }
+.event-details-desc { margin-bottom: 1.5rem; }
+.event-details-desc h2 { font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--ink); }
+.event-details-desc p { line-height: 1.7; color: rgba(16,16,16,0.8); white-space: pre-wrap; }
+.event-details-actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 1.5rem; }
+.event-details-actions .btn-primary { flex: 1; max-width: 200px; text-align: center; }
+
 .btn-sm {
   padding: 0.5rem 0.75rem;
   font-size: 0.8rem;
@@ -793,11 +809,15 @@ h4 { font-size: 1.1rem; }
 
 .rsvp-form .grid-form { grid-template-columns: 1fr 1fr; }
 .rsvp-form .span-2 { grid-column: span 2; }
+.kids-ages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+.note-text { color: var(--teal); font-size: 0.95rem; margin-top: 0.75rem; }
+.event-details-link { color: var(--berry); font-size: 0.9rem; text-decoration: underline; }
 
 /* Admin Pages */
 .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
 .admin-header h1 { margin: 0; }
 .admin-header p { color: rgba(16,16,16,0.6); margin: 0.25rem 0 0; }
+.admin-back-link { margin-top: 1.5rem; }
 
 .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; max-width: 600px; }
 .stat-card { display: flex; flex-direction: column; align-items: center; padding: 1.5rem; background: white; border: 1px solid rgba(29,35,59,0.1); border-radius: 16px; text-align: center; transition: all 0.2s ease; }
@@ -1146,29 +1166,101 @@ h4 { font-size: 1.1rem; }
   .grid-form { grid-template-columns: 1fr; }
   .grid-form .span-2 { grid-column: 1; }
   .grid-form button[type="submit"] { grid-column: 1; }
+  .rsvp-form .grid-form { grid-template-columns: 1fr; }
+  .rsvp-form .span-2 { grid-column: 1; }
+  .rsvp-form .button-row { grid-column: 1; }
+  .kids-ages-grid { grid-template-columns: 1fr; gap: 0.5rem; }
   .gallery-grid { grid-template-columns: 1fr; }
   .stat-highlight { font-size: 1.25rem; }
-  
-  /* Admin RSVP Mobile */
-  .event-select-label { display: flex; flex-direction: column; gap: 0.5rem; }
-  .event-select { width: 100%; padding: 0.75rem; border: 1px solid rgba(29,35,59,0.2); border-radius: 8px; font-size: 1rem; background: white; }
-  .stats-row { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
-  .stat-item { display: flex; flex-direction: column; align-items: center; padding: 1rem; background: rgba(13,127,120,0.05); border-radius: 12px; min-width: 80px; }
-  .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--teal); }
-  .stat-label { font-size: 0.75rem; color: rgba(16,16,16,0.6); text-transform: uppercase; }
-  .rsvp-cards { display: flex; flex-direction: column; gap: 1rem; }
-  .rsvp-card { background: white; border: 1px solid rgba(29,35,59,0.1); border-radius: 12px; overflow: hidden; }
-  .rsvp-card-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(13,127,120,0.05); border-bottom: 1px solid rgba(29,35,59,0.1); }
-  .rsvp-card-header h3 { margin: 0; font-size: 1rem; color: var(--ink); }
-  .rsvp-count { background: var(--teal); color: white; padding: 0.25rem 0.5rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-  .rsvp-card-body { padding: 1rem; }
-  .rsvp-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(29,35,59,0.05); }
-  .rsvp-row:last-child { border-bottom: none; }
-  .rsvp-label { font-weight: 600; color: var(--ink); font-size: 0.85rem; }
-  .rsvp-value { color: rgba(16,16,16,0.7); font-size: 0.9rem; text-align: right; max-width: 60%; word-break: break-word; }
-  .rsvp-badge { background: rgba(249,168,38,0.15); color: #d97706; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
-  .rsvp-card-footer { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(16,16,16,0.02); }
-  .rsvp-date { font-size: 0.8rem; color: rgba(16,16,16,0.5); }
-  .empty-state { text-align: center; padding: 2rem; color: rgba(16,16,16,0.5); }
-  .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+  .footer-grid { grid-template-columns: 1fr; gap: 1.5rem; text-align: center; }
+  .footer-brand { text-align: center; }
+  .footer-brand h3 { font-size: 1.1rem; }
+  .footer-brand p { font-size: 0.85rem; }
+  .footer-grid h4 { font-size: 0.85rem; }
+  .footer-grid ul { justify-content: center; }
+  .footer-grid ul li { text-align: center; }
+  .social-links { justify-content: center; }
+  .direct-transfer .transfer-options { gap: 0.75rem; }
+  .direct-transfer .transfer-card { min-width: 120px; padding: 0.75rem 1rem; }
+  .direct-transfer .transfer-label { font-size: 0.7rem; }
+  .direct-transfer .transfer-value { font-size: 0.9rem; }
+}
+
+/* Admin RSVP Styles - Base (applies at all sizes) */
+.event-select-label { display: flex; flex-direction: column; gap: 0.5rem; }
+.event-select { width: 100%; padding: 0.75rem; border: 1px solid rgba(29,35,59,0.2); border-radius: 8px; font-size: 1rem; background: white; }
+.stats-row { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+.stat-item { display: flex; flex-direction: column; align-items: center; padding: 1rem; background: rgba(13,127,120,0.05); border-radius: 12px; min-width: 80px; }
+.stat-value { font-size: 1.5rem; font-weight: 700; color: var(--teal); }
+.stat-label { font-size: 0.75rem; color: rgba(16,16,16,0.6); text-transform: uppercase; }
+.rsvp-cards { display: flex; flex-direction: column; gap: 1rem; }
+.rsvp-card { background: white; border: 1px solid rgba(29,35,59,0.1); border-radius: 12px; overflow: hidden; }
+.rsvp-card-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(13,127,120,0.05); border-bottom: 1px solid rgba(29,35,59,0.1); }
+.rsvp-card-header h3 { margin: 0; font-size: 1rem; color: var(--ink); }
+.rsvp-count { background: var(--teal); color: white; padding: 0.25rem 0.5rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+.rsvp-card-body { padding: 1rem; }
+.rsvp-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(29,35,59,0.05); }
+.rsvp-row:last-child { border-bottom: none; }
+.rsvp-label { font-weight: 600; color: var(--ink); font-size: 0.85rem; }
+.rsvp-value { color: rgba(16,16,16,0.7); font-size: 0.9rem; text-align: right; max-width: 60%; word-break: break-word; }
+.rsvp-badge { background: rgba(249,168,38,0.15); color: #d97706; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+.rsvp-meta { color: rgba(16,16,16,0.5); font-weight: 400; }
+.rsvp-card-footer { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(16,16,16,0.02); }
+.rsvp-date { font-size: 0.8rem; color: rgba(16,16,16,0.5); }
+.empty-state { text-align: center; padding: 2rem; color: rgba(16,16,16,0.5); }
+.btn-sm { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+
+.event-cards { display: flex; flex-direction: column; gap: 1rem; }
+.event-card { background: white; border: 1px solid rgba(29,35,59,0.1); border-radius: 12px; overflow: hidden; }
+.event-card-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(13,127,120,0.05); border-bottom: 1px solid rgba(29,35,59,0.1); }
+.event-card-header h3 { margin: 0; font-size: 1rem; color: var(--ink); }
+.event-date { background: var(--teal); color: white; padding: 0.25rem 0.5rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+.event-card-body { padding: 1rem; }
+.event-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(29,35,59,0.05); }
+.event-row:last-child { border-bottom: none; }
+.event-label { font-weight: 600; color: var(--ink); font-size: 0.85rem; }
+.event-value { color: rgba(16,16,16,0.7); font-size: 0.9rem; text-align: right; max-width: 60%; word-break: break-word; }
+.event-card-footer { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(16,16,16,0.02); }
+.event-meta { font-size: 0.8rem; color: rgba(16,16,16,0.5); }
+.event-actions { display: flex; gap: 0.5rem; }
+
+.donation-cards { display: flex; flex-direction: column; gap: 1rem; }
+.donation-card { background: white; border: 1px solid rgba(29,35,59,0.1); border-radius: 12px; overflow: hidden; }
+.donation-card-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(13,127,120,0.05); border-bottom: 1px solid rgba(29,35,59,0.1); }
+.donation-amount { font-size: 1.25rem; font-weight: 700; color: var(--teal); }
+.donation-card-body { padding: 1rem; }
+.donation-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(29,35,59,0.05); }
+.donation-row:last-child { border-bottom: none; }
+.donation-label { font-weight: 600; color: var(--ink); font-size: 0.85rem; }
+.donation-value { color: rgba(16,16,16,0.7); font-size: 0.9rem; text-align: right; max-width: 60%; word-break: break-word; }
+
+.pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1.5rem; }
+.pagination .btn-ghost { padding: 0.5rem 1rem; font-size: 0.85rem; }
+.pagination .btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
+.page-info { font-size: 0.85rem; color: rgba(16,16,16,0.6); }
+
+@media (min-width: 601px) {
+  .rsvp-cards { display: grid; gap: 1rem; }
+  .rsvp-card { flex: none; width: auto; }
+  .event-cards { display: grid; gap: 1rem; }
+  .event-card { flex: none; width: auto; }
+  .donation-cards { display: grid; gap: 1rem; }
+  .donation-card { flex: none; width: auto; }
+}
+
+@media (min-width: 601px) and (max-width: 767px) {
+  .rsvp-cards { grid-template-columns: 1fr; }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  .rsvp-cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1200px) {
+  .rsvp-cards { grid-template-columns: repeat(3, 1fr); }
+  .admin-rsvps-header { display: flex; justify-content: space-between; align-items: center; }
+}
+
+@media (min-width: 1024px) {
+  .panel-stack.admin-rsvps { max-width: 1400px; margin: 0 auto; }
 }

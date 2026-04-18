@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 type Event = {
   id: number;
   title: string;
+  slug: string;
   start: string;
   end: string;
   location: string;
@@ -27,6 +28,7 @@ export default function AdminEventsPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     title: "",
+    slug: "",
     start: "",
     end: "",
     location: "",
@@ -67,6 +69,7 @@ export default function AdminEventsPage() {
     const payload = {
       id: editingId,
       title: formData.title,
+      slug: formData.slug || formData.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
       start: new Date(formData.start).toISOString(),
       end: new Date(formData.end).toISOString(),
       location: formData.location,
@@ -85,7 +88,7 @@ export default function AdminEventsPage() {
     }).then(res => {
       if (res.ok) {
         setEditingId(null);
-        setFormData({ title: "", start: "", end: "", location: "", description: "", imageUrl: "" });
+        setFormData({ title: "", slug: "", start: "", end: "", location: "", description: "", imageUrl: "" });
         fetchEvents();
       }
     });
@@ -95,6 +98,7 @@ export default function AdminEventsPage() {
     setEditingId(event.id);
     setFormData({
       title: event.title,
+      slug: event.slug || "",
       start: new Date(event.start).toISOString().slice(0, 16),
       end: new Date(event.end).toISOString().slice(0, 16),
       location: event.location || "",
@@ -105,7 +109,7 @@ export default function AdminEventsPage() {
 
   function cancelEdit() {
     setEditingId(null);
-    setFormData({ title: "", start: "", end: "", location: "", description: "", imageUrl: "" });
+    setFormData({ title: "", slug: "", start: "", end: "", location: "", description: "", imageUrl: "" });
   }
 
   async function deleteEvent(id: number) {
@@ -128,7 +132,9 @@ export default function AdminEventsPage() {
       <section className="glass-panel">
         <h1>Events</h1>
         <p>Create and manage community events.</p>
-        <a href="/admin" className="btn-ghost">← Back to Admin</a>
+        <div className="admin-back-link">
+          <a href="/admin" className="btn-ghost">← Back to Admin</a>
+        </div>
       </section>
 
       <section className="glass-panel">
@@ -142,6 +148,15 @@ export default function AdminEventsPage() {
               placeholder="Event title" 
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            />
+          </label>
+          <label>
+            URL Slug
+            <input 
+              name="slug" 
+              placeholder="e.g., pohela-boishakh-2026"
+              value={formData.slug}
+              onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
             />
           </label>
           <label>
@@ -210,35 +225,41 @@ export default function AdminEventsPage() {
         {loading ? (
           <p>Loading...</p>
         ) : events.length === 0 ? (
-          <p>No events yet.</p>
+          <p className="empty-state">No events yet.</p>
         ) : (
-          <ul className="event-list">
+          <div className="event-cards">
             {events.map((event) => (
-              <li key={event.id} className="event-item">
-                <div>
-                  <strong>{event.title}</strong>
-                  <br />
-                  <small>
-                    {new Date(event.start).toLocaleDateString("en-AU")} - {event.location}
-                  </small>
+              <div key={event.id} className="event-card">
+                <div className="event-card-header">
+                  <h3>{event.title}</h3>
+                  <span className="event-date">{new Date(event.start).toLocaleDateString("en-AU")}</span>
                 </div>
-                <div className="button-row">
-                  <button
-                    className="btn-ghost"
-                    onClick={() => startEdit(event)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn-ghost"
-                    onClick={() => deleteEvent(event.id)}
-                  >
-                    Delete
-                  </button>
+                <div className="event-card-body">
+                  {event.location && (
+                    <div className="event-row">
+                      <span className="event-label">Location</span>
+                      <span className="event-value">{event.location}</span>
+                    </div>
+                  )}
+                  {event.description && (
+                    <div className="event-row">
+                      <span className="event-label">Description</span>
+                      <span className="event-value">{event.description.slice(0, 100)}{event.description.length > 100 ? "..." : ""}</span>
+                    </div>
+                  )}
                 </div>
-              </li>
+                <div className="event-card-footer">
+                  <span className="event-meta">
+                    {new Date(event.start).toLocaleString("en-AU", { hour: "numeric", minute: "2-digit" })} - {new Date(event.end).toLocaleString("en-AU", { hour: "numeric", minute: "2-digit" })}
+                  </span>
+                  <div className="event-actions">
+                    <button className="btn-ghost btn-sm" onClick={() => startEdit(event)}>Edit</button>
+                    <button className="btn-danger btn-sm" onClick={() => deleteEvent(event.id)}>Delete</button>
+                  </div>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </section>
     </section>

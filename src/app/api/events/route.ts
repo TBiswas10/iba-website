@@ -9,6 +9,16 @@ export async function GET() {
       orderBy: {
         start: "asc",
       },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        start: true,
+        end: true,
+        location: true,
+        description: true,
+        imageUrl: true,
+      },
     });
     return ok(events);
   } catch (error) {
@@ -31,9 +41,11 @@ export async function POST(request: Request) {
     }
 
     const payload = parsed.data;
+    const slug = payload.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     const created = await prisma.event.create({
       data: {
         title: payload.title,
+        slug,
         start: new Date(payload.start),
         end: new Date(payload.end),
         location: payload.location,

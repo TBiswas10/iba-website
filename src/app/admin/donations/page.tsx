@@ -24,6 +24,9 @@ export default function AdminDonationsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
     fetch("/api/session")
@@ -38,16 +41,20 @@ export default function AdminDonationsPage() {
           return;
         }
         setUser(data.user);
-        fetchDonations();
+        fetchDonations(1);
       })
       .catch(() => router.push("/membership"));
   }, [router]);
 
-  async function fetchDonations() {
-    const res = await fetch("/api/admin/donations");
+  async function fetchDonations(pageNum: number) {
+    setLoading(true);
+    const res = await fetch(`/api/admin/donations?page=${pageNum}`);
     const data = await res.json();
     if (data.ok) {
       setDonations(data.data || []);
+      setTotalPages(data.totalPages || 1);
+      setPage(pageNum);
+      setTotalAmount(data.total || 0);
     }
     setLoading(false);
   }
@@ -60,7 +67,7 @@ export default function AdminDonationsPage() {
     );
   }
 
-  const totalCents = donations.reduce((sum, d) => sum + d.amountCents, 0);
+  const totalCents = totalAmount;
 
   return (
     <section className="panel-stack">
@@ -70,43 +77,70 @@ export default function AdminDonationsPage() {
         <p className="stat-highlight">
           Total: <strong>${(totalCents / 100).toFixed(2)} AUD</strong>
         </p>
-        <a href="/admin" className="btn-ghost">← Back to Admin</a>
+        <div className="admin-back-link">
+          <a href="/admin" className="btn-ghost">← Back to Admin</a>
+        </div>
       </section>
 
       <section className="glass-panel">
         {loading ? (
           <p>Loading...</p>
         ) : donations.length === 0 ? (
-          <p>No donations yet.</p>
+          <p className="empty-state">No donations yet.</p>
         ) : (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Donor</th>
-                <th>Email</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Message</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            <div className="donation-cards">
               {donations.map((d) => (
-                <tr key={d.id}>
-                  <td>{new Date(d.createdAt).toLocaleDateString()}</td>
-                  <td>{d.donorName || "—"}</td>
-                  <td>{d.donorEmail || "—"}</td>
-                  <td>${(d.amountCents / 100).toFixed(2)}</td>
-                  <td>
+                <div key={d.id} className="donation-card">
+                  <div className="donation-card-header">
+                    <span className="donation-amount">${(d.amountCents / 100).toFixed(2)}</span>
                     <span className={`status-badge ${d.status.toLowerCase()}`}>
                       {d.status}
                     </span>
-                  </td>
-                  <td>{d.message || "—"}</td>
-                </tr>
+                  </div>
+                  <div className="donation-card-body">
+                    <div className="donation-row">
+                      <span className="donation-label">Donor</span>
+                      <span className="donation-value">{d.donorName || "—"}</span>
+                    </div>
+                    <div className="donation-row">
+                      <span className="donation-label">Email</span>
+                      <span className="donation-value">{d.donorEmail || "—"}</span>
+                    </div>
+                    <div className="donation-row">
+                      <span className="donation-label">Date</span>
+                      <span className="donation-value">{new Date(d.createdAt).toLocaleDateString("en-AU")}</span>
+                    </div>
+                    {d.message && (
+                      <div className="donation-row">
+                        <span className="donation-label">Message</span>
+                        <span className="donation-value">{d.message}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+            {totalPages > 1 && (
+              <div className="pagination">
+                <button 
+                  className="btn-ghost" 
+                  disabled={page <= 1}
+                  onClick={() => fetchDonations(page - 1)}
+                >
+                  Previous
+                </button>
+                <span className="page-info">Page {page} of {totalPages}</span>
+                <button 
+                  className="btn-ghost" 
+                  disabled={page >= totalPages}
+                  onClick={() => fetchDonations(page + 1)}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
       </section>
     </section>

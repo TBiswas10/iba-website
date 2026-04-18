@@ -8,7 +8,7 @@ export function SiteFooter() {
           <h3>Illawarra Bengali Association</h3>
           <p>Community, culture, care, and connection across generations.</p>
           <p className="tagline">Join the Community</p>
-          <p className="copyright">&copy; Made by Tirtha Biswas and Arnab Biswas</p>
+          <p className="copyright">&copy; Made by <strong>Tirtha Biswas</strong> and <strong>Arnab Biswas</strong></p>
         </div>
         <div>
           <h4>Quick Links</h4>

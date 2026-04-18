@@ -3,25 +3,24 @@
 import { FormEvent, useState } from "react";
 import { useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 type EventOption = {
   id: number;
   title: string;
+  slug?: string;
   start: string;
   end: string;
   location?: string | null;
 };
 
 const emptyForm = {
-  attendees: "1",
+  adults: "1",
   name: "",
   email: "",
   phone: "",
-  volunteerInterest: "",
-  kidsCount: "",
-  dietaryNotes: "",
-  donationIntent: "",
-  additionalNotes: "",
+  kidsCount: "0",
+  kidsAges: [] as string[],
 };
 
 export function RsvpForm() {
@@ -72,6 +71,10 @@ export function RsvpForm() {
     [events, selectedEventId]
   );
 
+  function getEventSlug(event: EventOption): string {
+    return event.slug || `${event.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${event.id}`;
+  }
+
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setMessage("");
@@ -82,12 +85,9 @@ export function RsvpForm() {
       name: form.name,
       email: form.email,
       phone: form.phone,
-      attendees: Number(form.attendees),
-      volunteerInterest: form.volunteerInterest,
-      kidsCount: form.kidsCount ? Number(form.kidsCount) : undefined,
-      dietaryNotes: form.dietaryNotes,
-      donationIntent: form.donationIntent,
-      additionalNotes: form.additionalNotes,
+      adults: Number(form.adults),
+      kidsCount: Number(form.kidsCount) || 0,
+      kidsAges: form.kidsAges,
     };
 
     const response = await fetch("/api/rsvps", {
@@ -123,6 +123,10 @@ export function RsvpForm() {
         {selectedEvent ? (
           <p className="note-text">
             Selected event: <strong>{selectedEvent.title}</strong>
+            <br />
+            <Link href={`/events/${getEventSlug(selectedEvent)}`} className="event-details-link">
+              View event details
+            </Link>
           </p>
         ) : null}
       </section>
@@ -173,71 +177,59 @@ export function RsvpForm() {
             />
           </label>
           <label>
-            Number of attendees
+            Number of adults
             <input
               required
               min={1}
               type="number"
-              value={form.attendees}
-              onChange={(event) => setForm((prev) => ({ ...prev, attendees: event.target.value }))}
+              value={form.adults}
+              onChange={(event) => setForm((prev) => ({ ...prev, adults: event.target.value }))}
             />
           </label>
-          <label className="span-2">
-            Volunteer interest
-            <select
-              required
-              value={form.volunteerInterest}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, volunteerInterest: event.target.value }))
-              }
-            >
-              <option value="" disabled>
-                Select an option
-              </option>
-              <option value="None">None for now</option>
-              <option value="Decorate">Decorate</option>
-              <option value="Cook">Cook</option>
-              <option value="Book hall">Book hall</option>
-              <option value="Run puja">Run puja</option>
-              <option value="General support">General support</option>
-            </select>
-          </label>
           <label>
-            Kids count
+            Number of kids
             <input
               min={0}
               type="number"
               value={form.kidsCount}
-              onChange={(event) => setForm((prev) => ({ ...prev, kidsCount: event.target.value }))}
+              onChange={(event) => {
+                const count = parseInt(event.target.value) || 0;
+                const currentAges = form.kidsAges;
+                const newAges = Array(count).fill("").map((_, i) => currentAges[i] || "");
+                setForm((prev) => ({ ...prev, kidsCount: event.target.value, kidsAges: newAges }));
+              }}
             />
           </label>
-          <label>
-            Donation intent
-            <input
-              value={form.donationIntent}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, donationIntent: event.target.value }))
-              }
-            />
-          </label>
-          <label className="span-2">
-            Dietary notes
-            <textarea
-              value={form.dietaryNotes}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, dietaryNotes: event.target.value }))
-              }
-            />
-          </label>
-          <label className="span-2">
-            Additional notes
-            <textarea
-              value={form.additionalNotes}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, additionalNotes: event.target.value }))
-              }
-            />
-          </label>
+          {Number(form.kidsCount) > 0 && (
+            <label className="span-2">
+              Kids ages
+              <div className="kids-ages-grid">
+                {Array(Number(form.kidsCount))
+                  .fill(0)
+                  .map((_, i) => (
+                    <select
+                      key={i}
+                      required
+                      value={form.kidsAges[i] || ""}
+                      onChange={(event) => {
+                        const newAges = [...form.kidsAges];
+                        newAges[i] = event.target.value;
+                        setForm((prev) => ({ ...prev, kidsAges: newAges }));
+                      }}
+                    >
+                      <option value="" disabled>
+                        Select age
+                      </option>
+                      {Array.from({ length: 18 }, (_, i) => i + 1).map((age) => (
+                        <option key={age} value={age}>
+                          {age}
+                        </option>
+                      ))}
+                    </select>
+                  ))}
+              </div>
+            </label>
+          )}
           <div className="button-row span-2">
             <button className="btn-primary" type="submit" disabled={isSubmitting || !selectedEventId}>
               {isSubmitting ? "Submitting..." : "Submit RSVP"}

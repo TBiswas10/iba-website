@@ -31,10 +31,6 @@ export async function GET(request: Request) {
         { name: { contains: query, mode: "insensitive" } },
         { email: { contains: query, mode: "insensitive" } },
         { phone: { contains: query, mode: "insensitive" } },
-        { volunteerInterest: { contains: query, mode: "insensitive" } },
-        { dietaryNotes: { contains: query, mode: "insensitive" } },
-        { donationIntent: { contains: query, mode: "insensitive" } },
-        { additionalNotes: { contains: query, mode: "insensitive" } },
         {
           event: {
             title: {
@@ -85,12 +81,9 @@ export async function POST(request: Request) {
         name: parsed.data.name,
         email: parsed.data.email.toLowerCase(),
         phone: parsed.data.phone,
-        attendees: parsed.data.attendees,
-        volunteerInterest: parsed.data.volunteerInterest,
+        attendees: parsed.data.adults,
         kidsCount: parsed.data.kidsCount,
-        dietaryNotes: parsed.data.dietaryNotes,
-        donationIntent: parsed.data.donationIntent,
-        additionalNotes: parsed.data.additionalNotes,
+        kidsAges: JSON.stringify(parsed.data.kidsAges || []),
       },
     });
 
@@ -102,11 +95,8 @@ export async function POST(request: Request) {
           email: created.email,
           phone: created.phone,
           attendees: created.attendees,
-          volunteerInterest: created.volunteerInterest,
           kidsCount: created.kidsCount,
-          dietaryNotes: created.dietaryNotes,
-          donationIntent: created.donationIntent,
-          additionalNotes: created.additionalNotes,
+          kidsAges: created.kidsAges ? JSON.parse(created.kidsAges) : null,
         },
       });
 

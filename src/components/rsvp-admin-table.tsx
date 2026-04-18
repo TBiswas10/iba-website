@@ -8,11 +8,8 @@ type RsvpRow = {
   email: string;
   phone: string;
   attendees: number;
-  volunteerInterest: string;
   kidsCount?: number | null;
-  dietaryNotes?: string | null;
-  donationIntent?: string | null;
-  additionalNotes?: string | null;
+  kidsAges?: string | null;
   confirmationEmailSentAt?: string | null;
   confirmationEmailError?: string | null;
   createdAt: string;
@@ -70,16 +67,7 @@ export function RsvpAdminTable() {
     return rows.filter((row) => {
       const matchesQuery =
         !lower ||
-        [
-          row.name,
-          row.email,
-          row.phone,
-          row.event.title,
-          row.volunteerInterest,
-          row.dietaryNotes,
-          row.donationIntent,
-          row.additionalNotes,
-        ]
+        [row.name, row.email, row.phone, row.event.title]
           .filter(Boolean)
           .some((value) => String(value).toLowerCase().includes(lower));
 
@@ -95,12 +83,9 @@ export function RsvpAdminTable() {
       "Email",
       "Phone",
       "Event",
-      "Attendees",
-      "Volunteer interest",
+      "Adults",
       "Kids count",
-      "Dietary notes",
-      "Donation intent",
-      "Additional notes",
+      "Kids ages",
       "Email status",
       "Submitted at",
     ];
@@ -114,11 +99,8 @@ export function RsvpAdminTable() {
           row.phone,
           row.event.title,
           row.attendees,
-          row.volunteerInterest,
           row.kidsCount ?? "",
-          row.dietaryNotes ?? "",
-          row.donationIntent ?? "",
-          row.additionalNotes ?? "",
+          row.kidsAges ?? "",
           row.confirmationEmailError ? "failed" : row.confirmationEmailSentAt ? "sent" : "pending",
           new Date(row.createdAt).toLocaleString(),
         ]
@@ -199,8 +181,6 @@ export function RsvpAdminTable() {
               <th>Event</th>
               <th>Contact</th>
               <th>Guests</th>
-              <th>Volunteer</th>
-              <th>Notes</th>
               <th>Email</th>
               <th>Actions</th>
             </tr>
@@ -221,16 +201,7 @@ export function RsvpAdminTable() {
                   <p>{row.phone}</p>
                 </td>
                 <td>
-                  <p>{row.attendees} attendees</p>
-                  {row.kidsCount !== null && row.kidsCount !== undefined ? <p>{row.kidsCount} kids</p> : null}
-                </td>
-                <td>
-                  <p>{row.volunteerInterest}</p>
-                </td>
-                <td>
-                  {row.dietaryNotes ? <p>Dietary: {row.dietaryNotes}</p> : null}
-                  {row.donationIntent ? <p>Donate: {row.donationIntent}</p> : null}
-                  {row.additionalNotes ? <p>{row.additionalNotes}</p> : null}
+                  <p>{row.attendees} adult{row.attendees !== 1 ? "s" : ""}{row.kidsCount && row.kidsCount > 0 ? ` + ${row.kidsCount} kid${row.kidsCount !== 1 ? "s" : ""}` : ""}</p>
                 </td>
                 <td>
                   {row.confirmationEmailError ? (

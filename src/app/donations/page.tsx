@@ -7,29 +7,31 @@ import { Suspense } from "react";
 
 function ThankYouMessage() {
   return (
-    <section className="glass-panel" style={{ textAlign: "center", padding: "3rem 2rem" }}>
-      <h1 style={{ fontSize: "2.5rem", marginBottom: "1.5rem", color: "var(--sunset)" }}>
+    <section className="glass-panel" style={{ textAlign: "center", padding: "2rem 1.5rem" }}>
+      <h1 style={{ fontSize: "1.8rem", marginBottom: "1rem", color: "var(--sunset)" }}>
         Thank You for Your Donation!
       </h1>
-      <p style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>
+      <p style={{ fontSize: "1rem", marginBottom: "1rem" }}>
         Your generosity helps us continue our mission of building a vibrant Bengali community in the Illawarra region.
       </p>
-      <p style={{ fontSize: "1.1rem", marginBottom: "2rem" }}>
+      <p style={{ fontSize: "0.95rem", marginBottom: "1.5rem" }}>
         Your contribution will be used to:
       </p>
-      <ul style={{ textAlign: "left", maxWidth: "500px", margin: "0 auto 2rem", fontSize: "1.1rem", lineHeight: "1.8" }}>
+      <ul style={{ textAlign: "left", maxWidth: "500px", margin: "0 auto 1.5rem", fontSize: "0.95rem", lineHeight: "1.7", paddingLeft: "1.25rem" }}>
         <li>🏆 Support cultural programs and festivals that celebrate our heritage</li>
         <li>👨‍👩‍👧‍👦 Fund youth development initiatives and educational workshops</li>
         <li>🤝 Organize inclusive community gatherings that bring families together</li>
         <li>📚 Provide resources and support for community members of all ages</li>
         <li>🎭 Host cultural nights, art exhibitions, and traditional performances</li>
       </ul>
-      <p style={{ fontSize: "1.2rem", fontWeight: "bold", color: "var(--teal)" }}>
+      <p style={{ fontSize: "1rem", fontWeight: "bold", color: "var(--teal)" }}>
         Every donation makes a difference. Thank you for being part of the IBA family!
       </p>
-      <div className="button-row" style={{ marginTop: "2rem", justifyContent: "center" }}>
+      <div className="button-row" style={{ marginTop: "1.5rem", justifyContent: "center" }}>
         <Link href="/" className="btn-primary">Go Back to Home Page</Link>
-        <Link href="/donations" className="btn-primary">Make Another Donation</Link>
+      </div>
+      <div style={{ marginTop: "0.75rem" }}>
+        <Link href="/donations" className="btn-ghost">Make Another Donation</Link>
       </div>
     </section>
   );

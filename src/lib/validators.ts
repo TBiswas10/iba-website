@@ -67,16 +67,7 @@ export const rsvpSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   phone: z.string().min(5),
-  attendees: z.coerce.number().int().positive(),
-  volunteerInterest: z.string().min(2),
-  kidsCount: z.preprocess((value) => {
-    if (value === "" || value === null || value === undefined) {
-      return undefined;
-    }
-
-    return value;
-  }, z.coerce.number().int().nonnegative().optional()),
-  dietaryNotes: optionalText,
-  donationIntent: optionalText,
-  additionalNotes: optionalText,
+  adults: z.coerce.number().int().positive(),
+  kidsCount: z.coerce.number().int().nonnegative().default(0),
+  kidsAges: z.array(z.string()).optional(),
 });

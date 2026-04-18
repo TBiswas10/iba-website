@@ -18,10 +18,7 @@ type Rsvp = {
   phone: string;
   attendees: number;
   kidsCount: number | null;
-  volunteerInterest: string;
-  dietaryNotes: string | null;
-  donationIntent: string | null;
-  additionalNotes: string | null;
+  kidsAges: string | null;
   createdAt: string;
 };
 
@@ -30,6 +27,15 @@ type User = {
   email: string;
   role: string;
 };
+
+function formatKidsAges(agesJson: string | null) {
+  if (!agesJson) return null;
+  try {
+    return JSON.parse(agesJson).join(", ");
+  } catch {
+    return agesJson;
+  }
+}
 
 export default function AdminRsvpsPage() {
   const router = useRouter();
@@ -86,12 +92,8 @@ export default function AdminRsvpsPage() {
     setRsvps(rsvps.filter(r => r.id !== id));
   }
 
-  const totalAttendees = rsvps.reduce((sum, r) => sum + r.attendees, 0);
+  const totalAdults = rsvps.reduce((sum, r) => sum + r.attendees, 0);
   const totalKids = rsvps.reduce((sum, r) => sum + (r.kidsCount || 0), 0);
-  const totalDonations = rsvps.reduce((sum, r) => {
-    const match = r.donationIntent?.match(/\$?(\d+)/);
-    return sum + (match ? parseInt(match[1]) : 0);
-  }, 0);
 
   if (!user) {
     return (
@@ -102,12 +104,14 @@ export default function AdminRsvpsPage() {
   }
 
   return (
-    <section className="panel-stack">
-      <section className="glass-panel">
-        <h1>RSVPs</h1>
-        <p>View and manage event RSVPs.</p>
+    <section className="panel-stack admin-rsvps">
+      <header className="glass-panel admin-rsvps-header">
+        <div>
+          <h1>RSVPs</h1>
+          <p>View and manage event RSVPs.</p>
+        </div>
         <a href="/admin" className="btn-ghost">← Back to Admin</a>
-      </section>
+      </header>
 
       <section className="glass-panel">
         <label className="event-select-label">
@@ -135,20 +139,12 @@ export default function AdminRsvpsPage() {
               <span className="stat-label">Total RSVPs</span>
             </div>
             <div className="stat-item">
-              <span className="stat-value">{totalAttendees}</span>
+              <span className="stat-value">{totalAdults}</span>
               <span className="stat-label">Adults</span>
             </div>
             <div className="stat-item">
               <span className="stat-value">{totalKids}</span>
               <span className="stat-label">Kids</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-value">${totalDonations}</span>
-              <span className="stat-label">Donations</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-value">{rsvps.filter(r => r.volunteerInterest && r.volunteerInterest !== "No").length}</span>
-              <span className="stat-label">Volunteers</span>
             </div>
           </section>
 
@@ -161,7 +157,7 @@ export default function AdminRsvpsPage() {
                   <div key={rsvp.id} className="rsvp-card">
                     <div className="rsvp-card-header">
                       <h3>{rsvp.name}</h3>
-                      <span className="rsvp-count">{rsvp.attendees} {rsvp.attendees === 1 ? "person" : "people"}</span>
+                      <span className="rsvp-count">{rsvp.attendees} adult{rsvp.attendees !== 1 ? "s" : ""}{rsvp.kidsCount && rsvp.kidsCount > 0 ? ` + ${rsvp.kidsCount} kid${rsvp.kidsCount !== 1 ? "s" : ""}` : ""}</span>
                     </div>
                     <div className="rsvp-card-body">
                       <div className="rsvp-row">
@@ -175,31 +171,10 @@ export default function AdminRsvpsPage() {
                       {rsvp.kidsCount !== null && rsvp.kidsCount > 0 && (
                         <div className="rsvp-row">
                           <span className="rsvp-label">Kids</span>
-                          <span className="rsvp-value">{rsvp.kidsCount}</span>
-                        </div>
-                      )}
-                      {rsvp.volunteerInterest && rsvp.volunteerInterest !== "No" && (
-                        <div className="rsvp-row">
-                          <span className="rsvp-label">Volunteer</span>
-                          <span className="rsvp-value rsvp-badge">{rsvp.volunteerInterest}</span>
-                        </div>
-                      )}
-                      {rsvp.dietaryNotes && (
-                        <div className="rsvp-row">
-                          <span className="rsvp-label">Dietary</span>
-                          <span className="rsvp-value">{rsvp.dietaryNotes}</span>
-                        </div>
-                      )}
-                      {rsvp.donationIntent && (
-                        <div className="rsvp-row">
-                          <span className="rsvp-label">Donation</span>
-                          <span className="rsvp-value">{rsvp.donationIntent}</span>
-                        </div>
-                      )}
-                      {rsvp.additionalNotes && (
-                        <div className="rsvp-row">
-                          <span className="rsvp-label">Notes</span>
-                          <span className="rsvp-value">{rsvp.additionalNotes}</span>
+                          <span className="rsvp-value">
+                            {rsvp.kidsCount}
+                            {rsvp.kidsAges && <span className="rsvp-meta"> (Ages: {formatKidsAges(rsvp.kidsAges)})</span>}
+                          </span>
                         </div>
                       )}
                     </div>
