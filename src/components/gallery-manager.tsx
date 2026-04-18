@@ -106,7 +106,7 @@ export function GalleryManager({
     }
   }
 
-  async function uploadImage(file: File, albumId: number) {
+  const uploadImage = useCallback(async (file: File, albumId: number) => {
     try {
       const formData = new FormData();
       formData.append("action", "upload-image");
@@ -120,25 +120,25 @@ export function GalleryManager({
       });
       const data = await res.json();
       if (data.ok) {
-        setAlbums(
-          albums.map((a) =>
+        setAlbums(prev =>
+          prev.map((a) =>
             a.id === albumId
               ? { ...a, items: [...(a.items || []), data.item], coverUrl: a.coverUrl || data.item.mediaUrl }
               : a
           )
         );
         if (selectedAlbum?.id === albumId) {
-          setSelectedAlbum({
-            ...selectedAlbum,
-            items: [...(selectedAlbum.items || []), data.item],
-            coverUrl: selectedAlbum.coverUrl || data.item.mediaUrl
-          });
+          setSelectedAlbum(prev => prev ? ({
+            ...prev,
+            items: [...(prev.items || []), data.item],
+            coverUrl: prev.coverUrl || data.item.mediaUrl
+          }) : null);
         }
       }
     } catch (error) {
       console.error("Failed to upload image:", error);
     }
-  }
+  }, [selectedAlbum]);
 
   const handleFiles = useCallback(async (files: FileList) => {
     if (!selectedAlbum) return;
@@ -159,7 +159,7 @@ export function GalleryManager({
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleFiles(e.dataTransfer.files);
     }
-  }, [selectedAlbum, handleFiles]);
+  }, [handleFiles]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
