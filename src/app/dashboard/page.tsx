@@ -104,13 +104,15 @@ function DashboardContent() {
         <section className="glass-panel">
           <h2>Your Membership</h2>
           <div style={{ display: "grid", gap: "0.5rem" }}>
-            <p><strong>Tier:</strong> {membership.tier}</p>
-            <p><strong>Status:</strong> {membership.status === "ACTIVE" ? "Paid (Active)" : "Pending Approval"}</p>
+            <p><strong>Status:</strong> {membership.status === "ACTIVE" ? "Active Member" : "Pending"}</p>
             <p><strong>Valid until:</strong> {new Date(membership.expiryDate).toLocaleDateString("en-AU", {
               day: "numeric",
               month: "long",
               year: "numeric"
             })}</p>
+            {membership.status === "EXPIRED" && (
+              <p style={{ color: "#c42" }}>Your membership has expired. Please renew to continue.</p>
+            )}
           </div>
         </section>
       ) : (
