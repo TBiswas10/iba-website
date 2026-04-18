@@ -3,14 +3,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useDrag } from "@use-gesture/react";
+import Image from "next/image";
 
 /**
  * FINAL STABLE VERSION: Responsive Modal Gallery
- * Features: 
- * - Portal-based Fullscreen Modal
- * - Mobile Swipe Gestures
- * - Mobile Navigation Arrows
- * - Styled Grid with Borders & Rounded Corners
+ * Fix: Corrected "Download" vs "Save/Share" logic for mobile/desktop.
  */
 
 type GalleryItem = {
@@ -27,11 +24,22 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
   const [index, setIndex] = useState<number | null>(null);
   const [isShowing, setIsShowing] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const thumbRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
-    return () => setMounted(false);
+    // Proper Mobile Detection
+    const checkMobile = () => {
+      setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => {
+      setMounted(false);
+      window.removeEventListener('resize', checkMobile);
+    };
   }, []);
 
   const openModal = (i: number) => {
@@ -39,20 +47,64 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
     setIsShowing(true);
   };
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsShowing(false);
     setTimeout(() => setIndex(null), 300);
-  };
+  }, []);
 
   const next = useCallback((e?: any) => {
-    e?.stopPropagation();
-    if (index !== null && index < items.length - 1) setIndex(index + 1);
-  }, [index, items.length]);
+    if (e?.stopPropagation) e.stopPropagation();
+    setIndex((prev) => (prev !== null && prev < items.length - 1 ? prev + 1 : prev));
+  }, [items.length]);
 
   const prev = useCallback((e?: any) => {
-    e?.stopPropagation();
-    if (index !== null && index > 0) setIndex(index - 1);
-  }, [index]);
+    if (e?.stopPropagation) e.stopPropagation();
+    setIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : prev));
+  }, []);
+
+  // Native Save/Share Logic
+  const handleAction = async (e: React.MouseEvent, url: string, title: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      setIsProcessing(true);
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const filename = `${title.replace(/\s+/g, '-').toLowerCase()}.jpg`;
+      
+      // If mobile and share is supported, use native share sheet
+      if (isMobile && navigator.share) {
+        try {
+          const file = new File([blob], filename, { type: blob.type });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: title,
+            });
+            return;
+          }
+        } catch (sError) {
+          console.log("Share failed, falling back to download", sError);
+        }
+      }
+
+      // Desktop or Mobile Fallback: Direct Download
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.body.appendChild(document.createElement('a'));
+      link.href = blobUrl;
+      link.download = filename;
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+      
+    } catch (error) {
+      console.error("Action failed:", error);
+      window.open(url, '_blank');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   // Swipe Gesture Handler
   const bind = useDrag(({ active, movement: [mx], direction: [xDir], distance: [d], cancel }) => {
@@ -72,7 +124,7 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [index, next, prev]);
+  }, [index, next, prev, closeModal]);
 
   useEffect(() => {
     if (index !== null && thumbRef.current) {
@@ -91,37 +143,53 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
     >
       <span className="close" onClick={closeModal}>&times;</span>
 
-      {/* Nav Arrows - Optimized for all screens */}
       <button className="nav-btn prev" onClick={prev} style={{ opacity: index === 0 ? 0.1 : 0.8 }}>&#10094;</button>
       <button className="nav-btn next" onClick={next} style={{ opacity: index === items.length - 1 ? 0.1 : 0.8 }}>&#10095;</button>
       
       <div 
-        {...bind()} 
+        {...(bind() as any)} 
         className="image-stage"
         onClick={(e) => e.stopPropagation()}
       >
-        <img 
-          src={items[index].mediaUrl} 
-          alt={items[index].title} 
-          className="modal-image"
-          draggable={false}
-        />
+        <div className="modal-image-container">
+          <Image 
+            src={items[index].mediaUrl} 
+            alt={items[index].title || "Gallery image"} 
+            fill
+            className="modal-image"
+            draggable={false}
+            unoptimized
+          />
+        </div>
       </div>
       
       <div className="modal-ui" onClick={(e) => e.stopPropagation()}>
         <div className="info-row">
           <div className="caption">{items[index].title}</div>
-          <a href={items[index].mediaUrl} download target="_blank" rel="noreferrer" className="download-btn">Download</a>
+          <button 
+            onClick={(e) => handleAction(e, items[index].mediaUrl, items[index].title)}
+            className="action-btn"
+            disabled={isProcessing}
+          >
+            {isProcessing ? '...' : (isMobile ? 'Save Image' : 'Download')}
+          </button>
         </div>
 
         <div className="thumb-strip no-scrollbar" ref={thumbRef}>
           {items.map((item, i) => (
-            <img 
-              key={item.id}
-              src={item.mediaUrl}
-              className={`thumb-item ${index === i ? 'active' : ''}`}
+            <div 
+              key={item.id} 
+              className={`thumb-item-wrapper ${index === i ? 'active' : ''}`}
               onClick={() => setIndex(i)}
-            />
+            >
+              <Image 
+                src={item.mediaUrl}
+                alt={item.title || "Thumbnail"}
+                fill
+                className="thumb-image"
+                unoptimized
+              />
+            </div>
           ))}
         </div>
       </div>
@@ -152,17 +220,22 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
           touch-action: none;
         }
 
-        .modal-image {
+        .modal-image-container {
           position: relative;
-          width: auto;
-          height: auto;
+          width: 98vw;
+          height: 98vh;
           max-width: 98vw;
           max-height: 98vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        :global(.modal-image) {
+          object-fit: contain !important;
           border-radius: 4px;
-          overflow: hidden;
+          filter: drop-shadow(0 0 50px rgba(0,0,0,0.8));
           animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-          object-fit: contain;
-          box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -188,22 +261,30 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
 
         .caption { color: white; font-size: 20px; font-family: sans-serif; text-shadow: 0 2px 4px black; font-weight: 500; }
         
-        .download-btn {
-          color: white; text-decoration: none; font-size: 13px; font-weight: 600;
+        .action-btn {
+          color: white; border: none; font-size: 13px; font-weight: 600;
           padding: 10px 20px; background: rgba(255,255,255,0.15); border-radius: 8px;
           border: 1px solid rgba(255,255,255,0.1); transition: 0.2s;
+          cursor: pointer;
         }
-        .download-btn:hover { background: rgba(255,255,255,0.25); }
+        .action-btn:hover:not(:disabled) { background: rgba(255,255,255,0.25); }
+        .action-btn:disabled { opacity: 0.5; cursor: default; }
 
         .thumb-strip {
           display: flex; gap: 12px; overflow-x: auto; padding: 10px 0;
           justify-content: center; scroll-behavior: smooth;
         }
-        .thumb-item {
-          width: 64px; height: 64px; object-fit: cover; border-radius: 6px;
+        .thumb-item-wrapper {
+          position: relative;
+          width: 64px; height: 64px; border-radius: 6px;
           cursor: pointer; opacity: 0.4; transition: 0.2s; border: 2px solid transparent;
+          overflow: hidden;
+          flex-shrink: 0;
         }
-        .thumb-item.active { opacity: 1; border-color: #0d7f78; transform: scale(1.05); }
+        :global(.thumb-image) {
+          object-fit: cover !important;
+        }
+        .thumb-item-wrapper.active { opacity: 1; border-color: #0d7f78; transform: scale(1.05); }
 
         .nav-btn {
           position: absolute; top: 50%; transform: translateY(-50%);
@@ -232,9 +313,9 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
         }
 
         @media screen and (max-width: 768px) {
-          .modal-image { max-width: 95vw; max-height: 70vh; }
+          .modal-image-container { max-width: 95vw; max-height: 70vh; }
           .caption { font-size: 16px; }
-          .thumb-item { width: 50px; height: 50px; }
+          .thumb-item-wrapper { width: 50px; height: 50px; }
           .modal-ui { padding: 16px; }
           .nav-btn { width: 44px; height: 44px; font-size: 20px; background: rgba(0,0,0,0.3); }
         }
@@ -243,39 +324,75 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
   );
 
   return (
-    <div className="w-full">
-      <div className="gallery">
+    <div className="gallery-container">
+      <div className="gallery-grid">
         {items.map((item, i) => (
-          <img
-            key={item.id}
-            src={item.mediaUrl}
-            alt={item.title}
-            className="gallery-item"
+          <div 
+            key={item.id} 
+            className="gallery-item-wrapper"
             onClick={() => openModal(i)}
-          />
+          >
+            <Image
+              src={item.mediaUrl}
+              alt={item.title || "Gallery image"}
+              fill
+              className="gallery-image"
+              unoptimized
+            />
+          </div>
         ))}
       </div>
 
       {mounted && index !== null && createPortal(modalContent, document.body)}
 
       <style jsx>{`
-        .gallery { display: flex; flex-wrap: wrap; justify-content: flex-start; padding: 0 15px; }
-        .gallery-item {
-          width: calc(25% - 20px); height: 220px; object-fit: cover;
-          margin: 10px; cursor: pointer; transition: transform 0.5s ease;
+        .gallery-container {
+          width: 100%;
+          padding: 10px 15px;
+        }
+        
+        .gallery-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
+        }
+
+        .gallery-item-wrapper {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 1 / 1;
+          min-height: 200px;
+          cursor: pointer;
+          transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
           border-radius: 16px; 
-          background-color: #eee;
+          background-color: #f0f0f0;
           border: 1px solid rgba(16, 16, 16, 0.15);
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+          overflow: hidden;
         }
-        .gallery-item:hover { transform: scale(1.05); z-index: 1; }
 
-        @media screen and (max-width: 1024px) { .gallery-item { width: calc(33.33% - 20px); } }
-        @media screen and (max-width: 768px) {
-          .gallery-item { width: calc(50% - 20px); height: 180px; }
+        :global(.gallery-image) {
+          object-fit: cover !important;
         }
+
+        .gallery-item-wrapper:hover {
+          transform: scale(1.05);
+          z-index: 10;
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        @media screen and (max-width: 1024px) {
+          .gallery-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media screen and (max-width: 768px) {
+          .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+          .gallery-item-wrapper { min-height: 150px; }
+        }
+
         @media screen and (max-width: 480px) {
-          .gallery-item { width: calc(100% - 20px); height: 250px; }
+          .gallery-grid { grid-template-columns: 1fr; }
+          .gallery-item-wrapper { aspect-ratio: 16 / 9; }
         }
       `}</style>
     </div>

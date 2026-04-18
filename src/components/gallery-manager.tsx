@@ -140,7 +140,7 @@ export function GalleryManager({
     }
   }
 
-  async function handleFiles(files: FileList) {
+  const handleFiles = useCallback(async (files: FileList) => {
     if (!selectedAlbum) return;
     setUploading(true);
     const fileArray = Array.from(files);
@@ -151,7 +151,7 @@ export function GalleryManager({
     setUploading(false);
     setUploadProgress("");
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }
+  }, [selectedAlbum, uploadImage]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -159,7 +159,7 @@ export function GalleryManager({
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleFiles(e.dataTransfer.files);
     }
-  }, [selectedAlbum]);
+  }, [selectedAlbum, handleFiles]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
