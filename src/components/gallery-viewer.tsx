@@ -7,7 +7,7 @@ import Image from "next/image";
 
 /**
  * FINAL STABLE VERSION: Responsive Modal Gallery
- * Fix: Corrected "Download" vs "Save/Share" logic for mobile/desktop.
+ * Fix: TypeScript "void" call signature error by proper casting of bind.
  */
 
 type GalleryItem = {
@@ -30,7 +30,6 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
 
   useEffect(() => {
     setMounted(true);
-    // Proper Mobile Detection
     const checkMobile = () => {
       setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768);
     };
@@ -62,52 +61,8 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
     setIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : prev));
   }, []);
 
-  // Native Save/Share Logic
-  const handleAction = async (e: React.MouseEvent, url: string, title: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    try {
-      setIsProcessing(true);
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const filename = `${title.replace(/\s+/g, '-').toLowerCase()}.jpg`;
-      
-      // If mobile and share is supported, use native share sheet
-      if (isMobile && navigator.share) {
-        try {
-          const file = new File([blob], filename, { type: blob.type });
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              files: [file],
-              title: title,
-            });
-            return;
-          }
-        } catch (sError) {
-          console.log("Share failed, falling back to download", sError);
-        }
-      }
-
-      // Desktop or Mobile Fallback: Direct Download
-      const blobUrl = window.URL.createObjectURL(blob);
-      const link = document.body.appendChild(document.createElement('a'));
-      link.href = blobUrl;
-      link.download = filename;
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-      
-    } catch (error) {
-      console.error("Action failed:", error);
-      window.open(url, '_blank');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   // Swipe Gesture Handler
-  const bind = useDrag(({ active, movement: [mx], direction: [xDir], distance: [d], cancel }) => {
+  const bind: any = useDrag(({ active, movement: [mx], direction: [xDir], distance: [d], cancel }) => {
     if (active && d > 50) {
       if (xDir > 0) prev();
       else next();
@@ -135,6 +90,40 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
     }
   }, [index]);
 
+  const handleAction = async (e: React.MouseEvent, url: string, title: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      setIsProcessing(true);
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const filename = `${title.replace(/\s+/g, '-').toLowerCase()}.jpg`;
+      if (isMobile && navigator.share) {
+        try {
+          const file = new File([blob], filename, { type: blob.type });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: title });
+            return;
+          }
+        } catch (sError) {
+          console.log("Share failed", sError);
+        }
+      }
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.body.appendChild(document.createElement('a'));
+      link.href = blobUrl;
+      link.download = filename;
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Action failed:", error);
+      window.open(url, '_blank');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const modalContent = index !== null && (
     <div 
       className={`modal ${isShowing ? 'show' : ''}`}
@@ -147,7 +136,7 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
       <button className="nav-btn next" onClick={next} style={{ opacity: index === items.length - 1 ? 0.1 : 0.8 }}>&#10095;</button>
       
       <div 
-        {...(bind() as any)} 
+        {...bind()} 
         className="image-stage"
         onClick={(e) => e.stopPropagation()}
       >
