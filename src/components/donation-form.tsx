@@ -1,9 +1,31 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
+import { useFirebaseAuth } from "@/components/firebase-auth-context";
 
 export function DonationForm() {
+  const { user } = useFirebaseAuth();
   const [status, setStatus] = useState<string>("");
+  const [prefillName, setPrefillName] = useState("");
+  const [prefillEmail, setPrefillEmail] = useState("");
+
+  useEffect(() => {
+    if (user?.email) {
+      setPrefillEmail(user.email);
+      if (user.displayName) {
+        setPrefillName(user.displayName);
+      } else {
+        fetch("/api/session")
+          .then(res => res.json())
+          .then(data => {
+            if (data.user?.name) {
+              setPrefillName(data.user.name);
+            }
+          })
+          .catch(() => {});
+      }
+    }
+  }, [user]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -45,11 +67,11 @@ export function DonationForm() {
       </label>
       <label>
         Name
-        <input required name="name" placeholder="Your name" />
+        <input required name="name" placeholder="Your name" defaultValue={prefillName} />
       </label>
       <label>
         Email
-        <input required type="email" name="email" placeholder="you@example.com" />
+        <input required type="email" name="email" placeholder="you@example.com" defaultValue={prefillEmail} />
       </label>
       <label className="span-2">
         Message

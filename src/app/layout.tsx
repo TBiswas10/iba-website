@@ -3,6 +3,7 @@ import { Outfit, IBM_Plex_Sans, Noto_Sans_Bengali } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 
 import { Providers } from "@/components/providers";
 import { SiteFooter } from "@/components/site-footer";
@@ -61,6 +62,7 @@ export default async function RootLayout({
           </Providers>
         </NextIntlClientProvider>
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   )

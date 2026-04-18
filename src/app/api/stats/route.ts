@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const [events, memberships, donations, gallery, resources, rsvps] = await Promise.all([
       prisma.event.count(),
-      prisma.membership.count(),
+      prisma.membership.count({ where: { status: "ACTIVE" } }),
       prisma.donation.count(),
       prisma.galleryItem.count(),
       prisma.resource.count(),

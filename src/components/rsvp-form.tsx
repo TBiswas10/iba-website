@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useFirebaseAuth } from "@/components/firebase-auth-context";
 
 type EventOption = {
   id: number;
@@ -24,6 +25,7 @@ const emptyForm = {
 };
 
 export function RsvpForm() {
+  const { user } = useFirebaseAuth();
   const params = useSearchParams();
   const [events, setEvents] = useState<EventOption[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string>("");
@@ -33,6 +35,26 @@ export function RsvpForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+
+  useEffect(() => {
+    if (user?.email) {
+      setForm(prev => ({
+        ...prev,
+        email: user.email || prev.email,
+        name: user.displayName || prev.name,
+      }));
+      if (!user.displayName) {
+        fetch("/api/session")
+          .then(res => res.json())
+          .then(data => {
+            if (data.user?.name) {
+              setForm(prev => ({ ...prev, name: data.user.name }));
+            }
+          })
+          .catch(() => {});
+      }
+    }
+  }, [user]);
 
   useEffect(() => {
     const loadEvents = async () => {
