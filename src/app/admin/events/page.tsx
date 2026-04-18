@@ -69,7 +69,7 @@ export default function AdminEventsPage() {
     const payload = {
       id: editingId,
       title: formData.title,
-      slug: formData.slug || formData.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+      slug: (formData.slug || formData.title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
       start: new Date(formData.start).toISOString(),
       end: new Date(formData.end).toISOString(),
       location: formData.location,
@@ -139,8 +139,8 @@ export default function AdminEventsPage() {
 
       <section className="glass-panel">
         <h2>{editingId ? "Edit Event" : "Create Event"}</h2>
-        <form onSubmit={handleSubmit} className="grid-form">
-          <label>
+        <form onSubmit={handleSubmit} className="grid-form admin-event-form">
+          <label className="form-field">
             Title
             <input 
               required 
@@ -150,7 +150,7 @@ export default function AdminEventsPage() {
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             />
           </label>
-          <label>
+          <label className="form-field">
             URL Slug
             <input 
               name="slug" 
@@ -159,7 +159,7 @@ export default function AdminEventsPage() {
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
             />
           </label>
-          <label>
+          <label className="form-field">
             Start
             <input 
               required 
@@ -169,7 +169,7 @@ export default function AdminEventsPage() {
               onChange={(e) => setFormData({ ...formData, start: e.target.value })}
             />
           </label>
-          <label>
+          <label className="form-field">
             End
             <input 
               required 
@@ -179,7 +179,7 @@ export default function AdminEventsPage() {
               onChange={(e) => setFormData({ ...formData, end: e.target.value })}
             />
           </label>
-          <label>
+          <label className="form-field span-2">
             Location
             <input 
               name="location" 
@@ -188,7 +188,7 @@ export default function AdminEventsPage() {
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
             />
           </label>
-          <label className="span-2">
+          <label className="form-field span-2">
             Description
             <textarea 
               name="description" 
@@ -198,7 +198,7 @@ export default function AdminEventsPage() {
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
           </label>
-          <label className="span-2">
+          <label className="form-field span-2">
             Image URL
             <input 
               name="imageUrl" 
