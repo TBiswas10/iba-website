@@ -1,4 +1,4 @@
-import { MembershipStatus, MembershipTier } from "@prisma/client";
+import { MembershipStatus } from "@prisma/client";
 import { z } from "zod";
 
 const optionalText = z.preprocess((value) => {
@@ -51,12 +51,12 @@ export const signupSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   password: z.string().optional(),
-  tier: z.nativeEnum(MembershipTier).default("FAMILY"),
+  tier: z.string().default("MEMBER"),
 });
 
 export const membershipSchema = z.object({
   userId: z.number().int().positive(),
-  tier: z.nativeEnum(MembershipTier),
+  tier: z.string(),
   status: z.nativeEnum(MembershipStatus),
   startDate: z.string().datetime(),
   expiryDate: z.string().datetime(),

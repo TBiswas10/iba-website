@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -51,7 +52,9 @@ export default async function EventDetailsPage({ params }: { params: Promise<{ s
 
       <section className="glass-panel event-details">
         {event.imageUrl && (
-          <img src={event.imageUrl} alt={event.title} className="event-details-image" />
+          <div className="event-details-image-wrapper">
+            <Image src={event.imageUrl} alt={event.title} fill className="event-details-image" />
+          </div>
         )}
         
         <h1>{event.title}</h1>

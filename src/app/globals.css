@@ -571,6 +571,12 @@ h4 { font-size: 1.1rem; }
   margin-bottom: 0.5rem;
 }
 
+.view-more-link {
+  color: var(--teal);
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+
 .event-popup-actions {
   display: flex;
   gap: 0.75rem;
@@ -582,7 +588,8 @@ h4 { font-size: 1.1rem; }
 
 .event-details { max-width: 700px; margin: 0 auto; }
 .event-details h1 { margin-bottom: 1.5rem; }
-.event-details-image { width: 100%; max-height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 1.5rem; }
+.event-details-image-wrapper { position: relative; width: 100%; height: 300px; margin-bottom: 1.5rem; }
+.event-details-image { object-fit: cover; border-radius: 12px; }
 .event-details-meta { background: rgba(13,127,120,0.05); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
 .event-detail-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(29,35,59,0.1); }
 .event-detail-row:last-child { border-bottom: none; }
@@ -637,6 +644,18 @@ h4 { font-size: 1.1rem; }
 .member-badge { display: inline-block; padding: 0.25rem 0.75rem; background: var(--neon-red); color: white; font-size: 0.75rem; font-weight: 600; border-radius: 4px; margin-bottom: 1rem; }
 .status-badge { padding: 0.25rem 0.75rem; background: var(--teal); color: white; font-size: 0.75rem; font-weight: 600; border-radius: 4px; margin-top: 0.5rem; }
 .status-badge.active { background: var(--teal); }
+
+.membership-card { background: linear-gradient(135deg, rgba(122,45,70,0.08) 0%, rgba(29,35,59,0.05) 100%); border: 2px solid var(--berry); border-radius: 16px; padding: 2rem; max-width: 320px; margin: 0 auto; text-align: center; }
+.membership-card-header { margin-bottom: 1.5rem; }
+.membership-card .membership-badge { display: inline-block; font-size: 1.5rem; font-weight: 700; color: var(--berry); margin-bottom: 0.5rem; }
+.membership-price { font-size: 2.5rem; font-weight: 700; color: var(--ink); }
+.membership-price span { font-size: 1rem; font-weight: 400; color: rgba(16,16,16,0.6); }
+.membership-card-body { margin-bottom: 1.5rem; }
+.membership-card-body ul { list-style: none; padding: 0; margin: 0; text-align: left; }
+.membership-card-body li { padding: 0.5rem 0; border-bottom: 1px solid rgba(122,45,70,0.1); color: var(--ink); }
+.membership-card-body li:last-child { border-bottom: none; }
+.membership-card-body li::before { content: "✓"; color: var(--teal); margin-right: 0.5rem; font-weight: 600; }
+.membership-card-footer .btn-primary { width: 100%; padding: 1rem; font-size: 1.1rem; }
 
 .tier-select { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
 .tier-btn { display: flex; flex-direction: column; align-items: center; padding: 1rem 1.5rem; background: white; border: 2px solid rgba(122,45,70,0.15); border-radius: 12px; cursor: pointer; transition: all 0.2s ease; }

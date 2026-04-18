@@ -66,12 +66,22 @@ export default function AdminEventsPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     
+    const toUTCDateString = (localDateTime: string) => {
+      const [datePart, timePart] = localDateTime.split("T");
+      const [year, month, day] = datePart.split("-").map(Number);
+      const [hours, minutes] = timePart.split(":").map(Number);
+      const date = new Date(year, month - 1, day, hours, minutes);
+      const offset = date.getTimezoneOffset();
+      const utcDate = new Date(date.getTime() + offset * 60 * 1000);
+      return utcDate.toISOString();
+    };
+    
     const payload = {
       id: editingId,
       title: formData.title,
       slug: (formData.slug || formData.title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
-      start: new Date(formData.start).toISOString(),
-      end: new Date(formData.end).toISOString(),
+      start: toUTCDateString(formData.start),
+      end: toUTCDateString(formData.end),
       location: formData.location,
       description: formData.description,
       imageUrl: formData.imageUrl,

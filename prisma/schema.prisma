@@ -139,6 +139,7 @@ enum MembershipTier {
   FAMILY
   INDIVIDUAL
   STUDENT
+  MEMBER
 }
 
 enum MembershipStatus {

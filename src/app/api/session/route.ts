@@ -21,12 +21,23 @@ export async function GET() {
       return NextResponse.json({ user: null });
     }
 
+    // Check membership status - only include membership details, don't change role
+    const membership = await prisma.membership.findFirst({
+      where: { userId: dbUser.id },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const isMembershipActive = membership?.status === "ACTIVE" && new Date(membership.expiryDate) > new Date();
+
     return NextResponse.json({
       user: {
         id: String(dbUser.id),
         email: dbUser.email,
         name: dbUser.name,
         role: dbUser.role,
+        membershipStatus: isMembershipActive ? "ACTIVE" : "NONE",
+        membershipTier: membership?.tier || null,
+        membershipExpiry: membership?.expiryDate || null,
       },
     });
   } catch (error) {

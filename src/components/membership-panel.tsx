@@ -5,9 +5,7 @@ import Link from "next/link";
 import { useFirebaseAuth } from "@/components/firebase-auth-context";
 
 const MEMBERSHIP_TIERS = [
-  { id: "FAMILY", name: "Family", desc: "Up to 5 members", price: "$10" },
-  { id: "INDIVIDUAL", name: "Individual", desc: "Single adult", price: "$10" },
-  { id: "STUDENT", name: "Student", desc: "Full-time student", price: "$10" },
+  { id: "MEMBER", name: "Member", desc: "Join as a member", price: "$1" },
 ] as const;
 
 type Membership = {
@@ -26,12 +24,17 @@ export function MembershipPanel() {
 
   useEffect(() => {
     if (user?.email) {
+      setIsChecking(true);
       fetch("/api/memberships/mine")
         .then((res) => res.json())
         .then((data) => {
-          if (data.ok) setMembership(data.data);
+          if (data.ok && data.data) {
+            setMembership(data.data);
+          } else {
+            setMembership(null);
+          }
         })
-        .catch(console.error)
+        .catch(() => setMembership(null))
         .finally(() => setIsChecking(false));
     } else {
       setIsChecking(false);
@@ -135,14 +138,13 @@ export function MembershipPanel() {
       );
     }
 
-    const isActive = membership?.status === "ACTIVE";
+    const isActive = membership && membership.status === "ACTIVE";
 
     return (
       <section className="glass-panel member-welcome">
         <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>👋</div>
         <h2>Welcome back!</h2>
         <p>{user.displayName || user.email}</p>
-        <span className="member-badge" style={{ marginTop: "0.75rem", display: "inline-block" }}>{user.role || "MEMBER"}</span>
         
         {isActive ? (
           <div style={{ marginTop: "1.5rem" }}>
@@ -156,23 +158,24 @@ export function MembershipPanel() {
           </div>
         ) : (
           <>
-            <div className="tier-select" style={{ marginTop: "1rem" }}>
-              {MEMBERSHIP_TIERS.map((tier) => (
-                <button
-                  key={tier.id}
-                  type="button"
-                  className={`tier-btn ${selectedTier === tier.id ? "selected" : ""}`}
-                  onClick={() => setSelectedTier(tier.id)}
-                >
-                  <span className="tier-name">{tier.name}</span>
-                  <span className="tier-price">{tier.price}/yr</span>
+            <div className="membership-card" style={{ marginTop: "2rem" }}>
+              <div className="membership-card-header">
+                <span className="membership-badge">MEMBER</span>
+                <span className="membership-price">$1<span>/year</span></span>
+              </div>
+              <div className="membership-card-body">
+                <ul>
+                  <li>Access to all community events</li>
+                  <li>RSVP to gatherings</li>
+                  <li>Connect with Bengali community in Illawarra</li>
+                  <li>Support cultural programs</li>
+                </ul>
+              </div>
+              <div className="membership-card-footer">
+                <button className="btn-primary" onClick={handleStripeCheckout}>
+                  Become a Member
                 </button>
-              ))}
-            </div>
-            <div className="button-row" style={{ marginTop: "1.5rem" }}>
-              <button className="btn-primary" onClick={handleStripeCheckout}>
-                Pay {MEMBERSHIP_TIERS.find(t => t.id === selectedTier)?.name} ($10/yr)
-              </button>
+              </div>
             </div>
           </>
         )}

@@ -264,7 +264,22 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
             {selected.description && (
               <>
                 <span className="event-popup-label">About</span>
-                <p className="event-popup-desc">{selected.description}</p>
+                <p className="event-popup-desc">
+                  {selected.description.length > 200 ? (
+                    <>
+                      {selected.description.slice(0, 200).split("\n").map((line, i) => (
+                        <span key={i}>{line}<br /></span>
+                      ))}
+                      <Link href={`/events/${getEventSlug(selected)}`} className="view-more-link">
+                        View More
+                      </Link>
+                    </>
+                  ) : (
+                    selected.description.split("\n").map((line, i) => (
+                      <span key={i}>{line}<br /></span>
+                    ))
+                  )}
+                </p>
               </>
             )}
             

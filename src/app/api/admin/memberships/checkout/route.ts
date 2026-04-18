@@ -37,7 +37,7 @@ export async function POST(request: Request) {
           price_data: {
             currency: "aud",
             product: "prod_ULJggcxX0PHnDF",
-            unit_amount: 1000, // $10.00
+            unit_amount: 100, // $1.00
           },
           quantity: 1,
         },
@@ -46,9 +46,9 @@ export async function POST(request: Request) {
       success_url: `${baseUrl}/dashboard?success=true`,
       cancel_url: `${baseUrl}/membership?canceled=true`,
       metadata: {
-        userId: String(dbUser.id), // Use database user ID, not Firebase UID
+        userId: String(dbUser.id),
         email: email,
-        tier: tier,
+        tier: "MEMBER",
       },
     });
 
