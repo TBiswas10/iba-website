@@ -25,17 +25,32 @@ model User {
 }
 
 model Event {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   title       String
-  slug        String   @unique
+  slug        String    @unique
   start       DateTime
   end         DateTime
   location    String?
   description String?
   imageUrl    String?
   rsvps       Rsvp[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  albums      Album[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Album {
+  id          Int           @id @default(autoincrement())
+  title       String
+  description String?
+  coverUrl    String?
+  eventId     Int?
+  event       Event?        @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  items       GalleryItem[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([eventId])
 }
 
 model Rsvp {
@@ -95,9 +110,13 @@ model GalleryItem {
   title       String
   description String?
   mediaUrl    String
-  mediaType   String
+  mediaType   String   @default("image")
+  albumId     Int?
+  album       Album?   @relation(fields: [albumId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([albumId])
 }
 
 model Resource {
