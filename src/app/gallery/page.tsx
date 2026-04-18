@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
-import { GalleryViewer } from "@/components/gallery-viewer";
 
 import "./gallery.css";
 
@@ -33,22 +32,15 @@ export default async function GalleryPage() {
   const albumsWithoutEvent = albums.filter((a) => !a.eventId);
 
   return (
-    <div className="panel-stack">
+    <section className="panel-stack">
       <section className="glass-panel">
-        <h1 className="mb-2">Gallery</h1>
-        <p className="text-lg text-neutral-600 max-w-2xl">
-          Celebrating our community through moments, memories, and milestones. Explore our event albums and captured memories.
-        </p>
+        <h1>Gallery</h1>
+        <p>Celebrating our community through moments, memories, and milestones.</p>
       </section>
 
       {albumsWithEvent.length > 0 && (
         <section className="glass-panel">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="!mb-0">Event Albums</h2>
-            <span className="text-sm font-semibold text-teal-600 bg-teal-50 px-3 py-1 rounded-full border border-teal-100">
-              {albumsWithEvent.length} Albums
-            </span>
-          </div>
+          <h2>Event Albums</h2>
           <div className="albums-grid-public">
             {albumsWithEvent.map((album) => (
               <article key={album.id} className="album-card-public">
@@ -58,19 +50,20 @@ export default async function GalleryPage() {
                       <Image
                         src={album.coverUrl}
                         alt={album.title}
-                        fill
-                        className="object-cover"
+                        width={400}
+                        height={250}
+                        style={{ objectFit: "cover" }}
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-neutral-100 text-4xl opacity-30">📷</div>
+                      <div className="album-placeholder-public">📷</div>
                     )}
                     <div className="album-overlay">
                       <span className="photo-count">{album.items.length} photos</span>
                     </div>
                   </div>
                   <div className="album-info-public">
-                    {album.event && <span className="album-event-label">{album.event.title}</span>}
                     <h3>{album.title}</h3>
+                    {album.event && <span className="album-event-label">{album.event.title}</span>}
                   </div>
                 </a>
               </article>
@@ -81,12 +74,7 @@ export default async function GalleryPage() {
 
       {albumsWithoutEvent.length > 0 && (
         <section className="glass-panel">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="!mb-0">General Albums</h2>
-            <span className="text-sm font-semibold text-neutral-500 bg-neutral-50 px-3 py-1 rounded-full border border-neutral-200">
-              {albumsWithoutEvent.length} Albums
-            </span>
-          </div>
+          <h2>Albums</h2>
           <div className="albums-grid-public">
             {albumsWithoutEvent.map((album) => (
               <article key={album.id} className="album-card-public">
@@ -96,11 +84,12 @@ export default async function GalleryPage() {
                       <Image
                         src={album.coverUrl}
                         alt={album.title}
-                        fill
-                        className="object-cover"
+                        width={400}
+                        height={250}
+                        style={{ objectFit: "cover" }}
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-neutral-100 text-4xl opacity-30">📷</div>
+                      <div className="album-placeholder-public">📷</div>
                     )}
                     <div className="album-overlay">
                       <span className="photo-count">{album.items.length} photos</span>
@@ -119,23 +108,35 @@ export default async function GalleryPage() {
 
       {standaloneItems.length > 0 && (
         <section className="glass-panel">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="!mb-0">Individual Photos</h2>
-            <span className="text-sm font-semibold text-neutral-500 bg-neutral-50 px-3 py-1 rounded-full border border-neutral-200">
-              {standaloneItems.length} Photos
-            </span>
+          <h2>Photos</h2>
+          <div className="gallery-grid-public">
+            {standaloneItems.map((item) => (
+              <article key={item.id} className="gallery-item-public">
+                <a href={item.mediaUrl} target="_blank" rel="noreferrer" className="gallery-image-link">
+                  <Image
+                    src={item.mediaUrl}
+                    alt={item.title}
+                    width={400}
+                    height={300}
+                    className="gallery-image"
+                  />
+                </a>
+                <div className="gallery-caption">
+                  <h3>{item.title}</h3>
+                  {item.description && <p>{item.description}</p>}
+                </div>
+              </article>
+            ))}
           </div>
-          <GalleryViewer items={standaloneItems} />
         </section>
       )}
 
       {albums.length === 0 && standaloneItems.length === 0 && (
-        <section className="glass-panel text-center py-16">
-          <div className="text-5xl mb-4 opacity-20">📷</div>
-          <h3 className="text-xl font-semibold mb-2">No gallery items yet</h3>
-          <p className="text-neutral-500">Check back later for photos of our community events.</p>
+        <section className="glass-panel">
+          <h3>No gallery items yet</h3>
+          <p>Add media via admin dashboard.</p>
         </section>
       )}
-    </div>
+    </section>
   );
 }
