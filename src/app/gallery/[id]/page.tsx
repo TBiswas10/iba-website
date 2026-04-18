@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import Image from "next/image";
 import { notFound } from "next/navigation";
+import { GalleryViewer } from "@/components/gallery-viewer";
 
 import "../../gallery/gallery.css";
 
@@ -34,9 +34,10 @@ export default async function AlbumDetailPage({
       <section className="glass-panel">
         <div className="album-detail-header">
           <div>
+            <a href="/gallery" className="back-link">← Back to Gallery</a>
             <h1>{album.title}</h1>
             {album.event && (
-              <p className="album-event-link">Event: {album.event.title}</p>
+              <p className="album-event-link">📅 {album.event.title}</p>
             )}
             {album.description && (
               <p className="album-description">{album.description}</p>
@@ -46,30 +47,9 @@ export default async function AlbumDetailPage({
         </div>
       </section>
 
-      {album.items.length > 0 ? (
-        <section className="glass-panel">
-          <div className="photos-grid">
-            {album.items.map((item) => (
-              <article key={item.id} className="photo-item">
-                <a href={item.mediaUrl} target="_blank" rel="noreferrer">
-                  <Image
-                    src={item.mediaUrl}
-                    alt={item.title}
-                    width={500}
-                    height={400}
-                    style={{ objectFit: "cover" }}
-                  />
-                </a>
-                {item.title && <span className="photo-title">{item.title}</span>}
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : (
-        <section className="glass-panel">
-          <p>No photos in this album yet.</p>
-        </section>
-      )}
+      <section className="glass-panel">
+        <GalleryViewer items={album.items} />
+      </section>
     </section>
   );
 }

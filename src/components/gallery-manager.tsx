@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 
 type Album = {
@@ -45,8 +45,12 @@ export function GalleryManager({
   const [showCreateAlbum, setShowCreateAlbum] = useState(false);
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [editingAlbum, setEditingAlbum] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState({ title: "", description: "" });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
 
   async function createAlbum(formData: FormData) {
     setLoading(true);
@@ -72,8 +76,37 @@ export function GalleryManager({
     setLoading(false);
   }
 
+  function startEdit(album: Album) {
+    setEditingAlbum(album.id);
+    setEditForm({ title: album.title, description: album.description || "" });
+  }
+
+  async function saveEdit(albumId: number) {
+    try {
+      const res = await fetch(`/api/admin/gallery/${albumId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: editForm.title,
+          description: editForm.description,
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setAlbums(albums.map(a => 
+          a.id === albumId ? { ...a, title: editForm.title, description: editForm.description || null } : a
+        ));
+        if (selectedAlbum?.id === albumId) {
+          setSelectedAlbum({ ...selectedAlbum, title: editForm.title, description: editForm.description || null });
+        }
+        setEditingAlbum(null);
+      }
+    } catch (error) {
+      console.error("Failed to update album:", error);
+    }
+  }
+
   async function uploadImage(file: File, albumId: number) {
-    setUploading(true);
     try {
       const formData = new FormData();
       formData.append("action", "upload-image");
@@ -90,25 +123,48 @@ export function GalleryManager({
         setAlbums(
           albums.map((a) =>
             a.id === albumId
-              ? { ...a, items: [...a.items, data.item], coverUrl: a.coverUrl || data.item.mediaUrl }
+              ? { ...a, items: [...(a.items || []), data.item], coverUrl: a.coverUrl || data.item.mediaUrl }
               : a
           )
         );
+        if (selectedAlbum?.id === albumId) {
+          setSelectedAlbum({
+            ...selectedAlbum,
+            items: [...(selectedAlbum.items || []), data.item],
+            coverUrl: selectedAlbum.coverUrl || data.item.mediaUrl
+          });
+        }
       }
     } catch (error) {
       console.error("Failed to upload image:", error);
     }
-    setUploading(false);
   }
 
-  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!selectedAlbum || !e.target.files) return;
-    const files = Array.from(e.target.files);
-    for (const file of files) {
-      await uploadImage(file, selectedAlbum.id);
+  async function handleFiles(files: FileList) {
+    if (!selectedAlbum) return;
+    setUploading(true);
+    const fileArray = Array.from(files);
+    for (let i = 0; i < fileArray.length; i++) {
+      setUploadProgress(`Uploading ${i + 1} of ${fileArray.length}...`);
+      await uploadImage(fileArray[i], selectedAlbum.id);
     }
+    setUploading(false);
+    setUploadProgress("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFiles(e.dataTransfer.files);
+    }
+  }, [selectedAlbum]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
 
   async function deleteItem(id: number, type: "album" | "item") {
     if (!confirm(`Delete this ${type}?`)) return;
@@ -125,9 +181,15 @@ export function GalleryManager({
         setAlbums(
           albums.map((a) => ({
             ...a,
-            items: a.items.filter((i) => i.id !== id),
+            items: (a.items || []).filter((i) => i.id !== id),
           }))
         );
+        if (selectedAlbum) {
+          setSelectedAlbum({
+            ...selectedAlbum,
+            items: (selectedAlbum.items || []).filter((i) => i.id !== id)
+          });
+        }
       }
     } catch (error) {
       console.error("Failed to delete:", error);
@@ -146,23 +208,23 @@ export function GalleryManager({
             className="btn-primary"
             onClick={() => setShowCreateAlbum(true)}
           >
-            Create Album
+            + New Album
           </button>
         </div>
       </section>
 
       {showCreateAlbum && (
         <section className="glass-panel">
-          <h2>New Album</h2>
+          <h2>Create New Album</h2>
           <form action={createAlbum} className="grid-form">
             <label>
-              Title
-              <input required name="title" placeholder="Album title" />
+              Album Title
+              <input required name="title" placeholder="e.g., Annual Dinner 2024" />
             </label>
             <label>
-              Link to Event (optional)
+              Link to Event
               <select name="eventId">
-                <option value="">No event</option>
+                <option value="">None</option>
                 {events.map((e) => (
                   <option key={e.id} value={e.id}>
                     {e.title}
@@ -171,8 +233,8 @@ export function GalleryManager({
               </select>
             </label>
             <label className="span-2">
-              Description
-              <textarea name="description" rows={2} placeholder="Optional description" />
+              Description (optional)
+              <textarea name="description" rows={2} placeholder="Brief description of this album" />
             </label>
             <div className="span-2 button-row">
               <button className="btn-primary" type="submit" disabled={loading}>
@@ -191,9 +253,14 @@ export function GalleryManager({
       )}
 
       <section className="glass-panel">
-        <h2>Albums</h2>
+        <h2>Albums ({albums.length})</h2>
         {albums.length === 0 ? (
-          <p>No albums yet. Create one to get started.</p>
+          <div className="empty-state">
+            <p>No albums yet.</p>
+            <button className="btn-primary" onClick={() => setShowCreateAlbum(true)}>
+              Create Your First Album
+            </button>
+          </div>
         ) : (
           <div className="albums-grid">
             {albums.map((album) => (
@@ -215,17 +282,49 @@ export function GalleryManager({
                   )}
                 </div>
                 <div className="album-info">
-                  <h3>{album.title}</h3>
-                  {album.event && <span className="album-event">{album.event.title}</span>}
-                  <span className="album-count">{(album.items || []).length} photos</span>
+                  {editingAlbum === album.id ? (
+                    <div className="edit-form">
+                      <input
+                        value={editForm.title}
+                        onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                        className="edit-title"
+                        placeholder="Album title"
+                      />
+                      <textarea
+                        value={editForm.description}
+                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                        className="edit-desc"
+                        placeholder="Description"
+                        rows={2}
+                      />
+                      <div className="edit-actions">
+                        <button className="btn-sm" onClick={() => saveEdit(album.id)}>Save</button>
+                        <button className="btn-sm btn-ghost" onClick={() => setEditingAlbum(null)}>Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <h3>{album.title}</h3>
+                      {album.event && <span className="album-event">{album.event.title}</span>}
+                      <span className="album-count">{(album.items || []).length} photos</span>
+                    </>
+                  )}
                 </div>
                 <div className="album-actions">
                   <button
                     className="btn-sm"
                     onClick={() => setSelectedAlbum(album)}
                   >
-                    Manage
+                    View
                   </button>
+                  {editingAlbum !== album.id && (
+                    <button
+                      className="btn-sm btn-ghost"
+                      onClick={() => startEdit(album)}
+                    >
+                      Edit
+                    </button>
+                  )}
                   <button
                     className="btn-sm btn-danger"
                     onClick={() => deleteItem(album.id, "album")}
@@ -240,51 +339,77 @@ export function GalleryManager({
       </section>
 
       {selectedAlbum && (
-        <section className="glass-panel">
-          <div className="admin-header">
-            <h2>{selectedAlbum.title}</h2>
+        <section className="glass-panel album-detail-panel">
+          <div className="album-detail-header">
+            <div>
+              <h2>{selectedAlbum.title}</h2>
+              {selectedAlbum.event && <span className="album-event-label">{selectedAlbum.event.title}</span>}
+              <p className="album-desc">{selectedAlbum.description || "No description"}</p>
+            </div>
             <button className="btn-ghost" onClick={() => setSelectedAlbum(null)}>
-              Close
+              ← Back to Albums
             </button>
           </div>
-          <p>{selectedAlbum.description || "No description"}</p>
-          
-          <div className="upload-section">
+
+          <div 
+            ref={dropZoneRef}
+            className={`drop-zone ${uploading ? 'uploading' : ''}`}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onClick={() => !uploading && fileInputRef.current?.click()}
+          >
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
               multiple
-              onChange={handleFileSelect}
+              onChange={(e) => e.target.files && handleFiles(e.target.files)}
               style={{ display: "none" }}
             />
-            <button
-              className="btn-primary"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-            >
-              {uploading ? "Uploading..." : "Upload Photos"}
-            </button>
+            <div className="drop-zone-content">
+              {uploading ? (
+                <div className="upload-status">
+                  <span className="spinner">⏳</span>
+                  <p>{uploadProgress || "Uploading..."}</p>
+                </div>
+              ) : (
+                <>
+                  <span className="drop-icon">📤</span>
+                  <p>Drag & drop photos here or click to browse</p>
+                  <span className="drop-hint">Supports multiple files</span>
+                </>
+              )}
+            </div>
           </div>
 
-          {selectedAlbum && (selectedAlbum.items || []).length === 0 ? (
-            <p>No photos in this album yet.</p>
-          ) : (
-            <div className="gallery-grid">
-              {(selectedAlbum.items || []).map((item) => (
-                <div key={item.id} className="gallery-item-admin">
-                  <Image src={item.mediaUrl} alt={item.title} width={200} height={150} />
-                  <div className="gallery-item-info">
-                    <h3>{item.title}</h3>
+          {(selectedAlbum.items || []).length > 0 && (
+            <div className="photos-section">
+              <h3>Photos ({selectedAlbum.items.length})</h3>
+              <div className="photos-grid">
+                {(selectedAlbum.items || []).map((item) => (
+                  <div key={item.id} className="photo-card">
+                    <div className="photo-img">
+                      <Image src={item.mediaUrl} alt={item.title} width={300} height={200} />
+                    </div>
+                    <div className="photo-info">
+                      <span className="photo-title">{item.title}</span>
+                      <button
+                        className="photo-delete"
+                        onClick={() => deleteItem(item.id, "item")}
+                        title="Delete photo"
+                      >
+                        ×
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    className="btn-danger btn-sm"
-                    onClick={() => deleteItem(item.id, "item")}
-                  >
-                    Delete
-                  </button>
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(selectedAlbum.items || []).length === 0 && (
+            <div className="empty-state">
+              <p>No photos in this album yet.</p>
             </div>
           )}
         </section>
@@ -292,20 +417,22 @@ export function GalleryManager({
 
       {items.length > 0 && (
         <section className="glass-panel">
-          <h2>Unassigned Items</h2>
-          <div className="gallery-grid">
+          <h2>Unassigned Photos ({items.length})</h2>
+          <div className="photos-grid">
             {items.map((item) => (
-              <div key={item.id} className="gallery-item-admin">
-                <Image src={item.mediaUrl} alt={item.title} width={200} height={150} />
-                <div className="gallery-item-info">
-                  <h3>{item.title}</h3>
+              <div key={item.id} className="photo-card">
+                <div className="photo-img">
+                  <Image src={item.mediaUrl} alt={item.title} width={300} height={200} />
                 </div>
-                <button
-                  className="btn-danger btn-sm"
-                  onClick={() => deleteItem(item.id, "item")}
-                >
-                  Delete
-                </button>
+                <div className="photo-info">
+                  <span className="photo-title">{item.title}</span>
+                  <button
+                    className="photo-delete"
+                    onClick={() => deleteItem(item.id, "item")}
+                  >
+                    ×
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -313,9 +440,17 @@ export function GalleryManager({
       )}
 
       <style jsx>{`
+        .empty-state {
+          text-align: center;
+          padding: 2rem;
+        }
+        .empty-state p {
+          color: rgba(16, 16, 16, 0.5);
+          margin-bottom: 1rem;
+        }
         .albums-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
           gap: 1.5rem;
         }
         .album-card {
@@ -325,7 +460,7 @@ export function GalleryManager({
           background: white;
         }
         .album-cover {
-          height: 150px;
+          height: 160px;
           cursor: pointer;
           background: #f5f5f5;
           display: flex;
@@ -340,9 +475,10 @@ export function GalleryManager({
         }
         .album-info {
           padding: 1rem;
+          min-height: 80px;
         }
         .album-info h3 {
-          margin: 0 0 0.5rem;
+          margin: 0 0 0.25rem;
           font-size: 1rem;
         }
         .album-event {
@@ -351,42 +487,171 @@ export function GalleryManager({
           color: var(--teal);
           margin-bottom: 0.25rem;
         }
+        .album-event-label {
+          display: inline-block;
+          font-size: 0.8rem;
+          color: var(--teal);
+          margin-bottom: 0.5rem;
+        }
         .album-count {
           font-size: 0.8rem;
           color: rgba(16, 16, 16, 0.5);
+        }
+        .album-desc {
+          color: rgba(16, 16, 16, 0.7);
+          margin: 0.5rem 0 0;
         }
         .album-actions {
           padding: 0.5rem 1rem 1rem;
           display: flex;
           gap: 0.5rem;
+          flex-wrap: wrap;
         }
-        .upload-section {
-          margin: 1rem 0;
+        .edit-form {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
         }
-        .gallery-grid {
+        .edit-title {
+          padding: 0.5rem;
+          border: 1px solid rgba(29, 35, 59, 0.2);
+          border-radius: 6px;
+          font-size: 0.95rem;
+        }
+        .edit-desc {
+          padding: 0.5rem;
+          border: 1px solid rgba(29, 35, 59, 0.2);
+          border-radius: 6px;
+          font-size: 0.85rem;
+          resize: vertical;
+        }
+        .edit-actions {
+          display: flex;
+          gap: 0.5rem;
+        }
+        
+        .album-detail-panel {
+          margin-top: 1.5rem;
+        }
+        .album-detail-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 1.5rem;
+          gap: 1rem;
+        }
+        .album-detail-header h2 {
+          margin: 0 0 0.25rem;
+        }
+        
+        .drop-zone {
+          border: 2px dashed rgba(29, 35, 59, 0.2);
+          border-radius: 16px;
+          padding: 2rem;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          background: rgba(13, 127, 120, 0.03);
+          margin-bottom: 1.5rem;
+        }
+        .drop-zone:hover {
+          border-color: var(--teal);
+          background: rgba(13, 127, 120, 0.06);
+        }
+        .drop-zone.uploading {
+          pointer-events: none;
+          border-color: var(--teal);
+        }
+        .drop-zone-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        .drop-icon {
+          font-size: 2rem;
+        }
+        .drop-zone p {
+          margin: 0;
+          color: var(--ink);
+        }
+        .drop-hint {
+          font-size: 0.8rem;
+          color: rgba(16, 16, 16, 0.5);
+        }
+        .upload-status {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        .spinner {
+          font-size: 1.5rem;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        .photos-section {
+          margin-top: 1.5rem;
+        }
+        .photos-section h3 {
+          margin-bottom: 1rem;
+        }
+        .photos-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
           gap: 1rem;
-          margin-top: 1rem;
         }
-        .gallery-item-admin {
+        .photo-card {
           border: 1px solid rgba(29, 35, 59, 0.1);
-          border-radius: 8px;
-          padding: 0.5rem;
+          border-radius: 10px;
+          overflow: hidden;
           background: white;
         }
-        .gallery-item-admin img {
+        .photo-img {
+          aspect-ratio: 4/3;
+          overflow: hidden;
+        }
+        .photo-img img {
           width: 100%;
-          height: 150px;
+          height: 100%;
           object-fit: cover;
-          border-radius: 4px;
         }
-        .gallery-item-info {
-          padding: 0.5rem 0;
+        .photo-info {
+          padding: 0.5rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 0.5rem;
         }
-        .gallery-item-info h3 {
-          margin: 0;
-          font-size: 0.9rem;
+        .photo-title {
+          font-size: 0.8rem;
+          color: var(--ink);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          flex: 1;
+        }
+        .photo-delete {
+          width: 24px;
+          height: 24px;
+          border: none;
+          background: rgba(220, 38, 38, 0.1);
+          color: #dc2626;
+          border-radius: 50%;
+          cursor: pointer;
+          font-size: 1rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .photo-delete:hover {
+          background: #dc2626;
+          color: white;
         }
       `}</style>
     </div>
