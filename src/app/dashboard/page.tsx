@@ -15,8 +15,10 @@ type Membership = {
 function DashboardContent() {
   const { user, loading, logout } = useFirebaseAuth();
   const [membership, setMembership] = useState<Membership | null>(null);
+  const [isActivating, setIsActivating] = useState(false);
   const searchParams = useSearchParams();
   const isSuccess = searchParams.get("success");
+  const membershipId = searchParams.get("membershipId");
 
   useEffect(() => {
     if (!user?.email) return;
@@ -26,10 +28,32 @@ function DashboardContent() {
       .then(data => {
         if (data.ok && data.data) {
           setMembership(data.data);
+        } else {
+          setMembership(null);
         }
       })
       .catch(console.error);
   }, [user?.email]);
+
+  // Auto-activate membership when redirected from payment
+  useEffect(() => {
+    if (!isSuccess || !membershipId || membership || isActivating) return;
+
+    setIsActivating(true);
+    fetch(`/api/memberships/activate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ membershipId: Number(membershipId) }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          setMembership(data.data);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setIsActivating(false));
+  }, [isSuccess, membershipId, membership, isActivating]);
 
   if (loading) {
     return (
@@ -69,10 +93,10 @@ function DashboardContent() {
         </button>
       </section>
 
-      {isSuccess && !membership && (
+      {isSuccess && isActivating && (
         <section className="glass-panel" style={{ border: "2px solid var(--teal)" }}>
           <h3>Payment successful!</h3>
-          <p>Your membership is being processed. Please refresh this page in a few moments.</p>
+          <p>Activating your membership...</p>
         </section>
       )}
 
@@ -91,7 +115,9 @@ function DashboardContent() {
         </section>
       ) : (
         <section className="glass-panel">
-          <p>No membership record yet. Ask an admin to activate your membership.</p>
+          <Link href="/membership" className="btn-primary">
+            Join as a Member
+          </Link>
         </section>
       )}
     </section>

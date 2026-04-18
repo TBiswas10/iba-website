@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { tier } = await request.json();
+    const { tier = "MEMBER" } = await request.json();
 
     // Get user from session cookie - don't trust client-side userId
     const cookieStore = await cookies();
@@ -29,6 +29,30 @@ export async function POST(request: Request) {
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
+    // Check if user already has an active membership
+    const existingMembership = await prisma.membership.findFirst({
+      where: { userId: dbUser.id, status: "ACTIVE" },
+    });
+
+    if (existingMembership) {
+      return NextResponse.json({ ok: false, error: "Already a member" }, { status: 400 });
+    }
+
+    const now = new Date();
+    const expiry = new Date(now);
+    expiry.setFullYear(expiry.getFullYear() + 1);
+
+    // Create membership as PENDING (will activate after payment confirmation)
+    const membership = await prisma.membership.create({
+      data: {
+        userId: dbUser.id,
+        tier: tier,
+        status: "PENDING",
+        startDate: now,
+        expiryDate: expiry,
+      },
+    });
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       customer_email: email,
@@ -43,12 +67,13 @@ export async function POST(request: Request) {
         },
       ],
       mode: "payment",
-      success_url: `${baseUrl}/dashboard?success=true`,
+      success_url: `${baseUrl}/dashboard?success=true&membershipId=${membership.id}`,
       cancel_url: `${baseUrl}/membership?canceled=true`,
       metadata: {
         userId: String(dbUser.id),
         email: email,
-        tier: "MEMBER",
+        tier: tier,
+        membershipId: String(membership.id),
       },
     });
 
