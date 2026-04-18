@@ -454,32 +454,45 @@ export function GalleryManager({
           gap: 1.5rem;
         }
         .album-card {
-          border: 1px solid rgba(29, 35, 59, 0.1);
-          border-radius: 12px;
+          border: 1px solid rgba(29, 35, 59, 0.08);
+          border-radius: 16px;
           overflow: hidden;
           background: white;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          display: flex;
+          flex-direction: column;
+        }
+        .album-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 10px 20px rgba(0,0,0,0.08);
         }
         .album-cover {
-          height: 160px;
+          height: 180px;
           cursor: pointer;
-          background: #f5f5f5;
+          background: #f8f9fa;
           display: flex;
           align-items: center;
           justify-content: center;
+          overflow: hidden;
         }
-        .album-cover:hover {
-          opacity: 0.9;
+        .album-cover img {
+          transition: transform 0.3s ease;
+        }
+        .album-cover:hover img {
+          transform: scale(1.05);
         }
         .album-placeholder {
           font-size: 3rem;
+          opacity: 0.5;
         }
         .album-info {
-          padding: 1rem;
-          min-height: 80px;
+          padding: 1.25rem;
+          flex-grow: 1;
         }
         .album-info h3 {
-          margin: 0 0 0.25rem;
-          font-size: 1rem;
+          margin: 0 0 0.5rem;
+          font-size: 1.1rem;
+          color: var(--ink);
         }
         .album-event {
           display: block;

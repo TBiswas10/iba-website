@@ -16,6 +16,7 @@ export async function POST(
     const type = body.type;
 
     if (type === "album") {
+      await prisma.galleryItem.deleteMany({ where: { albumId: parsedId } });
       await prisma.album.delete({ where: { id: parsedId } });
     } else {
       await prisma.galleryItem.delete({ where: { id: parsedId } });

@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, useInView, Variants } from "framer-motion";
+import Image from "next/image";
 
 import { useCopy } from "@/components/language-provider";
 
@@ -267,16 +268,16 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
         <motion.aside className="hero-aside glass-panel" variants={fadeUpVariant}>
           <div className="hero-photo-grid" aria-label="Event photos">
             <div className="photo-tile photo-tile-v1">
-              <span>Photo placeholder 1</span>
+              <Image src="/img_2006.jpeg.jpg" alt="Event 1" width={300} height={400} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
             <div className="photo-tile photo-tile-h1">
-              <span>Photo placeholder 2</span>
+              <Image src="/img_2007.jpeg.jpg" alt="Event 2" width={400} height={300} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
             <div className="photo-tile photo-tile-v2">
-              <span>Photo placeholder 3</span>
+              <Image src="/img_2008.jpeg.jpg" alt="Event 3" width={300} height={400} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
             <div className="photo-tile photo-tile-h2">
-              <span>Photo placeholder 4</span>
+              <Image src="/img_2009.jpeg.jpg" alt="Event 4" width={400} height={300} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
           </div>
           

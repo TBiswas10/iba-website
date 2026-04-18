@@ -7,7 +7,7 @@ export async function GET() {
       prisma.event.count(),
       prisma.membership.count({ where: { status: "ACTIVE" } }),
       prisma.donation.count(),
-      prisma.galleryItem.count(),
+      prisma.album.count(),
       prisma.resource.count(),
       prisma.rsvp.count(),
     ]);
