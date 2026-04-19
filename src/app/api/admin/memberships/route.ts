@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
+import { cookies } from "next/headers";
 
 const updateMembershipSchema = z.object({
   id: z.number().int().positive(),
@@ -13,25 +14,89 @@ export async function GET() {
   if (denied) return denied;
 
   try {
-    const memberships = await prisma.membership.findMany({
-      where: {
-        user: {
-          role: "MEMBER",
-        },
+    const users = await prisma.user.findMany({
+      include: { 
+        memberships: {
+          orderBy: { createdAt: "desc" },
+          take: 1
+        } 
       },
-      include: { user: true },
       orderBy: { createdAt: "desc" },
-      take: 50,
     });
-    return NextResponse.json({ ok: true, data: memberships });
+    return NextResponse.json({ ok: true, data: users });
   } catch (error) {
-    return NextResponse.json({ ok: false, error: "Failed to fetch memberships" }, { status: 500 });
+    return NextResponse.json({ ok: false, error: "Failed to fetch users and memberships" }, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  // Use a direct auth check instead of middleware for robustness
+  const cookieStore = await cookies();
+  const email = cookieStore.get("userEmail")?.value;
+  
+  if (!email) {
+    return NextResponse.json({ ok: false, error: "Authentication required" }, { status: 401 });
+  }
+
+  const dbUser = await prisma.user.findUnique({ where: { email } });
+  if (!dbUser || dbUser.role !== "ADMIN") {
+    return NextResponse.json({ ok: false, error: "Admin access required" }, { status: 403 });
+  }
+
+  try {
+    const body = await request.json();
+    const { userId, action } = body;
+
+    if (action === "CREATE_MEMBERSHIP") {
+      const now = new Date();
+      const expiry = new Date(now);
+      expiry.setFullYear(expiry.getFullYear() + 1);
+
+      const membership = await prisma.membership.create({
+        data: {
+          userId,
+          status: "ACTIVE",
+          startDate: now,
+          expiryDate: expiry,
+        },
+      });
+      return NextResponse.json({ ok: true, data: membership });
+    }
+
+    if (action === "CHANGE_ROLE") {
+      const SUPER_ADMIN = "tirthabiswasm@gmail.com";
+
+      if (email !== SUPER_ADMIN) {
+        return NextResponse.json({ ok: false, error: "Only the Super Admin can change roles" }, { status: 403 });
+      }
+
+      const { role } = body;
+      const updated = await prisma.user.update({
+        where: { id: userId },
+        data: { role },
+      });
+      return NextResponse.json({ ok: true, data: updated });
+    }
+
+    return NextResponse.json({ ok: false, error: "Invalid action" }, { status: 400 });
+  } catch (error) {
+    console.error("Admin POST error:", error);
+    return NextResponse.json({ ok: false, error: "Failed to perform action" }, { status: 500 });
   }
 }
 
 export async function PUT(request: Request) {
-  const denied = await requireAdmin();
-  if (denied) return denied;
+  const cookieStore = await cookies();
+  const email = cookieStore.get("userEmail")?.value;
+  
+  if (!email) {
+    return NextResponse.json({ ok: false, error: "Authentication required" }, { status: 401 });
+  }
+
+  const dbUser = await prisma.user.findUnique({ where: { email } });
+  if (!dbUser || dbUser.role !== "ADMIN") {
+    return NextResponse.json({ ok: false, error: "Admin access required" }, { status: 403 });
+  }
 
   try {
     const body = await request.json();
@@ -55,8 +120,17 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const denied = await requireAdmin();
-  if (denied) return denied;
+  const cookieStore = await cookies();
+  const email = cookieStore.get("userEmail")?.value;
+  
+  if (!email) {
+    return NextResponse.json({ ok: false, error: "Authentication required" }, { status: 401 });
+  }
+
+  const dbUser = await prisma.user.findUnique({ where: { email } });
+  if (!dbUser || dbUser.role !== "ADMIN") {
+    return NextResponse.json({ ok: false, error: "Admin access required" }, { status: 403 });
+  }
 
   try {
     const url = new URL(request.url);

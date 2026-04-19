@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const skip = (page - 1) * limit;
 
   try {
-    const [donations, total] = await Promise.all([
+    const [donations, count, totalSum] = await Promise.all([
       prisma.donation.findMany({
         include: { user: true },
         orderBy: { createdAt: "desc" },
@@ -20,8 +20,23 @@ export async function GET(request: Request) {
         take: limit,
       }),
       prisma.donation.count(),
+      prisma.donation.aggregate({
+        _sum: {
+          amountCents: true,
+        },
+        where: {
+          status: "COMPLETED",
+        },
+      }),
     ]);
-    return NextResponse.json({ ok: true, data: donations, total, page, totalPages: Math.ceil(total / limit) });
+    return NextResponse.json({ 
+      ok: true, 
+      data: donations, 
+      count, 
+      totalAmount: totalSum._sum.amountCents || 0,
+      page, 
+      totalPages: Math.ceil(count / limit) 
+    });
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Failed to fetch donations" }, { status: 500 });
   }

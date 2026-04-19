@@ -17,7 +17,7 @@ model User {
   email        String       @unique
   name         String?
   passwordHash String?
-  role         UserRole     @default(MEMBER)
+  role         UserRole     @default(USER)
   memberships  Membership[]
   donations    Donation[]
   createdAt    DateTime     @default(now())
@@ -150,7 +150,7 @@ model WebhookEvent {
 
 enum UserRole {
   ADMIN
-  MEMBER
+  USER
 }
 
 enum MembershipStatus {

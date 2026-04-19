@@ -42,7 +42,6 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         const idToken = await firebaseUser.getIdToken();
-        // Set cookie via API and get real user data
         const res = await fetch("/api/session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -54,9 +53,25 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
         if (data.user) {
           setUser({ ...firebaseUser, role: data.user.role } as FirebaseUser);
         } else {
-          // If the record isn't in our DB yet, it might be a new signup
-          // that hasn't finished calling /api/signup. We'll default to MEMBER.
-          setUser({ ...firebaseUser, role: "MEMBER" } as FirebaseUser);
+          // AUTO-SYNC: If user exists in Firebase but not in our DB (e.g. after a reset)
+          // we call signup to recreate the record and establish the session.
+          await fetch("/api/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: firebaseUser.email,
+              name: firebaseUser.displayName || firebaseUser.email?.split("@")[0],
+            }),
+          });
+          
+          // Now that the user is created, call session again to get the cookie
+          const retryRes = await fetch("/api/session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken }),
+          });
+          const retryData = await retryRes.json();
+          setUser({ ...firebaseUser, role: retryData.user?.role || "USER" } as FirebaseUser);
         }
       } else {
         // Clear cookie via API

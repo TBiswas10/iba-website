@@ -54,7 +54,7 @@ export default function AdminDonationsPage() {
       setDonations(data.data || []);
       setTotalPages(data.totalPages || 1);
       setPage(pageNum);
-      setTotalAmount(data.total || 0);
+      setTotalAmount(data.totalAmount || 0);
     }
     setLoading(false);
   }
@@ -72,7 +72,7 @@ export default function AdminDonationsPage() {
   return (
     <section className="panel-stack">
       <section className="glass-panel">
-        <h1>Donations</h1>
+        <h1>Donations via Stripe</h1>
         <p>Track all contributions to IBA.</p>
         <p className="stat-highlight">
           Total: <strong>${(totalCents / 100).toFixed(2)} AUD</strong>

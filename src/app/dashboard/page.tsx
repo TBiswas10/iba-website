@@ -71,7 +71,7 @@ function DashboardContent() {
     return null;
   }
 
-  const role = user.role || "MEMBER";
+  const role = user.role || "USER";
 
   if (role === "ADMIN") {
     if (typeof window !== "undefined") {

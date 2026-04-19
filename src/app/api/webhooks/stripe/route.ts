@@ -23,11 +23,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
   }
 
+  // Idempotency check
+  try {
+    await prisma.webhookEvent.create({
+      data: {
+        provider: "stripe",
+        providerEventId: event.id,
+        eventType: event.type,
+      },
+    });
+  } catch (error: any) {
+    if (error?.code === "P2002") {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+    throw error;
+  }
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const { userId, email, donationId } = session.metadata || {};
+    const { userId, email, donationId, membershipId } = session.metadata || {};
 
-    console.log("Stripe webhook: checkout.session.completed", { userId, email, donationId });
+    console.log("Stripe webhook: checkout.session.completed", { userId, email, donationId, membershipId });
 
     if (donationId) {
         try {
@@ -38,6 +54,16 @@ export async function POST(request: Request) {
             console.log("Donation updated to COMPLETED");
         } catch (e) {
             console.error("Error updating donation:", e);
+        }
+    } else if (membershipId) {
+        try {
+            await prisma.membership.update({
+                where: { id: parseInt(membershipId) },
+                data: { status: "ACTIVE" },
+            });
+            console.log("Membership activated via membershipId");
+        } catch (e) {
+            console.error("Error activating membership:", e);
         }
     } else if (userId && email) {
       console.log("Processing membership for userId:", userId, "email:", email);
