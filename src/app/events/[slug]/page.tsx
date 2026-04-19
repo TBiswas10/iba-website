@@ -60,26 +60,18 @@ export default async function EventDetailsPage({ params }: { params: Promise<{ s
         <h1>{event.title}</h1>
         
         <div className="event-details-meta">
-          {(() => {
-            const start = event.start.toString();
-            const end = event.end.toString();
-            return (
-              <>
-                <div className="event-detail-row">
-                  <span className="event-detail-label">Date</span>
-                  <span className="event-detail-value">
-                    {new Date(start).toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-                  </span>
-                </div>
-                <div className="event-detail-row">
-                  <span className="event-detail-label">Time</span>
-                  <span className="event-detail-value">
-                    {new Date(start).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })} - {new Date(end).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
-                  </span>
-                </div>
-              </>
-            );
-          })()}
+          <div className="event-detail-row">
+            <span className="event-detail-label">Date</span>
+            <span className="event-detail-value">
+              {event.start.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+            </span>
+          </div>
+          <div className="event-detail-row">
+            <span className="event-detail-label">Time</span>
+            <span className="event-detail-value">
+              {event.start.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })} - {event.end.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
+            </span>
+          </div>
           
           {event.location && (
             <div className="event-detail-row">

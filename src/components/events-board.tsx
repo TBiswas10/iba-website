@@ -224,7 +224,7 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
                 onClick={() => setSelectedId(event.id)}
               >
                 <div className="upcoming-date">
-                  {event.start.toLocaleDateString("en-AU", { month: "short", day: "numeric" })}
+                  {event.start.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                 </div>
                 <div className="upcoming-details">
                   <h4>{event.title}</h4>
@@ -246,12 +246,12 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
             
             <span className="event-popup-label">Date & Time</span>
             <p className="event-popup-date">
-              {selected.start.toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+              {selected.start.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
               {" - "}
-              {selected.end.toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+              {selected.end.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
             </p>
             <p className="event-popup-date">
-              {selected.start.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" })} - {selected.end.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" })}
+              {selected.start.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })} - {selected.end.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
             </p>
             
             {selected.location && (
