@@ -25,9 +25,9 @@ export async function POST(request: Request) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const { userId, tier, email, donationId } = session.metadata || {};
+    const { userId, email, donationId } = session.metadata || {};
 
-    console.log("Stripe webhook: checkout.session.completed", { userId, tier, email, donationId });
+    console.log("Stripe webhook: checkout.session.completed", { userId, email, donationId });
 
     if (donationId) {
         try {
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
             console.error("Error updating donation:", e);
         }
     } else if (userId && email) {
-      console.log("Processing membership for userId:", userId, "email:", email, "tier:", tier);
+      console.log("Processing membership for userId:", userId, "email:", email);
 
       const now = new Date();
       const expiry = new Date(now);
@@ -68,7 +68,6 @@ export async function POST(request: Request) {
             data: {
               status: "ACTIVE",
               expiryDate: expiry,
-              tier: tier as any,
             },
           });
           console.log("Membership updated:", updated);
@@ -77,7 +76,6 @@ export async function POST(request: Request) {
           const created = await prisma.membership.create({
             data: {
               userId: parsedUserId,
-              tier: tier as any,
               status: "ACTIVE",
               startDate: now,
               expiryDate: expiry,
@@ -85,6 +83,7 @@ export async function POST(request: Request) {
           });
           console.log("Membership created:", created);
         }
+
       } catch (e) {
         console.error("Error creating/updating membership:", e);
         return NextResponse.json({ error: "Database error" }, { status: 500 });

@@ -81,7 +81,6 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({
           email: result.user.email,
           name: result.user.displayName || result.user.email?.split("@")[0],
-          tier: "FAMILY", // Default tier for new Google signups
         }),
       });
     }

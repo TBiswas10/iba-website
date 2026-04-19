@@ -51,12 +51,10 @@ export const signupSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   password: z.string().optional(),
-  tier: z.string().default("MEMBER"),
 });
 
 export const membershipSchema = z.object({
   userId: z.number().int().positive(),
-  tier: z.string(),
   status: z.nativeEnum(MembershipStatus),
   startDate: z.string().datetime(),
   expiryDate: z.string().datetime(),

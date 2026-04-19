@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       return fail("Signup request could not be processed", 400);
     }
 
-    const { email, name, password, tier = "MEMBER" } = parsed.data;
+    const { email, name, password } = parsed.data;
     
     // Validate password for email signup (not required for Google)
     if (password !== undefined && password.length > 0 && password.length < 8) {
@@ -79,7 +79,6 @@ export async function POST(request: Request) {
           passwordHash: await hash(password, 12),
           memberships: {
             create: {
-              tier: tier as any,
               status: "ACTIVE",
               startDate: now,
               expiryDate: expiry,

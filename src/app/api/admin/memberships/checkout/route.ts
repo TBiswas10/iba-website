@@ -12,8 +12,6 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { tier = "MEMBER" } = await request.json();
-
     // Get user from session cookie - don't trust client-side userId
     const cookieStore = await cookies();
     const email = cookieStore.get("userEmail")?.value;
@@ -46,7 +44,6 @@ export async function POST(request: Request) {
     const membership = await prisma.membership.create({
       data: {
         userId: dbUser.id,
-        tier: tier,
         status: "PENDING",
         startDate: now,
         expiryDate: expiry,
@@ -72,7 +69,6 @@ export async function POST(request: Request) {
       metadata: {
         userId: String(dbUser.id),
         email: email,
-        tier: tier,
         membershipId: String(membership.id),
       },
     });

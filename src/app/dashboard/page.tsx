@@ -7,7 +7,6 @@ import { useFirebaseAuth } from "@/components/firebase-auth-context";
 
 type Membership = {
   id: number;
-  tier: string;
   status: string;
   expiryDate: string;
 };

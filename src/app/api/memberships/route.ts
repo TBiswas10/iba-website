@@ -44,7 +44,6 @@ export async function POST(request: Request) {
     const created = await prisma.membership.create({
       data: {
         userId: parsed.data.userId,
-        tier: parsed.data.tier as any,
         status: parsed.data.status,
         startDate: new Date(parsed.data.startDate),
         expiryDate: new Date(parsed.data.expiryDate),

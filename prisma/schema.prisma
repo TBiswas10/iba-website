@@ -76,7 +76,6 @@ model Rsvp {
 model Membership {
   id         Int              @id @default(autoincrement())
   userId     Int
-  tier       MembershipTier
   status     MembershipStatus @default(PENDING)
   startDate  DateTime
   expiryDate DateTime
@@ -151,13 +150,6 @@ model WebhookEvent {
 
 enum UserRole {
   ADMIN
-  MEMBER
-}
-
-enum MembershipTier {
-  FAMILY
-  INDIVIDUAL
-  STUDENT
   MEMBER
 }
 

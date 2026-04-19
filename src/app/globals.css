@@ -671,13 +671,6 @@ h4 { font-size: 1.1rem; }
 .membership-card-body li::before { content: "✓"; color: var(--teal); margin-right: 0.5rem; font-weight: 600; }
 .membership-card-footer .btn-primary { width: 100%; padding: 1rem; font-size: 1.1rem; }
 
-.tier-select { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
-.tier-btn { display: flex; flex-direction: column; align-items: center; padding: 1rem 1.5rem; background: white; border: 2px solid rgba(122,45,70,0.15); border-radius: 12px; cursor: pointer; transition: all 0.2s ease; }
-.tier-btn:hover { border-color: var(--berry); }
-.tier-btn.selected { border-color: var(--neon-red); background: rgba(255,45,85,0.05); }
-.tier-name { font-weight: 600; color: var(--ink); font-size: 1rem; }
-.tier-price { font-size: 0.85rem; color: rgba(16, 16, 16, 0.6); margin-top: 0.25rem; }
-
 .grid-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; width: 100%; box-sizing: border-box; }
 .grid-form .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
 .grid-form .form-group label { font-weight: 500; color: var(--ink); }

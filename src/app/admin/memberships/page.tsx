@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 
 type Membership = {
   id: number;
-  tier: string;
   status: string;
   expiryDate: string;
   user: {
@@ -97,7 +96,6 @@ export default function AdminMembershipsPage() {
                 <tr>
                   <th>Member</th>
                   <th>Email</th>
-                  <th>Tier</th>
                   <th>Status</th>
                   <th>Expiry</th>
                   <th>Actions</th>
@@ -108,7 +106,6 @@ export default function AdminMembershipsPage() {
                   <tr key={m.id}>
                     <td>{m.user?.name || "—"}</td>
                     <td>{m.user?.email || "—"}</td>
-                    <td>{m.tier}</td>
                     <td>
                       <span className={`status-badge ${m.status.toLowerCase()}`}>{m.status}</span>
                     </td>

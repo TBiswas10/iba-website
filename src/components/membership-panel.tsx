@@ -4,13 +4,8 @@ import { FormEvent, useState, useEffect } from "react";
 import Link from "next/link";
 import { useFirebaseAuth } from "@/components/firebase-auth-context";
 
-const MEMBERSHIP_TIERS = [
-  { id: "MEMBER", name: "Member", desc: "Join as a member", price: "$1" },
-] as const;
-
 type Membership = {
   id: number;
-  tier: string;
   status: string;
   expiryDate: string;
 };
@@ -18,7 +13,6 @@ type Membership = {
 export function MembershipPanel() {
   const { user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, logout } = useFirebaseAuth();
   const [message, setMessage] = useState<string>("");
-  const [selectedTier, setSelectedTier] = useState<string>("FAMILY");
   const [membership, setMembership] = useState<Membership | null>(null);
   const [isChecking, setIsChecking] = useState(true);
 
@@ -55,7 +49,7 @@ export function MembershipPanel() {
       const response = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name, tier: selectedTier }),
+        body: JSON.stringify({ email, name }),
       });
       const json = await response.json();
       if (!response.ok || !json.ok) {
@@ -95,9 +89,6 @@ export function MembershipPanel() {
       const response = await fetch("/api/admin/memberships/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tier: selectedTier,
-        }),
       });
       const json = await response.json();
       if (json.ok && json.url) {
@@ -152,7 +143,6 @@ export function MembershipPanel() {
             <p style={{ marginTop: "0.5rem" }}>Valid until {new Date(membership!.expiryDate).toLocaleDateString(undefined)}</p>
             <div style={{ marginTop: "1rem", padding: "1rem", background: "rgba(255,255,255,0.5)", borderRadius: "12px" }}>
               <p><strong>Email:</strong> {user.email}</p>
-              <p><strong>Tier:</strong> {membership?.tier}</p>
               <p><strong>Status:</strong> {membership?.status}</p>
             </div>
           </div>
@@ -179,6 +169,7 @@ export function MembershipPanel() {
             </div>
           </>
         )}
+
 
         <div className="button-row" style={{ marginTop: "1.5rem" }}>
           <button className="btn-ghost" onClick={() => logout()} type="button">
@@ -208,10 +199,9 @@ export function MembershipPanel() {
             Create password
             <input required minLength={8} type="password" placeholder="Min 8 characters" name="password" />
           </label>
-          <input type="hidden" name="tier" value={selectedTier} />
           <div className="span-2 button-row">
             <button className="btn-primary" type="submit">
-              Join IBA {MEMBERSHIP_TIERS.find(t => t.id === selectedTier)?.name}
+              Join IBA
             </button>
           </div>
         </form>

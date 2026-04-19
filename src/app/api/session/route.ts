@@ -36,7 +36,6 @@ export async function GET() {
         name: dbUser.name,
         role: dbUser.role,
         membershipStatus: isMembershipActive ? "ACTIVE" : "NONE",
-        membershipTier: membership?.tier || null,
         membershipExpiry: membership?.expiryDate || null,
       },
     });
