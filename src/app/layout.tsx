@@ -30,6 +30,7 @@ const bengali = Noto_Sans_Bengali({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://iba-website-i8fy.vercel.app/"),
   title: {
     default: "Illawarra Bengali Association | IBA",
     template: "%s | IBA",
