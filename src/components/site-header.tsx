@@ -65,23 +65,38 @@ export function SiteHeader() {
 
   return (
     <header className={`site-header ${scrolled ? "scrolled" : ""}`}>
-      <div className="shell-row">
-        <div className="brand-section">
-          <Link href="/" className="brand-mark">
+      <div className="header-row">
+        <div className="header-top">
+          <Link href="/" className="header-logo">
             <Image
               src="/logo.png"
               alt={tCommon("brand")}
-              width={36}
-              height={36}
-              className="brand-logo"
+              width={56}
+              height={56}
+              className="header-logo-img"
             />
-            <span className="brand-name">Illawarra Bengali Association</span>
-            <span className="brand-name-mobile">IBA</span>
+            <div className="header-logo-text">
+              <span className="header-logo-name">Illawarra Bengali Association</span>
+              <span className="header-logo-tagline">Community • Culture • Connection</span>
+            </div>
           </Link>
+
+          <button
+            className="mobile-menu-btn"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle menu"
+            aria-expanded={isOpen}
+          >
+            <div className={`hamburger ${isOpen ? "open" : ""}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </button>
         </div>
 
         <nav className={`nav-container ${isOpen ? "open" : ""}`} aria-label="Primary">
-          <div className="nav-grid">
+          <div className="nav-row">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -101,19 +116,6 @@ export function SiteHeader() {
             </Link>
           </div>
         </nav>
-
-        <button
-          className="mobile-menu-btn"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label="Toggle menu"
-          aria-expanded={isOpen}
-        >
-          <div className={`hamburger ${isOpen ? "open" : ""}`}>
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </button>
       </div>
     </header>
   );
