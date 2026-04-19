@@ -106,11 +106,16 @@ export default function AdminEventsPage() {
 
   function startEdit(event: Event) {
     setEditingId(event.id);
+    const formatForInput = (d: string) => {
+      const date = new Date(d);
+      date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+      return date.toISOString().slice(0, 16);
+    };
     setFormData({
       title: event.title,
       slug: event.slug || "",
-      start: new Date(event.start).toISOString().slice(0, 16),
-      end: new Date(event.end).toISOString().slice(0, 16),
+      start: formatForInput(event.start),
+      end: formatForInput(event.end),
       location: event.location || "",
       description: event.description || "",
       imageUrl: event.imageUrl || "",
@@ -242,7 +247,7 @@ export default function AdminEventsPage() {
               <div key={event.id} className="event-card">
                 <div className="event-card-header">
                   <h3>{event.title}</h3>
-                  <span className="event-date">{new Date(event.start).toLocaleDateString("en-AU")}</span>
+                  <span className="event-date">{new Date(event.start).toLocaleDateString(undefined)}</span>
                 </div>
                 <div className="event-card-body">
                   {event.location && (
