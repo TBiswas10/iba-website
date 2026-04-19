@@ -68,11 +68,9 @@ export function SiteHeader() {
       <div className="header-row">
         <div className="header-top">
           <Link href="/" className="header-logo">
-            <Image
-              src="/logo.png"
+            <img
+              src="/Illawarra-Bengali-Association-Logo.svg"
               alt={tCommon("brand")}
-              width={56}
-              height={56}
               className="header-logo-img"
             />
             <div className="header-logo-text">
@@ -97,21 +95,24 @@ export function SiteHeader() {
 
         <nav className={`nav-container ${isOpen ? "open" : ""}`} aria-label="Primary">
           <div className="nav-row">
-            {navItems.map((item) => (
+            {navItems.map((item) => {
+              const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+              return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={pathname === item.href ? "nav-link active" : "nav-link"}
+                className={`nav-link has-underline ${isActive ? "active" : ""}`}
               >
                 {tNav(item.key)}
               </Link>
-            ))}
+              );
+            })}
             {user?.role === "ADMIN" && (
-              <Link href="/admin" className="nav-link">
+              <Link href="/admin" className={`nav-link has-underline ${pathname.startsWith("/admin") ? "active" : ""}`}>
                 Admin
               </Link>
             )}
-            <Link href="/events/rsvp" className={`nav-link nav-cta ${pathname.startsWith("/events/rsvp") ? "active" : ""}`}>
+            <Link href="/events/rsvp" className="nav-link nav-cta">
               {tCommon("rsvp")}
             </Link>
           </div>

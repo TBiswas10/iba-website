@@ -268,7 +268,7 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
         <motion.aside className="hero-aside glass-panel" variants={fadeUpVariant}>
           <div className="hero-photo-grid" aria-label="Event photos">
             <div className="photo-tile photo-tile-v1">
-              <Image src="/img_2006.jpeg.jpg" alt="Event 1" width={300} height={400} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+              <Image src="/img_2006.jpeg" alt="Event 1" width={300} height={400} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
             <div className="photo-tile photo-tile-h1">
               <Image src="/img_2007.jpeg.jpg" alt="Event 2" width={400} height={300} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
@@ -277,7 +277,7 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
               <Image src="/img_2008.jpeg.jpg" alt="Event 3" width={300} height={400} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
             <div className="photo-tile photo-tile-h2">
-              <Image src="/img_2009.jpeg.jpg" alt="Event 4" width={400} height={300} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+              <Image src="/img1.jpeg" alt="Event 4" width={400} height={300} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
           </div>
           
