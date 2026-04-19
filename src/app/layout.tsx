@@ -30,8 +30,18 @@ const bengali = Noto_Sans_Bengali({
 });
 
 export const metadata: Metadata = {
-  title: "Illawarra Bengali Association",
-  description: "Community events, membership, donations, and cultural resources.",
+  title: {
+    default: "Illawarra Bengali Association | IBA",
+    template: "%s | IBA",
+  },
+  description: "A living digital home for Bengali families in Illawarra with events, membership, resources, and collective giving.",
+  openGraph: {
+    type: "website",
+    locale: "en_AU",
+    url: "https://iba-website-i8fy.vercel.app/",
+    siteName: "Illawarra Bengali Association",
+    images: [{ url: "/Illawarra-Bengali-Association-Logo.svg" }],
+  },
 };
 
 export const viewport: Viewport = {
