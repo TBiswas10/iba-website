@@ -75,6 +75,7 @@ export function SiteHeader() {
             />
             <div className="header-logo-text">
               <span className="header-logo-name desktop-only">Illawarra Bengali Association</span>
+              <span className="header-logo-name mobile-only">IBA</span>
               <span className="header-logo-tagline">Community • Culture • Connection</span>
             </div>
           </Link>
