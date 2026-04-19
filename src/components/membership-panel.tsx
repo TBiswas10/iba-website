@@ -149,7 +149,7 @@ export function MembershipPanel() {
         {isActive ? (
           <div style={{ marginTop: "1.5rem" }}>
             <p className="status-badge active" style={{ display: "inline-block" }}>Membership Active</p>
-            <p style={{ marginTop: "0.5rem" }}>Valid until {new Date(membership!.expiryDate).toLocaleDateString()}</p>
+            <p style={{ marginTop: "0.5rem" }}>Valid until {new Date(membership!.expiryDate).toLocaleDateString(undefined)}</p>
             <div style={{ marginTop: "1rem", padding: "1rem", background: "rgba(255,255,255,0.5)", borderRadius: "12px" }}>
               <p><strong>Email:</strong> {user.email}</p>
               <p><strong>Tier:</strong> {membership?.tier}</p>

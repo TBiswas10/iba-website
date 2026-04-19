@@ -194,7 +194,7 @@ export function RsvpAdminTable() {
                 </td>
                 <td>
                   <strong>{row.event.title}</strong>
-                  <p>{new Date(row.event.start).toLocaleDateString("en-AU")}</p>
+                  <p>{new Date(row.event.start).toLocaleDateString(undefined)}</p>
                 </td>
                 <td>
                   <p>{row.email}</p>

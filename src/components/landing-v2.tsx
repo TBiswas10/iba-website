@@ -114,7 +114,7 @@ export function LandingV2({ nextEvent }: LandingV2Props) {
           <h2>{nextEvent?.title || copy.home.events.highlight.title}</h2>
           <p>
             {nextEvent ? 
-              new Date(nextEvent.start).toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long" }) + 
+              new Date(nextEvent.start).toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" }) + 
               (nextEvent.location ? ` @ ${nextEvent.location}` : "")
               : copy.home.events.highlight.body
             }

@@ -112,7 +112,7 @@ export default function AdminMembershipsPage() {
                     <td>
                       <span className={`status-badge ${m.status.toLowerCase()}`}>{m.status}</span>
                     </td>
-                    <td>{new Date(m.expiryDate).toLocaleDateString()}</td>
+                    <td>{new Date(m.expiryDate).toLocaleDateString(undefined)}</td>
                     <td>
                       <div className="action-buttons">
                         {m.status !== "ACTIVE" && (

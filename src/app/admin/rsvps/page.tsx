@@ -124,7 +124,7 @@ export default function AdminRsvpsPage() {
             <option value="">— Select an event —</option>
             {events.map(event => (
               <option key={event.id} value={event.id}>
-                {event.title} ({new Date(event.start).toLocaleDateString("en-AU")})
+                {event.title} ({new Date(event.start).toLocaleDateString(undefined)})
               </option>
             ))}
           </select>
@@ -179,7 +179,7 @@ export default function AdminRsvpsPage() {
                       )}
                     </div>
                     <div className="rsvp-card-footer">
-                      <span className="rsvp-date">{new Date(rsvp.createdAt).toLocaleDateString("en-AU")}</span>
+                      <span className="rsvp-date">{new Date(rsvp.createdAt).toLocaleDateString(undefined)}</span>
                       <button className="btn-danger btn-sm" onClick={() => deleteRsvp(rsvp.id)}>
                         Delete
                       </button>

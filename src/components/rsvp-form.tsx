@@ -168,7 +168,7 @@ export function RsvpForm() {
               </option>
               {events.map((eventOption) => (
                 <option key={eventOption.id} value={eventOption.id}>
-                  {eventOption.title} - {new Date(eventOption.start).toLocaleDateString("en-AU")}
+                  {eventOption.title} - {new Date(eventOption.start).toLocaleDateString(undefined)}
                 </option>
               ))}
             </select>

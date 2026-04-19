@@ -228,7 +228,7 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
                 </div>
                 <div className="upcoming-details">
                   <h4>{event.title}</h4>
-                  <p>{event.start.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" })}</p>
+                  <p>{event.start.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}</p>
                 </div>
               </div>
             ))}

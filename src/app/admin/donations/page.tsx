@@ -109,7 +109,7 @@ export default function AdminDonationsPage() {
                     </div>
                     <div className="donation-row">
                       <span className="donation-label">Date</span>
-                      <span className="donation-value">{new Date(d.createdAt).toLocaleDateString("en-AU")}</span>
+                      <span className="donation-value">{new Date(d.createdAt).toLocaleDateString(undefined)}</span>
                     </div>
                     {d.message && (
                       <div className="donation-row">

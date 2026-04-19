@@ -105,7 +105,7 @@ function DashboardContent() {
           <h2>Your Membership</h2>
           <div style={{ display: "grid", gap: "0.5rem" }}>
             <p><strong>Status:</strong> {membership.status === "ACTIVE" ? "Active Member" : "Pending"}</p>
-            <p><strong>Valid until:</strong> {new Date(membership.expiryDate).toLocaleDateString("en-AU", {
+            <p><strong>Valid until:</strong> {new Date(membership.expiryDate).toLocaleDateString(undefined, {
               day: "numeric",
               month: "long",
               year: "numeric"

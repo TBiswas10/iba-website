@@ -393,7 +393,7 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
           <h3>{nextEvent?.title || copy.home.events.highlight.title}</h3>
           <p>
             {nextEvent ?
-              new Date(nextEvent.start).toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" }) +
+              new Date(nextEvent.start).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) +
               (nextEvent.location ? ` · ${nextEvent.location}` : "")
             : copy.home.events.highlight.body}
           </p>
