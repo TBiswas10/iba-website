@@ -1,30 +1,9 @@
-"use client";
-
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
-
-function ClientDateTimeDisplay({ start, end }: { start: Date; end: Date }) {
-  return (
-    <>
-      <div className="event-detail-row">
-        <span className="event-detail-label">Date</span>
-        <span className="event-detail-value">
-          {new Date(start).toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-        </span>
-      </div>
-      <div className="event-detail-row">
-        <span className="event-detail-label">Time</span>
-        <span className="event-detail-value">
-          {new Date(start).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })} - {new Date(end).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
-        </span>
-      </div>
-    </>
-  );
-}
 
 function formatICS(title: string, start: string, end: string, location: string | null, description: string | null) {
   const formatDate = (date: string) => new Date(date).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
@@ -81,7 +60,26 @@ export default async function EventDetailsPage({ params }: { params: Promise<{ s
         <h1>{event.title}</h1>
         
         <div className="event-details-meta">
-          <ClientDateTimeDisplay start={event.start} end={event.end} />
+          {(() => {
+            const start = event.start.toString();
+            const end = event.end.toString();
+            return (
+              <>
+                <div className="event-detail-row">
+                  <span className="event-detail-label">Date</span>
+                  <span className="event-detail-value">
+                    {new Date(start).toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+                  </span>
+                </div>
+                <div className="event-detail-row">
+                  <span className="event-detail-label">Time</span>
+                  <span className="event-detail-value">
+                    {new Date(start).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })} - {new Date(end).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
+                  </span>
+                </div>
+              </>
+            );
+          })()}
           
           {event.location && (
             <div className="event-detail-row">
