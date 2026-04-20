@@ -67,13 +67,7 @@ export default function AdminEventsPage() {
     e.preventDefault();
     
     const toUTCDateString = (localDateTime: string) => {
-      const [datePart, timePart] = localDateTime.split("T");
-      const [year, month, day] = datePart.split("-").map(Number);
-      const [hours, minutes] = timePart.split(":").map(Number);
-      const date = new Date(year, month - 1, day, hours, minutes);
-      const offset = date.getTimezoneOffset();
-      const utcDate = new Date(date.getTime() - offset * 60 * 1000);
-      return utcDate.toISOString();
+      return new Date(localDateTime).toISOString();
     };
     
     const payload = {
@@ -107,9 +101,7 @@ export default function AdminEventsPage() {
   function startEdit(event: Event) {
     setEditingId(event.id);
     const formatForInput = (d: string) => {
-      const date = new Date(d);
-      date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
-      return date.toISOString().slice(0, 16);
+      return d;
     };
     setFormData({
       title: event.title,
