@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit, IBM_Plex_Sans, Noto_Sans_Bengali } from "next/font/google";
+import { Fraunces, DM_Sans, Noto_Sans_Bengali } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -11,16 +11,18 @@ import { SiteHeader } from "@/components/site-header";
 
 import "./globals.css";
 
-const heading = Outfit({
+const heading = Fraunces({
   subsets: ["latin"],
   variable: "--font-heading",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600", "700"],
+  display: "swap",
 });
 
-const body = IBM_Plex_Sans({
+const body = DM_Sans({
   subsets: ["latin"],
   variable: "--font-body",
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 const bengali = Noto_Sans_Bengali({
