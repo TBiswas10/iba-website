@@ -228,7 +228,7 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
                 </div>
                 <div className="upcoming-details">
                   <h4>{event.title}</h4>
-                  <p>{event.start.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}</p>
+                  <p>{event.start.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit", timeZone: "Australia/Sydney" })}</p>
                 </div>
               </div>
             ))}
@@ -251,7 +251,7 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
               {selected.end.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
             </p>
             <p className="event-popup-date">
-              {selected.start.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })} - {selected.end.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
+              {selected.start.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit", timeZone: "Australia/Sydney" })} - {selected.end.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit", timeZone: "Australia/Sydney" })}
             </p>
             
             {selected.location && (

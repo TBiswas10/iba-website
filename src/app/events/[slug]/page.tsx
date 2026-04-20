@@ -69,7 +69,7 @@ export default async function EventDetailsPage({ params }: { params: Promise<{ s
           <div className="event-detail-row">
             <span className="event-detail-label">Time</span>
             <span className="event-detail-value">
-              {event.start.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })} - {event.end.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
+              {event.start.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit", timeZone: "Australia/Sydney" })} - {event.end.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit", timeZone: "Australia/Sydney" })}
             </span>
           </div>
           
