@@ -101,7 +101,8 @@ export default function AdminEventsPage() {
   function startEdit(event: Event) {
     setEditingId(event.id);
     const formatForInput = (d: string) => {
-      return d;
+      const date = new Date(d);
+      return date.toLocaleString("sv-SE", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).replace(" ", "T");
     };
     setFormData({
       title: event.title,
@@ -257,7 +258,7 @@ export default function AdminEventsPage() {
                 </div>
                 <div className="event-card-footer">
                   <span className="event-meta">
-                    {new Date(event.start).toLocaleString("en-AU", { hour: "numeric", minute: "2-digit" })} - {new Date(event.end).toLocaleString("en-AU", { hour: "numeric", minute: "2-digit" })}
+                    {new Date(event.start).toLocaleString("en-AU", { hour: "numeric", minute: "2-digit", timeZone: "Australia/Sydney" })} - {new Date(event.end).toLocaleString("en-AU", { hour: "numeric", minute: "2-digit", timeZone: "Australia/Sydney" })}
                   </span>
                   <div className="event-actions">
                     <button className="btn-ghost btn-sm" onClick={() => startEdit(event)}>Edit</button>
