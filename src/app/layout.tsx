@@ -43,6 +43,19 @@ export const metadata: Metadata = {
     siteName: "Illawarra Bengali Association",
     images: [{ url: "/Illawarra-Bengali-Association-Logo.svg" }],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Illawarra Bengali Association | IBA",
+    description: "A living digital home for Bengali families in Illawarra with events, membership, resources, and collective giving.",
+    images: ["/Illawarra-Bengali-Association-Logo.svg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "https://iba-website-i8fy.vercel.app/",
+  },
 };
 
 export const viewport: Viewport = {
