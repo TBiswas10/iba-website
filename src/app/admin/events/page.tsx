@@ -101,8 +101,14 @@ export default function AdminEventsPage() {
   function startEdit(event: Event) {
     setEditingId(event.id);
     const formatForInput = (d: string) => {
-      const date = new Date(d);
-      return date.toLocaleString("sv-SE", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).replace(" ", "T");
+      try {
+        const date = new Date(d);
+        if (isNaN(date.getTime())) return d;
+        const pad = (n: number) => n.toString().padStart(2, "0");
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+      } catch {
+        return d;
+      }
     };
     setFormData({
       title: event.title,
