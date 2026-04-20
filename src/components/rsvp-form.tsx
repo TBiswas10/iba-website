@@ -51,7 +51,9 @@ export function RsvpForm() {
               setForm(prev => ({ ...prev, name: data.user.name }));
             }
           })
-          .catch(() => {});
+          .catch(err => {
+            console.error("Failed to load session:", err);
+          });
       }
     }
   }, [user]);

@@ -64,9 +64,9 @@ export async function POST(request: Request) {
     }
 
     if (action === "CHANGE_ROLE") {
-      const SUPER_ADMIN = "tirthabiswasm@gmail.com";
+      const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || "tirthabiswasm@gmail.com";
 
-      if (email !== SUPER_ADMIN) {
+      if (email !== superAdminEmail) {
         return NextResponse.json({ ok: false, error: "Only the Super Admin can change roles" }, { status: 403 });
       }
 
