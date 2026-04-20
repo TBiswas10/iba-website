@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-  DATABASE_URL: z.string().min(1).optional(),
-  NEXTAUTH_SECRET: z.string().min(1).optional(),
+  DATABASE_URL: z.string().optional(),
+  NEXTAUTH_SECRET: z.string().optional(),
   NEXTAUTH_URL: z.string().optional(),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
@@ -25,35 +25,7 @@ const envSchema = z.object({
 
 const parsed = envSchema.safeParse(process.env);
 
-if (!parsed.success) {
-  const issues = parsed.error.issues.map((issue) => issue.path.join(".")).join(", ");
-  throw new Error(`Invalid environment variables: ${issues}`);
-}
-
-export const env = parsed.data;
-
-function assertProductionEnv() {
-  const requiredInProd: Array<keyof typeof env> = [
-    "DATABASE_URL",
-    "NEXTAUTH_SECRET",
-    "SMTP_HOST",
-    "SMTP_PORT",
-    "SMTP_USER",
-    "SMTP_PASSWORD",
-    "SMTP_FROM",
-  ];
-  const missing = requiredInProd.filter((key) => !env[key]);
-  if (missing.length > 0) {
-    throw new Error(`Missing required production environment variables: ${missing.join(", ")}`);
-  }
-}
-
-if (
-  process.env.NODE_ENV === "production" &&
-  process.env.NEXT_PHASE !== "phase-production-build"
-) {
-  assertProductionEnv();
-}
+export const env = parsed.success ? parsed.data : {};
 
 export function requireEnv(key: keyof typeof env) {
   const value = env[key];

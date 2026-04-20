@@ -80,6 +80,10 @@ export default function AdminRsvpsPage() {
           if (data.ok) {
             setRsvps(data.data || []);
           }
+        })
+        .catch(err => {
+          console.error("Failed to fetch RSVPs:", err);
+          setRsvps([]);
         });
     } else {
       setRsvps([]);
