@@ -72,7 +72,7 @@ export default function AdminEventsPage() {
       const [hours, minutes] = timePart.split(":").map(Number);
       const date = new Date(year, month - 1, day, hours, minutes);
       const offset = date.getTimezoneOffset();
-      const utcDate = new Date(date.getTime() + offset * 60 * 1000);
+      const utcDate = new Date(date.getTime() - offset * 60 * 1000);
       return utcDate.toISOString();
     };
     
@@ -108,7 +108,7 @@ export default function AdminEventsPage() {
     setEditingId(event.id);
     const formatForInput = (d: string) => {
       const date = new Date(d);
-      date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+      date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
       return date.toISOString().slice(0, 16);
     };
     setFormData({
