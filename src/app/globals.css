@@ -133,7 +133,7 @@ h4 { font-size: 1.1rem; }
 }
 
 .btn-accent {
-  background: linear-gradient(135deg, var(--teal), #0a9992);
+  background: linear-gradient(135deg, var(--teal), var(--teal));
   color: white;
 }
 
@@ -1480,4 +1480,12 @@ h4 { font-size: 1.1rem; }
 @media (min-width: 768px) {
   .header-logo-name.desktop-only { display: block; }
   .header-logo-name.mobile-only { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
