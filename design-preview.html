@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Illawarra Bengali Association — Design Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #FAF6F0;
+      --ink: #1A1A1A;
+      --clay: #C45A3B;
+      --jute: #D4B896;
+      --deep: #1E3A44;
+      --surface: #FFFFFF;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(250, 246, 240, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Fraunces', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--deep);
+    }
+
+    .logo span {
+      color: var(--clay);
+    }
+
+    nav {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--clay);
+    }
+
+    .nav-cta {
+      background: var(--clay);
+      color: white !important;
+      padding: 0.6rem 1.4rem;
+      border-radius: 100px;
+      font-weight: 600;
+    }
+
+    .nav-cta:hover {
+      background: #a84a2f;
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      padding: 8rem 2rem 4rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .hero-content {
+      max-width: 560px;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--clay);
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 1.5rem;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--clay);
+    }
+
+    .hero-desc {
+      font-size: 1.15rem;
+      color: var(--ink);
+      opacity: 0.8;
+      margin-bottom: 2rem;
+      max-width: 480px;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--clay);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 100px;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #a84a2f;
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      color: var(--deep);
+      padding: 1rem 2rem;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: opacity 0.2s;
+    }
+
+    .btn-ghost:hover {
+      opacity: 0.7;
+    }
+
+    /* Hero visual */
+    .hero-visual {
+      position: relative;
+    }
+
+    .hero-image {
+      width: 100%;
+      aspect-ratio: 4/5;
+      background: linear-gradient(135deg, var(--deep) 0%, #2d4f57 100%);
+      border-radius: 28px;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(30, 58, 68, 0.25);
+    }
+
+    .hero-image-content {
+      padding: 2rem;
+      color: white;
+    }
+
+    .hero-image-content h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-image-content p {
+      opacity: 0.85;
+    }
+
+    .floating-badge {
+      position: absolute;
+      background: var(--paper);
+      padding: 1rem 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .badge-1 {
+      top: 10%;
+      right: -10%;
+    }
+
+    .badge-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--clay);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.25rem;
+    }
+
+    .badge-text strong {
+      display: block;
+      font-weight: 700;
+    }
+
+    .badge-text span {
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+
+    /* Stats strip */
+    .stats-strip {
+      background: var(--deep);
+      padding: 3rem 2rem;
+    }
+
+    .stats-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+
+    .stat {
+      text-align: center;
+      color: white;
+    }
+
+    .stat-number {
+      font-family: 'Fraunces', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--jute);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    /* Mission */
+    .mission {
+      padding: 6rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .mission-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .mission-label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--clay);
+      font-weight: 600;
+    }
+
+    h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-top: 0.75rem;
+    }
+
+    .mission-content p {
+      font-size: 1.1rem;
+      opacity: 0.85;
+      margin-bottom: 1.5rem;
+    }
+
+    .values {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .value-tag {
+      background: var(--jute);
+      color: var(--deep);
+      padding: 0.5rem 1rem;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* Events section */
+    .events-section {
+      padding: 6rem 2rem;
+      background: var(--surface);
+    }
+
+    .section-header {
+      max-width: 1200px;
+      margin: 0 auto 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .events-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    .event-card {
+      background: var(--paper);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .event-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    }
+
+    .event-image {
+      height: 180px;
+      background: linear-gradient(135deg, var(--deep) 0%, var(--clay) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 3rem;
+    }
+
+    .event-info {
+      padding: 1.5rem;
+    }
+
+    .event-date {
+      font-size: 0.85rem;
+      color: var(--clay);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .event-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .event-meta {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* CTA section */
+    .cta-section {
+      padding: 6rem 2rem;
+      text-align: center;
+    }
+
+    .cta-box {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--deep);
+      border-radius: 28px;
+      padding: 4rem;
+      color: white;
+    }
+
+    .cta-box h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .cta-box p {
+      opacity: 0.85;
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--ink);
+      color: white;
+      padding: 4rem 2rem 2rem;
+    }
+
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem;
+    }
+
+    .footer-brand {
+      font-family: 'Fraunces', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .footer-brand span {
+      color: var(--clay);
+    }
+
+    .footer-desc {
+      opacity: 0.7;
+      max-width: 280px;
+    }
+
+    .footer-title {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--jute);
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-links a {
+      color: white;
+      opacity: 0.7;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: opacity 0.2s;
+    }
+
+    .footer-links a:hover {
+      opacity: 1;
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 3rem auto 0;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      opacity: 0.5;
+      font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding-top: 6rem;
+      }
+
+      .hero-content {
+        max-width: 100%;
+      }
+
+      .hero-desc {
+        max-width: 100%;
+      }
+
+      .hero-cta {
+        justify-content: center;
+      }
+
+      .hero-visual {
+        display: none;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .mission-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .events-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      nav {
+        display: none;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">Illawarra <span>Bengali</span></div>
+    <nav>
+      <a href="#">About</a>
+      <a href="#">Events</a>
+      <a href="#">Gallery</a>
+      <a href="#">Contact</a>
+      <a href="#" class="nav-cta">RSVP Now</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <p class="hero-eyebrow">Welcome to our community</p>
+      <h1>Where Bengal <em>comes alive</em> in Illawarra</h1>
+      <p class="hero-desc">Join us for vibrant celebrations of Durga Puja, cultural performances, and community gatherings that bring the warmth of Bengal to Australia.</p>
+      <div class="hero-cta">
+        <a href="#" class="btn-primary">View Upcoming Events →</a>
+        <a href="#" class="btn-ghost">Learn more</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-image">
+        <div class="hero-image-content">
+          <h3>Durga Puja 2025</h3>
+          <p>September 28 – October 2</p>
+        </div>
+      </div>
+      <div class="floating-badge badge-1">
+        <div class="badge-icon">🎭</div>
+        <div class="badge-text">
+          <strong>500+ Attendees</strong>
+          <span>Last year's celebration</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-strip">
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="stat-number">500+</div>
+        <div class="stat-label">Community Members</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">12</div>
+        <div class="stat-label">Annual Events</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">8</div>
+        <div class="stat-label">Years Running</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">$45K+</div>
+        <div class="stat-label">Funds Raised</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mission">
+    <div class="mission-grid">
+      <div>
+        <p class="mission-label">Our Mission</p>
+        <h2>Celebrating Bengali culture in the heart of Illawarra</h2>
+      </div>
+      <div class="mission-content">
+        <p>The Illawarra Bengali Association brings together Bengali families and individuals to preserve, promote, and share our rich cultural heritage with the broader community.</p>
+        <p>From grand Durga Puja celebrations to cultural workshops, language classes, and community support — we create spaces where everyone belongs.</p>
+        <div class="values">
+          <span class="value-tag">Culture</span>
+          <span class="value-tag">Community</span>
+          <span class="value-tag">Connection</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="events-section">
+    <div class="section-header">
+      <h3>Upcoming Events</h3>
+      <a href="#" class="btn-ghost">View all →</a>
+    </div>
+    <div class="events-grid">
+      <div class="event-card">
+        <div class="event-image">🪷</div>
+        <div class="event-info">
+          <p class="event-date">Sep 28 – Oct 2, 2025</p>
+          <h4 class="event-title">Durga Puja 2025</h4>
+          <p class="event-meta">📍 Wollongong Showground</p>
+        </div>
+      </div>
+      <div class="event-card">
+        <div class="event-image">🪔</div>
+        <div class="event-info">
+          <p class="event-date">Oct 21, 2025</p>
+          <h4 class="event-title">Kali Puja</h4>
+          <p class="event-meta">📍 Community Centre</p>
+        </div>
+      </div>
+      <div class="event-card">
+        <div class="event-image">🎵</div>
+        <div class="event-info">
+          <p class="event-date">Jan 24, 2026</p>
+          <h4 class="event-title">Saraswati Puja</h4>
+          <p class="event-meta">📍 Truganina Community Hall</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="cta-box">
+      <h3>Join Our Community</h3>
+      <p>Become a member and be part of something meaningful. Your support helps us celebrate and preserve Bengali culture for generations to come.</p>
+      <a href="#" class="btn-primary">Become a Member</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">Illawarra <span>Bengali</span></div>
+        <p class="footer-desc">Bringing the warmth of Bengal to Australia since 2017.</p>
+      </div>
+      <div>
+        <h4 class="footer-title">Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Events</a></li>
+          <li><a href="#">Membership</a></li>
+          <li><a href="#">Donate</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-title">Contact</h4>
+        <ul class="footer-links">
+          <li><a href="#">hello@iba.org.au</a></li>
+          <li><a href="#">Facebook</a></li>
+          <li><a href="#">Instagram</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-title">Legal</h4>
+        <ul class="footer-links">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2025 Illawarra Bengali Association. All rights reserved.
+    </div>
+  </footer>
+</body>
+</html>

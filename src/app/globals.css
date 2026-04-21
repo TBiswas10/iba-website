@@ -9,6 +9,12 @@
   --font-heading: 'Fraunces', serif;
   --font-body: 'DM Sans', sans-serif;
   --font-bn: 'Noto Sans Bengali', sans-serif;
+  
+  --sunset: #C45A3B;
+  --neon-red: #C45A3B;
+  --berry: #C45A3B;
+  --teal: #1E3A44;
+  --gold: #D4B896;
 }
 
 * {
