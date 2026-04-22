@@ -3,6 +3,16 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
 import { eventSchema } from "@/lib/validators";
 
+function parseLocalDateTime(value: string): Date {
+  if (value.includes("T") && !value.includes("Z")) {
+    const [datePart, timePart] = value.split("T");
+    const [year, month, day] = datePart.split("-").map(Number);
+    const [hour, minute] = timePart.split(":").map(Number);
+    return new Date(year, month - 1, day, hour, minute);
+  }
+  return new Date(value);
+}
+
 export async function GET() {
   try {
     const events = await prisma.event.findMany({
@@ -46,8 +56,8 @@ export async function POST(request: Request) {
       data: {
         title: payload.title,
         slug,
-        start: new Date(payload.start),
-        end: new Date(payload.end),
+        start: parseLocalDateTime(payload.start),
+        end: parseLocalDateTime(payload.end),
         location: payload.location,
         description: payload.description,
         imageUrl: payload.imageUrl,

@@ -3,6 +3,16 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
 import { eventSchema } from "@/lib/validators";
 
+function parseLocalDateTime(value: string): Date {
+  if (value.includes("T") && !value.includes("Z")) {
+    const [datePart, timePart] = value.split("T");
+    const [year, month, day] = datePart.split("-").map(Number);
+    const [hour, minute] = timePart.split(":").map(Number);
+    return new Date(year, month - 1, day, hour, minute);
+  }
+  return new Date(value);
+}
+
 interface RouteParams {
   params: {
     id: string;
@@ -45,8 +55,8 @@ export async function PUT(request: Request, { params }: RouteParams) {
       where: { id },
       data: {
         title: parsed.data.title,
-        start: new Date(parsed.data.start),
-        end: new Date(parsed.data.end),
+        start: parseLocalDateTime(parsed.data.start),
+        end: parseLocalDateTime(parsed.data.end),
         location: parsed.data.location,
         description: parsed.data.description,
         imageUrl: parsed.data.imageUrl,

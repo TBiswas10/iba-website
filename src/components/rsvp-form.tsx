@@ -170,7 +170,7 @@ export function RsvpForm() {
               </option>
               {events.map((eventOption) => (
                 <option key={eventOption.id} value={eventOption.id}>
-                  {eventOption.title} - {new Date(eventOption.start).toLocaleDateString(undefined)}
+                  {eventOption.title} - {new Date(eventOption.start).toLocaleDateString("en-AU", { timeZone: "Australia/Sydney" })}
                 </option>
               ))}
             </select>

@@ -131,8 +131,8 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
 
     const payload = {
       title: form.title,
-      start: new Date(form.start).toISOString(),
-      end: new Date(form.end).toISOString(),
+      start: form.start,
+      end: form.end,
       location: form.location,
       description: form.description,
     };
@@ -161,10 +161,16 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
 
   const beginEdit = (event: CalendarEvent) => {
     setSelectedId(event.id);
+    const convertToLocal = (d: Date) => {
+      const pad = (n: number) => n.toString().padStart(2, "0");
+      const sydneyStr = d.toLocaleString("en-AU", { timeZone: "Australia/Sydney", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
+      const sydneyDate = new Date(sydneyStr);
+      return `${sydneyDate.getFullYear()}-${pad(sydneyDate.getMonth() + 1)}-${pad(sydneyDate.getDate())}T${pad(sydneyDate.getHours())}:${pad(sydneyDate.getMinutes())}`;
+    };
     setForm({
       title: event.title,
-      start: event.start.toISOString().slice(0, 16),
-      end: event.end.toISOString().slice(0, 16),
+      start: convertToLocal(event.start),
+      end: convertToLocal(event.end),
       location: event.location || "",
       description: event.description || "",
     });

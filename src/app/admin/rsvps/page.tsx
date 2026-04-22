@@ -128,7 +128,7 @@ export default function AdminRsvpsPage() {
             <option value="">— Select an event —</option>
             {events.map(event => (
               <option key={event.id} value={event.id}>
-                {event.title} ({new Date(event.start).toLocaleDateString(undefined)})
+                {event.title} ({new Date(event.start).toLocaleDateString("en-AU", { timeZone: "Australia/Sydney" })})
               </option>
             ))}
           </select>
