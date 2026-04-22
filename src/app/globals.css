@@ -150,7 +150,7 @@ h4 { font-size: 1.1rem; }
 /* Panel Stack */
 .panel-stack {
   display: block;
-  gap: 4.5rem;
+  gap: 2rem;
 }
 
 .panel-stack > section {
@@ -158,7 +158,7 @@ h4 { font-size: 1.1rem; }
 }
 
 @media (max-width: 768px) {
-  .panel-stack { gap: 3rem; }
+  .panel-stack { gap: 1.5rem; }
 }
 
 /* Glass Panel */
@@ -329,12 +329,14 @@ h4 { font-size: 1.1rem; }
   width: 100%;
   max-width: 100%;
   overflow: visible !important;
+  margin-bottom: 3rem;
 }
 
 @media (min-width: 768px) {
   .trust-strip {
     grid-template-columns: repeat(5, 1fr);
     gap: 1.5rem;
+    margin-bottom: 4rem;
   }
 }
 
