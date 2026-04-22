@@ -19,3 +19,4 @@ coverage
 # Tooling caches and local skill metadata
 .agents/cache
 .gstack/
+.opencode/

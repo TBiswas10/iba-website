@@ -146,7 +146,7 @@ function AnimatedStat({ value, label, trigger, index }: { value: string; label: 
   );
 }
 
-function AnimatedStatWithIcon({ value, label, trigger, index, icon }: { value: string; label: string; trigger: boolean; index: number; icon: React.ReactNode }) {
+function AnimatedStatWithIcon({ value, label, trigger, index, icon, isLead }: { value: string; label: string; trigger: boolean; index: number; icon: React.ReactNode; isLead?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
   const shouldAnimate = trigger && isInView;
@@ -180,7 +180,7 @@ function AnimatedStatWithIcon({ value, label, trigger, index, icon }: { value: s
   return (
     <motion.article
       ref={ref}
-      className="trust-stat"
+      className={`trust-stat ${isLead ? 'lead-stat' : ''}`}
       initial={{ opacity: 0, y: 20, scale: 0.9 }}
       animate={shouldAnimate ? { opacity: 1, y: 0, scale: 1 } : {}}
       transition={{ duration: 0.5, delay: index * 0.08, ease: "easeOut" }}
@@ -304,12 +304,12 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
         variants={staggerContainer}
       >
         {[
-          { icon: <StarIcon />, stat: copy.home.stats[0] },
-          { icon: <PeopleIcon />, stat: copy.home.stats[1] },
-          { icon: <CalendarIcon />, stat: copy.home.stats[2] },
-          { icon: <FamilyIcon />, stat: copy.home.stats[3] },
-          { icon: <HandIcon />, stat: copy.home.stats[4] },
-        ].map(({ icon, stat }, index) => (
+          { icon: <StarIcon />, stat: copy.home.stats[0], isLead: true },
+          { icon: <PeopleIcon />, stat: copy.home.stats[1], isLead: false },
+          { icon: <CalendarIcon />, stat: copy.home.stats[2], isLead: false },
+          { icon: <FamilyIcon />, stat: copy.home.stats[3], isLead: false },
+          { icon: <HandIcon />, stat: copy.home.stats[4], isLead: false },
+        ].map(({ icon, stat, isLead }, index) => (
           <AnimatedStatWithIcon
             key={stat.label}
             value={stat.value}
@@ -317,12 +317,13 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
             trigger={isStatsInView}
             index={index}
             icon={icon}
+            isLead={isLead}
           />
         ))}
       </motion.section>
 
       <motion.section
-        className="glass-panel content-grid"
+        className="glass-panel mission-section"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-50px" }}
@@ -334,7 +335,7 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
           <p>{copy.home.mission.body}</p>
         </div>
         <motion.div
-          className="info-card large-card"
+          className="how-we-do-it-card"
           variants={staggerContainer}
         >
           <h3>{copy.home.howWeDoIt.title}</h3>
@@ -389,29 +390,31 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
       </motion.section>
 
       <motion.section
-        className="glass-panel content-grid events-callout"
+        className="glass-panel events-callout"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-50px" }}
         variants={eventsCalloutVariant}
       >
-        <div className="section-head">
-          <p className="eyebrow">{copy.home.events.eyebrow}</p>
-          <h2>{copy.home.events.title}</h2>
-          <p>{copy.home.events.body}</p>
-        </div>
-        <div className="info-card event-highlight-card">
-          <p className="eyebrow">{copy.home.events.highlight.label}</p>
-          <h3>{nextEvent?.title || copy.home.events.highlight.title}</h3>
-          <p>
-            {nextEvent ?
-              new Date(nextEvent.start).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) +
-              (nextEvent.location ? ` · ${nextEvent.location}` : "")
-            : copy.home.events.highlight.body}
-          </p>
-          <Link className="btn-ghost" href={nextEvent ? `/events/rsvp?eventId=${nextEvent.id}` : "/events/rsvp"} >
-            {copy.home.events.highlight.cta}
-          </Link>
+        <div className="events-section">
+          <div className="section-head">
+            <p className="eyebrow">{copy.home.events.eyebrow}</p>
+            <h2>{copy.home.events.title}</h2>
+            <p>{copy.home.events.body}</p>
+          </div>
+          <div className="event-highlight-card">
+            <p className="eyebrow">{copy.home.events.highlight.label}</p>
+            <h3>{nextEvent?.title || copy.home.events.highlight.title}</h3>
+            <p>
+              {nextEvent ?
+                new Date(nextEvent.start).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) +
+                (nextEvent.location ? ` · ${nextEvent.location}` : "")
+              : copy.home.events.highlight.body}
+            </p>
+            <Link className="btn-primary" href={nextEvent ? `/events/rsvp?eventId=${nextEvent.id}` : "/events/rsvp"} >
+              {copy.home.events.highlight.cta}
+            </Link>
+          </div>
         </div>
       </motion.section>
 
