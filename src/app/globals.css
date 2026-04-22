@@ -329,14 +329,14 @@ h4 { font-size: 1.1rem; }
   width: 100%;
   max-width: 100%;
   overflow: visible !important;
-  margin-bottom: 3rem;
+  margin-bottom: 5rem;
 }
 
 @media (min-width: 768px) {
   .trust-strip {
     grid-template-columns: repeat(5, 1fr);
     gap: 1.5rem;
-    margin-bottom: 4rem;
+    margin-bottom: 6rem;
   }
 }
 
@@ -446,12 +446,14 @@ h4 { font-size: 1.1rem; }
   grid-template-columns: 1fr;
   gap: 4rem;
   align-items: start;
+  margin-top: 1.5rem;
 }
 
 @media (min-width: 768px) {
   .mission-section {
     grid-template-columns: 1fr 1.2fr;
     gap: 5rem;
+    margin-top: 2rem;
   }
 }
 
