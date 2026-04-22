@@ -287,9 +287,24 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
               <button
                 type="button"
                 className="btn-ghost btn-sm"
-                onClick={() => {
+                onClick={async () => {
                   const url = `${window.location.origin}/events/${getEventSlug(selected)}`;
-                  navigator.clipboard.writeText(url);
+                  try {
+                    await navigator.clipboard.writeText(url);
+                  } catch {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = url;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(textArea);
+                  }
+                  const btn = document.activeElement as HTMLButtonElement;
+                  const originalText = btn.textContent;
+                  btn.textContent = "Copied!";
+                  setTimeout(() => {
+                    btn.textContent = originalText;
+                  }, 2000);
                 }}
               >
                 Share

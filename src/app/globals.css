@@ -824,6 +824,16 @@ h4 { font-size: 1.1rem; }
 
 .calendar-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
+.event-details-actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 1.5rem; }
+.event-details-actions .btn-primary { flex: 1; max-width: 200px; text-align: center; }
+
+@media (max-width: 640px) {
+  .event-details-actions { flex-direction: column; }
+  .event-details-actions button, .event-details-actions a, .event-details-actions form { width: 100%; max-width: none !important; }
+  .calendar-buttons { width: 100%; justify-content: center; }
+  .calendar-buttons a, .calendar-buttons button { flex: 1; }
+}
+
 .event-details { max-width: 700px; margin: 0 auto; }
 .event-details h1 { margin-bottom: 1.5rem; }
 .event-details-image-wrapper { position: relative; width: 100%; height: 300px; margin-bottom: 1.5rem; }
@@ -836,8 +846,6 @@ h4 { font-size: 1.1rem; }
 .event-details-desc { margin-bottom: 1.5rem; }
 .event-details-desc h2 { font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--ink); }
 .event-details-desc p { line-height: 1.7; color: rgba(16,16,16,0.8); white-space: pre-wrap; }
-.event-details-actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 1.5rem; }
-.event-details-actions .btn-primary { flex: 1; max-width: 200px; text-align: center; }
 
 .btn-sm {
   padding: 0.5rem 0.75rem;

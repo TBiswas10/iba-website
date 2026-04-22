@@ -2,9 +2,40 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { EventDetailsClient } from "./event-details-client";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+
+  const event = await prisma.event.findUnique({
+    where: { slug },
+  });
+
+  if (!event) {
+    return { title: "Event Not Found" };
+  }
+
+  return {
+    title: event.title,
+    description: event.description?.slice(0, 160) || `Join us for ${event.title} organized by Illawarra Bengali Association`,
+    openGraph: {
+      title: event.title,
+      description: event.description?.slice(0, 160) || `Join us for ${event.title} organized by Illawarra Bengali Association`,
+      type: "website",
+      url: `/events/${slug}`,
+      images: event.imageUrl ? [{ url: event.imageUrl }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: event.title,
+      description: event.description?.slice(0, 160) || `Join us for ${event.title} organized by Illawarra Bengali Association`,
+      images: event.imageUrl ? [event.imageUrl] : [],
+    },
+  };
+}
 
 function formatICS(title: string, start: string, end: string, location: string | null, description: string | null) {
   const formatDate = (date: string) => new Date(date).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
