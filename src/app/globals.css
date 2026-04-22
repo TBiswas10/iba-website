@@ -180,7 +180,7 @@ h4 { font-size: 1.1rem; }
 
 .hero {
   display: grid;
-  gap: 2rem;
+  gap: 3rem;
   padding: 2rem 0 3rem;
   width: 100%;
   max-width: 100%;
@@ -189,13 +189,12 @@ h4 { font-size: 1.1rem; }
 
 .split-hero {
   grid-template-columns: 1fr;
-  gap: 2rem;
+  gap: 3rem;
   align-items: start;
 }
 
 @media (min-width: 768px) {
   .hero {
-    gap: 3rem;
     padding: 3rem 0 4rem;
   }
 
@@ -1427,10 +1426,6 @@ h4 { font-size: 1.1rem; }
 }
 
 @media (max-width: 768px) {
-  .hero {
-    padding: 2.5rem 0 1.5rem;
-  }
-
   .header-row {
     padding: 0.5rem 1rem;
     position: relative;
