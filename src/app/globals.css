@@ -334,12 +334,12 @@ h4 { font-size: 1.1rem; }
 @media (min-width: 768px) {
   .trust-strip {
     grid-template-columns: repeat(5, 1fr);
-    gap: 1rem;
+    gap: 1.5rem;
   }
 }
 
 .trust-stat {
-  padding: 1.5rem 1rem;
+  padding: 1.75rem 1.25rem;
   border-radius: 16px;
   border: 1px solid rgba(30, 58, 68, 0.1);
   background: var(--surface);
@@ -361,11 +361,12 @@ h4 { font-size: 1.1rem; }
 }
 
 .trust-stat.lead-stat .stat-icon { color: var(--jute); }
+.trust-stat.lead-stat:hover .stat-icon { color: var(--jute); }
 .trust-stat.lead-stat h3 { color: white; font-size: clamp(2rem, 3vw, 2.75rem); }
 .trust-stat.lead-stat p { color: rgba(255, 255, 255, 0.85); }
 
 .trust-stat .stat-icon { display: flex; justify-content: center; margin-bottom: 0.75rem; color: var(--clay); }
-.trust-stat:hover .stat-icon { color: var(--deep); }
+.trust-stat:not(.lead-stat):hover .stat-icon { color: var(--deep); }
 .trust-stat h3 { margin: 0; font-family: var(--font-heading); font-size: clamp(1.5rem, 2vw, 1.85rem); color: var(--deep); }
 .trust-stat p { margin: 0.35rem 0 0; font-size: 0.85rem; color: rgba(26, 26, 26, 0.75); text-transform: uppercase; letter-spacing: 0.03em; }
 
@@ -441,14 +442,14 @@ h4 { font-size: 1.1rem; }
 .mission-section {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 3rem;
+  gap: 4rem;
   align-items: start;
 }
 
 @media (min-width: 768px) {
   .mission-section {
     grid-template-columns: 1fr 1.2fr;
-    gap: 4rem;
+    gap: 5rem;
   }
 }
 
@@ -487,11 +488,11 @@ h4 { font-size: 1.1rem; }
 .feature-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .feature-list article {
-  padding: 1.1rem;
+  padding: 1.5rem;
   border-radius: 16px;
   background: var(--surface);
   border: 1px solid rgba(30, 58, 68, 0.1);
