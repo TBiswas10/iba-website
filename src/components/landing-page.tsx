@@ -148,13 +148,15 @@ function AnimatedStat({ value, label, trigger, index }: { value: string; label: 
 
 function AnimatedStatWithIcon({ value, label, trigger, index, icon }: { value: string; label: string; trigger: boolean; index: number; icon: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const shouldAnimate = trigger && isInView;
 
   const numericValue = parseInt(value.replace(/\D/g, ""));
   const hasNumericValue = !isNaN(numericValue);
   const [displayValue, setDisplayValue] = useState(value);
 
   useEffect(() => {
-    if (!hasNumericValue || !trigger) return;
+    if (!hasNumericValue || !shouldAnimate) return;
 
     const finalValue = numericValue;
     const duration = 300;
@@ -173,22 +175,23 @@ function AnimatedStatWithIcon({ value, label, trigger, index, icon }: { value: s
     }, stepDuration);
 
     return () => clearInterval(interval);
-  }, [hasNumericValue, trigger, numericValue, value, index]);
+  }, [hasNumericValue, shouldAnimate, numericValue, value]);
 
   return (
     <motion.article
       ref={ref}
       className="trust-stat"
       initial={{ opacity: 0, y: 20, scale: 0.9 }}
-      animate={trigger ? { opacity: 1, y: 0, scale: 1 } : {}}
+      animate={shouldAnimate ? { opacity: 1, y: 0, scale: 1 } : {}}
       transition={{ duration: 0.5, delay: index * 0.08, ease: "easeOut" }}
       whileHover={{ scale: 1.02, y: -4 }}
+      style={{ cursor: 'default' }}
     >
-      <motion.div className="stat-icon" animate={trigger && hasNumericValue ? { scale: [1, 1.1, 1] } : {}} transition={{ duration: 0.3, delay: 0.6 + (index * 0.1) }}>
+      <motion.div className="stat-icon" animate={shouldAnimate && hasNumericValue ? { scale: [1, 1.1, 1] } : {}} transition={{ duration: 0.3, delay: 0.6 + (index * 0.1) }}>
         {icon}
       </motion.div>
       <motion.h3
-        animate={trigger && hasNumericValue ? { scale: [1, 1.05, 1] } : {}}
+        animate={shouldAnimate && hasNumericValue ? { scale: [1, 1.05, 1] } : {}}
         transition={{ duration: 0.3, delay: 0.6 + (index * 0.1) }}
       >
         {displayValue}
@@ -228,6 +231,15 @@ const volunteerVariant: Variants = {
 
 export function LandingPage({ nextEvent }: LandingPageProps) {
   const copy = useCopy();
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
 
   const statsRef = useRef<HTMLDivElement>(null);
   const isStatsInView = useInView(statsRef, { once: true, margin: "-100px" });
@@ -236,7 +248,7 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
     <div className="panel-stack landing-shell">
       <motion.section
         className="hero split-hero"
-        initial="hidden"
+        initial={prefersReducedMotion ? false : "hidden"}
         animate="visible"
         variants={{
           hidden: { opacity: 0 },
