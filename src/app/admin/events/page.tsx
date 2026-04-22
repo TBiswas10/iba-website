@@ -66,16 +66,12 @@ export default function AdminEventsPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     
-    const toUTCDateString = (localDateTime: string) => {
-      return new Date(localDateTime).toISOString();
-    };
-    
     const payload = {
       id: editingId,
       title: formData.title,
       slug: (formData.slug || formData.title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
-      start: toUTCDateString(formData.start),
-      end: toUTCDateString(formData.end),
+      start: formData.start,
+      end: formData.end,
       location: formData.location,
       description: formData.description,
       imageUrl: formData.imageUrl,
@@ -220,6 +216,45 @@ export default function AdminEventsPage() {
               value={formData.imageUrl}
               onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
             />
+            <div className="image-upload-area">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  
+                  const formDataToSend = new FormData();
+                  formDataToSend.append("file", file);
+                  formDataToSend.append("action", "upload-event-image");
+                  
+                  try {
+                    const res = await fetch("/api/admin/events", {
+                      method: "POST",
+                      body: formDataToSend,
+                    });
+                    const data = await res.json();
+                    if (data.ok && data.url) {
+                      setFormData(prev => ({ ...prev, imageUrl: data.url }));
+                    }
+                  } catch (err) {
+                    console.error("Upload failed:", err);
+                  }
+                }}
+              />
+              {formData.imageUrl && (
+                <div className="image-preview">
+                  <img src={formData.imageUrl} alt="Preview" />
+                  <button 
+                    type="button" 
+                    className="btn-ghost btn-sm"
+                    onClick={() => setFormData(prev => ({ ...prev, imageUrl: "" }))}
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
+            </div>
           </label>
           <div className="span-2 button-row">
             <button className="btn-primary" type="submit">

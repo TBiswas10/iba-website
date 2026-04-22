@@ -284,6 +284,16 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
             )}
             
             <div className="event-popup-actions">
+              <button
+                type="button"
+                className="btn-ghost btn-sm"
+                onClick={() => {
+                  const url = `${window.location.origin}/events/${getEventSlug(selected)}`;
+                  navigator.clipboard.writeText(url);
+                }}
+              >
+                Share
+              </button>
               <Link href={`/events/${getEventSlug(selected)}`} className="btn-ghost btn-sm">
                 View Details
               </Link>

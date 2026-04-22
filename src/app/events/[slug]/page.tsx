@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { EventDetailsClient } from "./event-details-client";
 
 export const dynamic = "force-dynamic";
 
@@ -42,76 +43,13 @@ export default async function EventDetailsPage({ params }: { params: Promise<{ s
     notFound();
   }
 
-  const fullUrl = `${process.env.NEXT_PUBLIC_BASE_URL || ""}/events/${event.slug}`;
+  const eventWithStrings = {
+    ...event,
+    start: event.start instanceof Date ? event.start.toISOString() : event.start,
+    end: event.end instanceof Date ? event.end.toISOString() : event.end,
+  };
 
   return (
-    <section className="panel-stack">
-      <section className="glass-panel">
-        <Link href="/events" className="btn-ghost btn-sm">← Back to Events</Link>
-      </section>
-
-      <section className="glass-panel event-details">
-        {event.imageUrl && (
-          <div className="event-details-image-wrapper">
-            <Image src={event.imageUrl} alt={event.title} fill className="event-details-image" />
-          </div>
-        )}
-        
-        <h1>{event.title}</h1>
-        
-        <div className="event-details-meta">
-          <div className="event-detail-row">
-            <span className="event-detail-label">Date</span>
-            <span className="event-detail-value">
-              {event.start.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-            </span>
-          </div>
-          <div className="event-detail-row">
-            <span className="event-detail-label">Time</span>
-            <span className="event-detail-value">
-              {event.start.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit", timeZone: "Australia/Sydney" })} - {event.end.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit", timeZone: "Australia/Sydney" })}
-            </span>
-          </div>
-          
-          {event.location && (
-            <div className="event-detail-row">
-              <span className="event-detail-label">Location</span>
-              <span className="event-detail-value">{event.location}</span>
-            </div>
-          )}
-        </div>
-
-        {event.description && (
-          <div className="event-details-desc">
-            <h2>About</h2>
-            <p>{event.description}</p>
-          </div>
-        )}
-
-        <div className="event-details-actions">
-          <div className="calendar-buttons">
-            <a
-              href={getGoogleCalendarUrl(event.title, event.start.toISOString(), event.end.toISOString(), event.location, event.description)}
-              target="_blank"
-              rel="noreferrer"
-              className="btn-ghost"
-            >
-              Google Calendar
-            </a>
-            <form method="get" action="/api/calendar" style={{ display: "inline" }}>
-              <input type="hidden" name="title" value={event.title} />
-              <input type="hidden" name="start" value={event.start.toISOString()} />
-              <input type="hidden" name="end" value={event.end.toISOString()} />
-              <input type="hidden" name="location" value={event.location || ""} />
-              <input type="hidden" name="description" value={event.description || ""} />
-              <button type="submit" className="btn-ghost">Add to Calendar</button>
-            </form>
-          </div>
-          <Link className="btn-primary" href={`/events/rsvp?eventId=${event.id}`}>
-            RSVP Now
-          </Link>
-        </div>
-      </section>
-    </section>
+    <EventDetailsClient event={eventWithStrings} />
   );
 }

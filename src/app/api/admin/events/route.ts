@@ -1,6 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
+import { uploadImageToStorage } from "@/lib/storage";
+
+function parseLocalDateTime(value: string): Date {
+  if (value.includes("T") && !value.includes("Z")) {
+    const [datePart, timePart] = value.split("T");
+    const [year, month, day] = datePart.split("-").map(Number);
+    const [hour, minute] = timePart.split(":").map(Number);
+    return new Date(year, month - 1, day, hour, minute);
+  }
+  return new Date(value);
+}
 
 export async function GET() {
   const denied = await requireAdmin();
@@ -17,11 +28,34 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const denied = await requireAdmin();
   if (denied) return denied;
 
   try {
+    const contentType = request.headers.get("content-type") || "";
+    
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      const action = formData.get("action") as string;
+      
+      if (action === "upload-event-image") {
+        const file = formData.get("file") as File;
+        
+        if (!file) {
+          return NextResponse.json({ ok: false, error: "No file provided" }, { status: 400 });
+        }
+        
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const fileName = file.name;
+        const mimeType = file.type || "image/jpeg";
+        
+        const mediaUrl = await uploadImageToStorage(buffer, fileName, mimeType);
+        
+        return NextResponse.json({ ok: true, url: mediaUrl });
+      }
+    }
+    
     const body = await request.json();
     const { title, slug, start, end, location, description, imageUrl } = body;
 
@@ -37,8 +71,8 @@ export async function POST(request: Request) {
       data: {
         title,
         slug: slugFinal,
-        start: new Date(start),
-        end: new Date(end),
+        start: parseLocalDateTime(start),
+        end: parseLocalDateTime(end),
         location: location || "",
         description: description || "",
         imageUrl: imageUrl || "",
@@ -73,8 +107,8 @@ export async function PUT(request: Request) {
       data: {
         title,
         slug: slugFinal,
-        start: new Date(start),
-        end: new Date(end),
+        start: parseLocalDateTime(start),
+        end: parseLocalDateTime(end),
         location: location || "",
         description: description || "",
         imageUrl: imageUrl || "",

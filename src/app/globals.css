@@ -1582,8 +1582,11 @@ h4 { font-size: 1.1rem; }
   .admin-table { font-size: 0.8rem; }
   .admin-table th, .admin-table td { padding: 0.5rem; }
   .admin-table .action-buttons { flex-direction: column; gap: 0.25rem; }
-  .admin-event-form { grid-template-columns: 1fr 1fr; }
-  .admin-event-form .form-field { grid-column: span 1; }
+.admin-event-form { grid-template-columns: 1fr 1fr; }
+.admin-event-form .form-field { grid-column: span 1; }
+.image-upload-area { margin-top: 0.5rem; }
+.image-preview { display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem; }
+.image-preview img { max-height: 100px; border-radius: 8px; }
   .admin-event-form .span-2 { grid-column: span 2; }
   .admin-event-form .button-row { grid-column: span 2; display: flex; gap: 0.5rem; flex-wrap: wrap; }
   .grid-form { grid-template-columns: 1fr; }
