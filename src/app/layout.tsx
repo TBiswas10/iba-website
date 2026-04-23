@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, DM_Sans, Noto_Sans_Bengali } from "next/font/google";
+import { Inter, Noto_Sans_Bengali } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -11,14 +11,14 @@ import { SiteHeader } from "@/components/site-header";
 
 import "./globals.css";
 
-const heading = Fraunces({
+const heading = Inter({
   subsets: ["latin"],
   variable: "--font-heading",
-  weight: ["400", "600", "700"],
+  weight: ["400", "600", "700", "800"],
   display: "swap",
 });
 
-const body = DM_Sans({
+const body = Inter({
   subsets: ["latin"],
   variable: "--font-body",
   weight: ["400", "500", "600", "700"],
