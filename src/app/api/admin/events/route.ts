@@ -8,7 +8,11 @@ function parseLocalDateTime(value: string): Date {
     const [datePart, timePart] = value.split("T");
     const [year, month, day] = datePart.split("-").map(Number);
     const [hour, minute] = timePart.split(":").map(Number);
-    return new Date(year, month - 1, day, hour, minute);
+    // Treat input as Sydney time, convert to UTC for storage
+    const inputAsSydney = new Date(year, month - 1, day, hour, minute);
+    const sydneyOffset = 660; // Sydney is UTC+11 (660 minutes ahead)
+    const utcDate = new Date(inputAsSydney.getTime() - sydneyOffset * 60000);
+    return utcDate;
   }
   return new Date(value);
 }
