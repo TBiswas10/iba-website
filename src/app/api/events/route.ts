@@ -4,15 +4,12 @@ import { requireAdmin } from "@/lib/role";
 import { eventSchema } from "@/lib/validators";
 
 function parseLocalDateTime(value: string): Date {
+  // datetime-local input is in Sydney time (user is in Sydney)
+  // Parse as Sydney time and convert to UTC for storage
   if (value.includes("T") && !value.includes("Z")) {
-    const [datePart, timePart] = value.split("T");
-    const [year, month, day] = datePart.split("-").map(Number);
-    const [hour, minute] = timePart.split(":").map(Number);
-    // Treat input as Sydney time, convert to UTC for storage
-    const inputAsSydney = new Date(year, month - 1, day, hour, minute);
-    const sydneyOffset = 660; // Sydney is UTC+11 (660 minutes ahead)
-    const utcDate = new Date(inputAsSydney.getTime() - sydneyOffset * 60000);
-    return utcDate;
+    const sydneyTime = value + ":00+10:00";
+    const date = new Date(sydneyTime);
+    return new Date(date.toISOString());
   }
   return new Date(value);
 }
