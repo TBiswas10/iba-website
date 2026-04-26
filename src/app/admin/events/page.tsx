@@ -101,9 +101,7 @@ export default function AdminEventsPage() {
         const date = new Date(d);
         if (isNaN(date.getTime())) return d;
         const pad = (n: number) => n.toString().padStart(2, "0");
-        const sydneyStr = date.toLocaleString("en-AU", { timeZone: "Australia/Sydney", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
-        const sydneyDate = new Date(sydneyStr);
-        return `${sydneyDate.getFullYear()}-${pad(sydneyDate.getMonth() + 1)}-${pad(sydneyDate.getDate())}T${pad(sydneyDate.getHours())}:${pad(sydneyDate.getMinutes())}`;
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
       } catch {
         return d;
       }

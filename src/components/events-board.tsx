@@ -163,9 +163,7 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
     setSelectedId(event.id);
     const convertToLocal = (d: Date) => {
       const pad = (n: number) => n.toString().padStart(2, "0");
-      const sydneyStr = d.toLocaleString("en-AU", { timeZone: "Australia/Sydney", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
-      const sydneyDate = new Date(sydneyStr);
-      return `${sydneyDate.getFullYear()}-${pad(sydneyDate.getMonth() + 1)}-${pad(sydneyDate.getDate())}T${pad(sydneyDate.getHours())}:${pad(sydneyDate.getMinutes())}`;
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
     };
     setForm({
       title: event.title,
