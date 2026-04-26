@@ -4,6 +4,12 @@ import { requireAdmin } from "@/lib/role";
 import { eventSchema } from "@/lib/validators";
 
 function parseLocalDateTime(value: string): Date {
+  if (value.includes("T") && !value.includes("Z")) {
+    const [datePart, timePart] = value.split("T");
+    const [year, month, day] = datePart.split("-").map(Number);
+    const [hour, minute] = timePart.split(":").map(Number);
+    return new Date(year, month - 1, day, hour, minute);
+  }
   return new Date(value);
 }
 
