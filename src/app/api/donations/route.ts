@@ -56,7 +56,6 @@ export async function POST(request: Request) {
         },
       ],
       mode: "payment",
-      allow_promotion_codes: true,
       success_url: `${baseUrl}/donations?success=true`,
       cancel_url: `${baseUrl}/donations?canceled=true`,
       metadata: {
