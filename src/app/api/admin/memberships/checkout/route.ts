@@ -64,6 +64,7 @@ export async function POST(request: Request) {
         },
       ],
       mode: "payment",
+      allow_promotion_codes: true,
       success_url: `${baseUrl}/dashboard?success=true&membershipId=${membership.id}`,
       cancel_url: `${baseUrl}/membership?canceled=true`,
       metadata: {
