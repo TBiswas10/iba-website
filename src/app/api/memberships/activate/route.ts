@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
@@ -11,16 +11,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "Membership ID required" }, { status: 400 });
     }
 
-    // Verify user is authenticated
-    const cookieStore = await cookies();
-    const email = cookieStore.get("userEmail")?.value;
+    const dbUser = await getCurrentUser();
 
-    if (!email) {
-      return NextResponse.json({ ok: false, error: "Not authenticated" }, { status: 401 });
-    }
-
-    // Get user
-    const dbUser = await prisma.user.findUnique({ where: { email } });
     if (!dbUser) {
       return NextResponse.json({ ok: false, error: "User not found" }, { status: 404 });
     }

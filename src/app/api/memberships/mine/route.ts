@@ -1,20 +1,12 @@
 import { fail, ok } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const email = cookieStore.get("userEmail")?.value;
+  const dbUser = await getCurrentUser();
 
-  if (!email) {
-    return fail("Authentication required", 401);
-  }
-
-  const dbUser = await prisma.user.findUnique({
-    where: { email },
-  });
   if (!dbUser) {
-    return fail("User not found", 404);
+    return fail("Authentication required", 401);
   }
 
   const membership = await prisma.membership.findFirst({

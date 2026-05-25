@@ -1,22 +1,21 @@
-import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
-
 import { fail, ok } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { checkSignupEmailRateLimit, checkSignupRateLimit } from "@/lib/rate-limit";
 import { signupSchema } from "@/lib/validators";
+
+async function findAuthUserByEmail(email: string) {
+  const { data } = await supabaseAdmin.auth.admin.listUsers();
+  const users = (data?.users ?? []) as Array<{ id: string; email?: string }>;
+  return users.find(u => u.email === email) || null;
+}
 
 export async function POST(request: Request) {
   const rate = checkSignupRateLimit(request);
   if (!rate.allowed) {
     const response = NextResponse.json(
-      {
-        ok: false,
-        error: {
-          message: "Too many signup attempts. Please try again later.",
-          details: null,
-        },
-      },
+      { ok: false, error: { message: "Too many signup attempts. Please try again later.", details: null } },
       { status: 429 }
     );
     response.headers.set("Retry-After", String(rate.retryAfterSeconds));
@@ -26,57 +25,85 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const parsed = signupSchema.safeParse(body);
-
     if (!parsed.success) {
-      return fail("Signup request could not be processed", 400);
+      return fail("Invalid signup data", 400);
     }
 
-    const { email, name, password } = parsed.data;
-    
-    // Validate password for email signup (not required for Google)
-    if (password !== undefined && password.length > 0 && password.length < 8) {
-      return fail("Password must be at least 8 characters", 400);
-    }
-    
+    const { email, password, name, phone, familyMembers } = parsed.data;
+
     const emailRate = checkSignupEmailRateLimit(email);
     if (!emailRate.allowed) {
       const response = NextResponse.json(
-        {
-          ok: false,
-          error: {
-            message: "Too many signup attempts. Please try again later.",
-            details: null,
-          },
-        },
+        { ok: false, error: { message: "Too many signup attempts. Please try again later.", details: null } },
         { status: 429 }
       );
       response.headers.set("Retry-After", String(emailRate.retryAfterSeconds));
       return response;
     }
 
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
-      return ok(
-        {
-          message:
-            "If this email is eligible, your account request has been accepted. Please continue to sign in.",
-        },
-        202
-      );
+    let supabaseUserId: string;
+
+    // Check if user already exists in Prisma
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+
+    if (existingUser?.supabaseUserId) {
+      // Verify the Supabase Auth user still exists
+      const { error: lookupError } = await supabaseAdmin.auth.admin.getUserById(existingUser.supabaseUserId);
+      if (!lookupError) {
+        return fail("An account with this email already exists.", 409);
+      }
+      // Auth user was deleted (e.g. from Supabase dashboard) — clear the link and allow re-registration
+      await prisma.user.update({
+        where: { email },
+        data: { supabaseUserId: null },
+      });
     }
 
+    // Create or confirm user in Supabase Auth
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name: name },
+    });
+
+    if (authError) {
+      if (authError.status === 422 || authError.message?.includes("already been registered")) {
+        // User exists in Auth but not linked in Prisma yet - find and update
+        const authUser = await findAuthUserByEmail(email);
+        if (!authUser) {
+          return fail("Account already exists. Please sign in.", 409);
+        }
+        supabaseUserId = authUser.id;
+        await supabaseAdmin.auth.admin.updateUserById(authUser.id, {
+          email_confirm: true,
+          user_metadata: { full_name: name },
+        });
+      } else {
+        return fail("Failed to create account", 500);
+      }
+    } else {
+      supabaseUserId = authData.user.id;
+    }
+
+    // Create or link Prisma user
     const now = new Date();
     const expiry = new Date(now);
     expiry.setFullYear(expiry.getFullYear() + 1);
 
-    // Handle Google signup (no password) vs email signup (with password)
-    if (password && password.length >= 8) {
-      // Email signup with password
-      const user = await prisma.user.create({
+    if (existingUser) {
+      await prisma.user.update({
+        where: { email },
+        data: { supabaseUserId, name: name || existingUser.name, phone, familyMembers },
+      });
+    } else {
+      await prisma.user.create({
         data: {
           email,
           name,
-          passwordHash: await hash(password, 12),
+          phone,
+          familyMembers,
+          supabaseUserId,
           memberships: {
             create: {
               status: "ACTIVE",
@@ -86,26 +113,12 @@ export async function POST(request: Request) {
           },
         },
       });
-    } else {
-      // Google signup (no password) - create user without membership
-      // Membership will be created by Stripe webhook after payment
-      await prisma.user.create({
-        data: {
-          email,
-          name,
-          // No passwordHash - Google auth
-        },
-      });
     }
 
-    return ok(
-      {
-        message:
-          "If this email is eligible, your account request has been accepted. Please continue to sign in.",
-      },
-      202
-    );
+    // User is created and confirmed — client will sign them in
+    return ok({ message: "Account created. Welcome!" });
   } catch (error) {
+    console.error("Signup error:", error);
     return fail("Signup request failed", 500);
   }
 }

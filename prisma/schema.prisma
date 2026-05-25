@@ -13,15 +13,17 @@ datasource db {
 }
 
 model User {
-  id           Int          @id @default(autoincrement())
-  email        String       @unique
-  name         String?
-  passwordHash String?
-  role         UserRole     @default(USER)
-  memberships  Membership[]
-  donations    Donation[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id              Int          @id @default(autoincrement())
+  supabaseUserId  String?      @unique
+  email           String       @unique
+  name            String?
+  phone           String?
+  familyMembers   String?
+  role            UserRole     @default(USER)
+  memberships     Membership[]
+  donations       Donation[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 }
 
 model Event {

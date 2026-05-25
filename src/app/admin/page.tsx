@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useFirebaseAuth } from "@/components/firebase-auth-context";
+import { useAuth } from "@/components/supabase-auth-context";
 
 type User = {
   uid: string;
@@ -22,7 +22,7 @@ type Counts = {
 
 export default function AdminPage() {
   const router = useRouter();
-  const { logout } = useFirebaseAuth();
+  const { logout } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [counts, setCounts] = useState<Counts | null>(null);
 
@@ -59,10 +59,10 @@ export default function AdminPage() {
 
   if (!user) {
     return (
-      <section className="panel-stack">
-        <section className="glass-panel">
-          <p>Loading...</p>
-        </section>
+      <section className="glass-panel skeleton-panel">
+        <div className="skeleton skeleton-heading" style={{ width: "40%" }} />
+        <div className="skeleton skeleton-line" style={{ width: "60%" }} />
+        <div className="skeleton skeleton-block" style={{ width: "100%", height: "200px", marginTop: "1.5rem" }} />
       </section>
     );
   }

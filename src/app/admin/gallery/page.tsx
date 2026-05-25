@@ -1,22 +1,22 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminGalleryPage() {
-  const cookieStore = await cookies();
-  const email = cookieStore.get("userEmail")?.value;
+  const supabase = await createClient();
+  const { data: { session } } = await supabase.auth.getSession();
 
-  if (!email) {
+  if (!session?.user?.email) {
     redirect("/membership");
   }
 
-  const dbUser = await prisma.user.findUnique({ where: { email } });
+  const dbUser = await prisma.user.findUnique({ where: { email: session.user.email } });
   if (!dbUser) {
     redirect("/membership");
   }
-  
+
   if (dbUser.role !== "ADMIN") {
     redirect("/dashboard");
   }

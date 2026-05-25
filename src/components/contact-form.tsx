@@ -1,10 +1,10 @@
 "use client";
 
 import { FormEvent, useState, useEffect } from "react";
-import { useFirebaseAuth } from "@/components/firebase-auth-context";
+import { useAuth } from "@/components/supabase-auth-context";
 
 export function ContactForm() {
-  const { user } = useFirebaseAuth();
+  const { user } = useAuth();
   const [status, setStatus] = useState<string>("");
   const [prefillName, setPrefillName] = useState("");
   const [prefillEmail, setPrefillEmail] = useState("");
@@ -12,8 +12,8 @@ export function ContactForm() {
   useEffect(() => {
     if (user?.email) {
       setPrefillEmail(user.email);
-      if (user.displayName) {
-        setPrefillName(user.displayName);
+      if (user.name) {
+        setPrefillName(user.name);
       } else {
         fetch("/api/session")
           .then(res => res.json())

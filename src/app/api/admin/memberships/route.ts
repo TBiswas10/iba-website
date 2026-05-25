@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
-import { cookies } from "next/headers";
+import { getCurrentUser } from "@/lib/auth";
 
 const updateMembershipSchema = z.object({
   id: z.number().int().positive(),
@@ -29,19 +29,20 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
-  // Use a direct auth check instead of middleware for robustness
-  const cookieStore = await cookies();
-  const email = cookieStore.get("userEmail")?.value;
-  
-  if (!email) {
+async function checkAdmin() {
+  const dbUser = await getCurrentUser();
+  if (!dbUser) {
     return NextResponse.json({ ok: false, error: "Authentication required" }, { status: 401 });
   }
-
-  const dbUser = await prisma.user.findUnique({ where: { email } });
-  if (!dbUser || dbUser.role !== "ADMIN") {
+  if (dbUser.role !== "ADMIN") {
     return NextResponse.json({ ok: false, error: "Admin access required" }, { status: 403 });
   }
+  return dbUser;
+}
+
+export async function POST(request: Request) {
+  const dbUser = await checkAdmin();
+  if (dbUser instanceof NextResponse) return dbUser;
 
   try {
     const body = await request.json();
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
     if (action === "CHANGE_ROLE") {
       const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || "tirthabiswasm@gmail.com";
 
-      if (email !== superAdminEmail) {
+      if (dbUser.email !== superAdminEmail) {
         return NextResponse.json({ ok: false, error: "Only the Super Admin can change roles" }, { status: 403 });
       }
 
@@ -86,17 +87,8 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const cookieStore = await cookies();
-  const email = cookieStore.get("userEmail")?.value;
-  
-  if (!email) {
-    return NextResponse.json({ ok: false, error: "Authentication required" }, { status: 401 });
-  }
-
-  const dbUser = await prisma.user.findUnique({ where: { email } });
-  if (!dbUser || dbUser.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "Admin access required" }, { status: 403 });
-  }
+  const adminUser = await checkAdmin();
+  if (adminUser instanceof NextResponse) return adminUser;
 
   try {
     const body = await request.json();
@@ -120,17 +112,8 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const cookieStore = await cookies();
-  const email = cookieStore.get("userEmail")?.value;
-  
-  if (!email) {
-    return NextResponse.json({ ok: false, error: "Authentication required" }, { status: 401 });
-  }
-
-  const dbUser = await prisma.user.findUnique({ where: { email } });
-  if (!dbUser || dbUser.role !== "ADMIN") {
-    return NextResponse.json({ ok: false, error: "Admin access required" }, { status: 403 });
-  }
+  const adminUser = await checkAdmin();
+  if (adminUser instanceof NextResponse) return adminUser;
 
   try {
     const url = new URL(request.url);

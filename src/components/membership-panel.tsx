@@ -2,7 +2,8 @@
 
 import { FormEvent, useState, useEffect } from "react";
 import Link from "next/link";
-import { useFirebaseAuth } from "@/components/firebase-auth-context";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/supabase-auth-context";
 
 type Membership = {
   id: number;
@@ -11,10 +12,14 @@ type Membership = {
 };
 
 export function MembershipPanel() {
-  const { user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, logout } = useFirebaseAuth();
+  const router = useRouter();
+  const { user, loading, signInWithEmail, logout } = useAuth();
   const [message, setMessage] = useState<string>("");
   const [membership, setMembership] = useState<Membership | null>(null);
   const [isChecking, setIsChecking] = useState(true);
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [familyMembersList, setFamilyMembersList] = useState([""]);
 
   useEffect(() => {
     if (user?.email) {
@@ -43,18 +48,25 @@ export function MembershipPanel() {
     const email = String(formData.get("email") || "");
     const password = String(formData.get("password") || "");
     const name = String(formData.get("name") || "");
+    const phone = String(formData.get("phone") || "");
+    const familyMembers = familyMembersList.map((_, i) => String(formData.get(`familyMember-${i}`) || "")).filter(Boolean).join(", ");
 
     try {
-      await signUpWithEmail(email, password, name);
-      const response = await fetch("/api/signup", {
+      const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name }),
+        body: JSON.stringify({ email, password, name, phone: phone || undefined, familyMembers: familyMembers || undefined }),
       });
-      const json = await response.json();
-      if (!response.ok || !json.ok) {
-        console.error("Signup API error:", json?.error?.message);
+      const data = await res.json();
+
+      if (!data.ok) {
+        setMessage(data.error?.message || "Signup failed. Please try again.");
+        return;
       }
+
+      // User created and confirmed — sign them in
+      await signInWithEmail(email, password);
+      router.push("/dashboard");
     } catch (error: any) {
       setMessage(error.message || "Signup failed. Please try again.");
     }
@@ -70,41 +82,22 @@ export function MembershipPanel() {
 
     try {
       await signInWithEmail(email, password);
+      router.push("/dashboard");
     } catch (error: any) {
       setMessage("Invalid email or password.");
     }
   }
 
-  async function handleGoogleSignIn() {
-    try {
-      await signInWithGoogle();
-    } catch (error: any) {
-      setMessage(error.message || "Google sign-in failed.");
-    }
-  }
-
-  async function handleStripeCheckout() {
-    setMessage("Redirecting to payment...");
-    try {
-      const response = await fetch("/api/admin/memberships/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-      const json = await response.json();
-      if (json.ok && json.url) {
-        window.location.href = json.url;
-      } else {
-        setMessage(json.error || "Payment initiation failed.");
-      }
-    } catch (error) {
-      setMessage("Failed to connect to payment server.");
-    }
-  }
-
   if (loading || isChecking) {
     return (
-      <section className="glass-panel">
-        <p>Loading...</p>
+      <section className="glass-panel skeleton-panel">
+        <div className="skeleton skeleton-circle" />
+        <div className="skeleton skeleton-heading" />
+        <div className="skeleton skeleton-line" style={{ width: "60%" }} />
+        <div className="skeleton skeleton-line" style={{ width: "40%" }} />
+        <div className="skeleton skeleton-block" style={{ width: "100%", marginTop: "1rem" }} />
+        <div className="skeleton skeleton-line" style={{ width: "80%", marginTop: "0.5rem" }} />
+        <div className="skeleton skeleton-line" style={{ width: "50%" }} />
       </section>
     );
   }
@@ -135,7 +128,7 @@ export function MembershipPanel() {
       <section className="glass-panel member-welcome">
         <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>👋</div>
         <h2>Welcome back!</h2>
-        <p>{user.displayName || user.email}</p>
+        <p>{user.name || user.email}</p>
         
         {isActive ? (
           <div style={{ marginTop: "1.5rem" }}>
@@ -147,27 +140,7 @@ export function MembershipPanel() {
             </div>
           </div>
         ) : (
-          <>
-            <div className="membership-card" style={{ marginTop: "2rem" }}>
-              <div className="membership-card-header">
-                <span className="membership-badge">MEMBER</span>
-                <span className="membership-price">$1<span>/year</span></span>
-              </div>
-              <div className="membership-card-body">
-                <ul>
-                  <li>Access to all community events</li>
-                  <li>RSVP to gatherings</li>
-                  <li>Connect with Bengali community in Illawarra</li>
-                  <li>Support cultural programs</li>
-                </ul>
-              </div>
-              <div className="membership-card-footer">
-                <button className="btn-primary" onClick={handleStripeCheckout}>
-                  Become a Member
-                </button>
-              </div>
-            </div>
-          </>
+          <p style={{ marginTop: "1.5rem", textAlign: "center" }}>No active membership found. Contact the association for assistance.</p>
         )}
 
 
@@ -184,7 +157,7 @@ export function MembershipPanel() {
   return (
     <div className="panel-stack">
       <section className="glass-panel">
-        <h2 style={{ marginBottom: "1.5rem" }}>Join Illawarra Bengali Association</h2>
+        <h2 style={{ marginBottom: "1.5rem" }}>Membership Registration*</h2>
 
         <form className="grid-form grid-form-auth" onSubmit={handleSignup}>
           <label>
@@ -197,46 +170,39 @@ export function MembershipPanel() {
           </label>
           <label>
             Create password
-            <input required minLength={8} type="password" placeholder="Min 8 characters" name="password" />
+            <span className="password-wrapper">
+              <input required minLength={8} type={showSignupPassword ? "text" : "password"} placeholder="Min 8 characters" name="password" />
+              <button type="button" className="password-toggle" onClick={() => setShowSignupPassword(!showSignupPassword)} tabIndex={-1}>
+                {showSignupPassword ? "Hide" : "Show"}
+              </button>
+            </span>
           </label>
+          <label>
+            Phone number
+            <input type="tel" name="phone" placeholder="0400000000" />
+          </label>
+          <div>
+            <label style={{ marginBottom: "0.35rem", display: "inline-block" }}>Associated family members (if any)</label>
+            {familyMembersList.map((_, i) => (
+              <div key={i} style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                <input name={`familyMember-${i}`} placeholder="Name of family member" style={{ flex: 1 }} />
+                {familyMembersList.length > 1 && (
+                  <button type="button" className="btn-ghost" style={{ padding: "0 0.75rem", fontSize: "1.25rem", lineHeight: 1 }} onClick={() => setFamilyMembersList(familyMembersList.filter((_, j) => j !== i))}>-</button>
+                )}
+                {i === familyMembersList.length - 1 && familyMembersList.length < 4 && (
+                  <button type="button" className="btn-ghost" style={{ padding: "0 0.75rem", fontSize: "1.25rem", lineHeight: 1 }} onClick={() => setFamilyMembersList([...familyMembersList, ""])}>+</button>
+                )}
+              </div>
+            ))}
+          </div>
           <div className="span-2 button-row">
             <button className="btn-primary" type="submit">
-              Join IBA
+              Submit Application
             </button>
           </div>
         </form>
 
-        <div className="auth-sep">
-          <span>or</span>
-        </div>
-
-        <button type="button" className="btn-google" onClick={handleGoogleSignIn}>
-          <svg className="google-icon" viewBox="0 0 24 24">
-            <path
-              fill="currentColor"
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-            />
-            <path
-              fill="currentColor"
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-            />
-            <path
-              fill="currentColor"
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-            />
-            <path
-              fill="currentColor"
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-            />
-          </svg>
-          Continue with Google
-        </button>
-
-        <div className="auth-sep">
-          <span>or</span>
-        </div>
-
-        <h3 style={{ marginTop: "1.5rem", marginBottom: "1rem" }}>Already a member?</h3>
+        <h3 style={{ marginTop: "1.5rem", marginBottom: "1rem" }}>Login to Member Portal</h3>
         <form className="grid-form grid-form-auth" onSubmit={handleLogin}>
           <label>
             Email
@@ -244,7 +210,12 @@ export function MembershipPanel() {
           </label>
           <label>
             Password
-            <input required type="password" name="password" placeholder="Your password" />
+            <span className="password-wrapper">
+              <input required type={showLoginPassword ? "text" : "password"} name="password" placeholder="Your password" />
+              <button type="button" className="password-toggle" onClick={() => setShowLoginPassword(!showLoginPassword)} tabIndex={-1}>
+                {showLoginPassword ? "Hide" : "Show"}
+              </button>
+            </span>
           </label>
           <div className="span-2 button-row">
             <button className="btn-ghost" type="submit">
@@ -258,6 +229,9 @@ export function MembershipPanel() {
             {message}
           </p>
         )}
+        <p style={{ marginTop: "1.5rem", fontSize: "0.875rem", color: "var(--text-muted, #666)" }}>
+          *Upon submission, your registration will be reviewed by the management team for approval.
+        </p>
       </section>
     </div>
   );

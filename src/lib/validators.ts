@@ -50,7 +50,10 @@ export const donationSchema = z.object({
 export const signupSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
-  password: z.string().optional(),
+  password: z.string().min(8),
+  phone: z.string().optional(),
+  familyMembers: z.string().optional(),
+  supabaseUserId: z.string().optional(),
 });
 
 export const membershipSchema = z.object({

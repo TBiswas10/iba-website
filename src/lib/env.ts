@@ -2,10 +2,6 @@ import { z } from "zod";
 
 const envSchema = z.object({
   DATABASE_URL: z.string().optional(),
-  NEXTAUTH_SECRET: z.string().optional(),
-  NEXTAUTH_URL: z.string().optional(),
-  GOOGLE_CLIENT_ID: z.string().optional(),
-  GOOGLE_CLIENT_SECRET: z.string().optional(),
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   NEXT_PUBLIC_BASE_URL: z.string().optional(),
@@ -14,13 +10,8 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
   SMTP_FROM: z.string().optional(),
-  NEXT_PUBLIC_FIREBASE_API_KEY: z.string().optional(),
-  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: z.string().optional(),
-  NEXT_PUBLIC_FIREBASE_PROJECT_ID: z.string().optional(),
-  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: z.string().optional(),
-  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: z.string().optional(),
-  NEXT_PUBLIC_FIREBASE_APP_ID: z.string().optional(),
-  NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: z.string().optional(),
+  NEXT_PUBLIC_SUPABASE_URL: z.string().optional(),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

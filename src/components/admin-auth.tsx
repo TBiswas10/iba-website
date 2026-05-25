@@ -1,13 +1,8 @@
 "use client";
 
-import { useEffect, useState, ReactNode } from "react";
+import { useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-
-type User = {
-  uid: string;
-  email: string;
-  role: string;
-};
+import { useAuth } from "@/components/supabase-auth-context";
 
 interface AdminAuthProps {
   children: ReactNode;
@@ -15,28 +10,19 @@ interface AdminAuthProps {
 
 export function AdminAuth({ children }: AdminAuthProps) {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    fetch("/api/session")
-      .then(res => res.json())
-      .then(data => {
-        if (!data.user) {
-          router.push("/membership");
-          return;
-        }
-        if (data.user.role !== "ADMIN") {
-          router.push("/dashboard");
-          return;
-        }
-        setUser(data.user);
-        setLoading(false);
-      })
-      .catch(() => {
-        router.push("/membership");
-      });
-  }, [router]);
+    if (loading) return;
+    if (!user) {
+      router.push("/membership");
+      return;
+    }
+    if (user.role !== "ADMIN") {
+      router.push("/dashboard");
+      return;
+    }
+  }, [user, loading, router]);
 
   if (loading || !user) {
     return (

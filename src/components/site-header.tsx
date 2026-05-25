@@ -17,15 +17,7 @@ const navItems = [
   { href: "/about", key: "about" },
 ] as const;
 
-import { useFirebaseAuth } from "@/components/firebase-auth-context";
-
-type User = {
-  uid?: string;
-  email?: string | null;
-  displayName?: string | null;
-  photoURL?: string | null;
-  role?: string | null;
-} | null;
+import { useAuth } from "@/components/supabase-auth-context";
 
 export function SiteHeader() {
   const tNav = useTranslations("nav");
@@ -33,22 +25,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { user: firebaseUser } = useFirebaseAuth();
-  const [user, setUser] = useState<User>(null);
-
-  useEffect(() => {
-    if (firebaseUser) {
-      setUser({
-        uid: firebaseUser.uid,
-        email: firebaseUser.email,
-        displayName: firebaseUser.displayName,
-        photoURL: firebaseUser.photoURL,
-        role: firebaseUser.role,
-      });
-    } else {
-      setUser(null);
-    }
-  }, [firebaseUser]);
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {

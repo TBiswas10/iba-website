@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { useFirebaseAuth } from "@/components/firebase-auth-context";
+import { useAuth } from "@/components/supabase-auth-context";
 
 type Membership = {
   id: number;
@@ -12,7 +12,7 @@ type Membership = {
 };
 
 function DashboardContent() {
-  const { user, loading, logout } = useFirebaseAuth();
+  const { user, loading, logout } = useAuth();
   const [membership, setMembership] = useState<Membership | null>(null);
   const [isActivating, setIsActivating] = useState(false);
   const searchParams = useSearchParams();

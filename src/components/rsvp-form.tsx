@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import { useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useFirebaseAuth } from "@/components/firebase-auth-context";
+import { useAuth } from "@/components/supabase-auth-context";
 
 type EventOption = {
   id: number;
@@ -25,7 +25,7 @@ const emptyForm = {
 };
 
 export function RsvpForm() {
-  const { user } = useFirebaseAuth();
+  const { user } = useAuth();
   const params = useSearchParams();
   const [events, setEvents] = useState<EventOption[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string>("");
@@ -41,9 +41,9 @@ export function RsvpForm() {
       setForm(prev => ({
         ...prev,
         email: user.email || prev.email,
-        name: user.displayName || prev.name,
+        name: user.name || prev.name,
       }));
-      if (!user.displayName) {
+      if (!user.name) {
         fetch("/api/session")
           .then(res => res.json())
           .then(data => {
