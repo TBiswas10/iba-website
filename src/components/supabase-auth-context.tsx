@@ -4,8 +4,10 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useState,
   ReactNode,
+  useCallback,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -15,6 +17,8 @@ type AppUser = {
   name?: string | null;
   role: string;
   supabaseUserId: string;
+  membershipStatus?: string | null;
+  membershipExpiry?: string | null;
 };
 
 type AuthContextType = {
@@ -29,11 +33,18 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   async function syncUser() {
     try {
-      const res = await fetch("/api/session");
+      // Use the in-memory session access token to bypass cookie timing issues
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) return;
+
+      const res = await fetch("/api/session", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
       const data = await res.json();
       if (data.user) setUser(data.user);
     } catch {
@@ -46,6 +57,7 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event) => {
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        setLoading(true);
         await syncUser();
       } else if (event === "SIGNED_OUT") {
         setUser(null);
@@ -70,6 +82,18 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       password,
     });
     if (error) throw error;
+
+    // Mirror Firebase behavior: sync user immediately after sign-in,
+    // so the caller has the user before navigating.
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      const res = await fetch("/api/session", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await res.json();
+      if (data.user) setUser(data.user);
+    }
   }
 
   async function logout() {

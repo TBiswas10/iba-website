@@ -6,20 +6,20 @@ import { useAuth } from "@/components/supabase-auth-context";
 export function DonationForm() {
   const { user } = useAuth();
   const [status, setStatus] = useState<string>("");
-  const [prefillName, setPrefillName] = useState("");
-  const [prefillEmail, setPrefillEmail] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     if (user?.email) {
-      setPrefillEmail(user.email);
+      setEmail(user.email);
       if (user.name) {
-        setPrefillName(user.name);
+        setName(user.name);
       } else {
-        fetch("/api/session")
+        fetch("/api/session", { method: "POST" })
           .then(res => res.json())
           .then(data => {
             if (data.user?.name) {
-              setPrefillName(data.user.name);
+              setName(data.user.name);
             }
           })
           .catch(() => {});
@@ -35,8 +35,8 @@ export function DonationForm() {
     const amountDollars = Number(formData.get("amount") || 0);
     const payload = {
       amountCents: Math.round(amountDollars * 100),
-      donorName: String(formData.get("name") || ""),
-      donorEmail: String(formData.get("email") || ""),
+      donorName: name,
+      donorEmail: email,
       message: String(formData.get("message") || ""),
     };
 
@@ -57,9 +57,9 @@ export function DonationForm() {
     } else if (json.data?.mode === "offline-dev") {
       setStatus("Donation saved. Visit admin to set up payment.");
     }
-    }
+  }
 
-    return (
+  return (
     <form className="grid-form" onSubmit={onSubmit}>
       <label>
         Amount (AUD)
@@ -67,11 +67,11 @@ export function DonationForm() {
       </label>
       <label>
         Name
-        <input required name="name" placeholder="Your name" defaultValue={prefillName} />
+        <input required name="name" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} />
       </label>
       <label>
         Email
-        <input required type="email" name="email" placeholder="you@example.com" defaultValue={prefillEmail} />
+        <input required type="email" name="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
       </label>
       <label className="span-2">
         Message

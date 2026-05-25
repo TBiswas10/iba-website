@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/role";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
+import { DONATION_STATUS } from "@/lib/constants";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -33,15 +34,19 @@ export async function POST(request: Request) {
       emails = Array.from(uniqueEmails);
     } else if (recipients === "donors") {
       const donations = await prisma.donation.findMany({
-        where: { status: "succeeded" },
+        where: { status: DONATION_STATUS.SUCCEEDED },
         select: { donorEmail: true },
       });
       const uniqueEmails = new Set(donations.map((d) => d.donorEmail));
       emails = Array.from(uniqueEmails);
     }
 
+    const MAX_EMAILS = 50;
+    const batch = emails.slice(0, MAX_EMAILS);
+    const skipped = emails.length - batch.length;
+
     const failed: string[] = [];
-    for (const email of emails) {
+    for (const email of batch) {
       try {
         await sendEmail({ to: email, subject, text: message });
       } catch {
@@ -51,8 +56,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ok: true,
-      sent: emails.length - failed.length,
+      sent: batch.length - failed.length,
       failed: failed.length,
+      skipped,
     });
   } catch (error) {
     return NextResponse.json({ ok: false, error: { message: "Failed to send emails" } }, { status: 500 });

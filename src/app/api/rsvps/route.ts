@@ -6,60 +6,59 @@ import { requireAdmin } from "@/lib/role";
 import { rsvpSchema } from "@/lib/validators";
 import { sendRsvpConfirmationEmail } from "@/lib/email";
 
-export async function GET(request: Request) {
-  const denied = await requireAdmin();
-  if (denied) {
-    return denied;
-  }
-
-  try {
-    const { searchParams } = new URL(request.url);
-    const eventId = searchParams.get("eventId");
-    const query = searchParams.get("q")?.trim();
-
-    const where: Prisma.RsvpWhereInput = {};
-
-    if (eventId) {
-      const parsed = Number(eventId);
-      if (Number.isFinite(parsed)) {
-        where.eventId = parsed;
-      }
-    }
-
-    if (query) {
-      where.OR = [
-        { name: { contains: query, mode: "insensitive" } },
-        { email: { contains: query, mode: "insensitive" } },
-        { phone: { contains: query, mode: "insensitive" } },
-        {
-          event: {
-            title: {
-              contains: query,
-              mode: "insensitive",
-            },
-          },
-        },
-      ];
-    }
-
-    const rsvps = await prisma.rsvp.findMany({
-      where,
-      include: {
-        event: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    return ok(rsvps);
-  } catch (error) {
-    return fail("Error fetching RSVP submissions", 500, error);
-  }
-}
-
 export async function POST(request: Request) {
   try {
+    const contentType = request.headers.get("content-type") || "";
+    const hasBody = contentType.includes("application/json");
+
+    if (!hasBody) {
+      const denied = await requireAdmin();
+      if (denied) {
+        return denied;
+      }
+
+      const { searchParams } = new URL(request.url);
+      const eventId = searchParams.get("eventId");
+      const query = searchParams.get("q")?.trim();
+
+      const where: Prisma.RsvpWhereInput = {};
+
+      if (eventId) {
+        const parsed = Number(eventId);
+        if (Number.isFinite(parsed)) {
+          where.eventId = parsed;
+        }
+      }
+
+      if (query) {
+        where.OR = [
+          { name: { contains: query, mode: "insensitive" } },
+          { email: { contains: query, mode: "insensitive" } },
+          { phone: { contains: query, mode: "insensitive" } },
+          {
+            event: {
+              title: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          },
+        ];
+      }
+
+      const rsvps = await prisma.rsvp.findMany({
+        where,
+        include: {
+          event: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      return ok(rsvps);
+    }
+
     const body = await request.json();
     const parsed = rsvpSchema.safeParse(body);
 

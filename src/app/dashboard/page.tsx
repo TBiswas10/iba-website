@@ -22,7 +22,7 @@ function DashboardContent() {
   useEffect(() => {
     if (!user?.email) return;
 
-    fetch(`/api/memberships/mine`)
+    fetch(`/api/memberships/mine`, { method: "POST" })
       .then(res => res.json())
       .then(data => {
         if (data.ok && data.data) {

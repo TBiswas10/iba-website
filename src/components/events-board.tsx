@@ -98,7 +98,7 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
 
   const loadEvents = async () => {
     setError(null);
-    const response = await fetch("/api/events", { cache: "no-store" });
+    const response = await fetch("/api/events", { method: "POST", cache: "no-store" });
     const json = await response.json();
 
     if (!response.ok || !json.ok) {

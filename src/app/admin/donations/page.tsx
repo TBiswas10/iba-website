@@ -29,7 +29,7 @@ export default function AdminDonationsPage() {
   const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
-    fetch("/api/session")
+    fetch("/api/session", { method: "POST" })
       .then(res => res.json())
       .then(data => {
         if (!data.user) {

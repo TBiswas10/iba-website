@@ -27,11 +27,12 @@ type AdminUser = {
 export default function AdminMembershipsPage() {
   const router = useRouter();
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const [canManageRoles, setCanManageRoles] = useState(false);
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/session")
+    fetch("/api/session", { method: "POST" })
       .then(res => res.json())
       .then(data => {
         if (!data.user) {
@@ -44,13 +45,19 @@ export default function AdminMembershipsPage() {
         }
         setAdminUser(data.user);
         fetchUsers();
+        fetch("/api/admin/can-manage-roles", { method: "POST" })
+          .then(res => res.json())
+          .then(data => {
+            if (data.ok) setCanManageRoles(data.canManageRoles);
+          })
+          .catch(() => {});
       })
       .catch(() => router.push("/membership"));
   }, [router]);
 
   async function fetchUsers() {
     setLoading(true);
-    const res = await fetch("/api/admin/memberships");
+    const res = await fetch("/api/admin/memberships", { method: "POST" });
     const data = await res.json();
     if (data.ok) {
       setUsers(data.data || []);
@@ -154,7 +161,7 @@ export default function AdminMembershipsPage() {
                           }}>
                             {u.role}
                           </span>
-                          {adminUser.email === "tirthabiswasm@gmail.com" && u.email !== adminUser.email && (
+                          {canManageRoles && adminUser && u.email !== adminUser.email && (
                             <button 
                               className="btn-small" 
                               style={{ padding: "1px 4px", fontSize: "0.65rem", background: "transparent", border: "1px solid rgba(0,0,0,0.1)", color: "var(--ink)" }}

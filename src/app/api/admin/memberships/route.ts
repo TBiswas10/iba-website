@@ -9,26 +9,6 @@ const updateMembershipSchema = z.object({
   status: z.enum(["ACTIVE", "EXPIRED", "PENDING"]),
 });
 
-export async function GET() {
-  const denied = await requireAdmin();
-  if (denied) return denied;
-
-  try {
-    const users = await prisma.user.findMany({
-      include: { 
-        memberships: {
-          orderBy: { createdAt: "desc" },
-          take: 1
-        } 
-      },
-      orderBy: { createdAt: "desc" },
-    });
-    return NextResponse.json({ ok: true, data: users });
-  } catch (error) {
-    return NextResponse.json({ ok: false, error: "Failed to fetch users and memberships" }, { status: 500 });
-  }
-}
-
 async function checkAdmin() {
   const dbUser = await getCurrentUser();
   if (!dbUser) {
@@ -45,6 +25,21 @@ export async function POST(request: Request) {
   if (dbUser instanceof NextResponse) return dbUser;
 
   try {
+    const contentType = request.headers.get("content-type") || "";
+
+    if (!contentType.includes("application/json")) {
+      const users = await prisma.user.findMany({
+        include: { 
+          memberships: {
+            orderBy: { createdAt: "desc" },
+            take: 1
+          } 
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      return NextResponse.json({ ok: true, data: users });
+    }
+
     const body = await request.json();
     const { userId, action } = body;
 

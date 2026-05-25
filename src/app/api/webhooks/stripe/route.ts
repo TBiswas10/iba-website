@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
+import { DONATION_STATUS } from "@/lib/constants";
 import Stripe from "stripe";
 
 export async function POST(request: Request) {
@@ -46,25 +47,15 @@ export async function POST(request: Request) {
     console.log("Stripe webhook: checkout.session.completed", { userId, email, donationId, membershipId });
 
     if (donationId) {
-        try {
-            await prisma.donation.update({
-                where: { id: parseInt(donationId) },
-                data: { status: "COMPLETED" },
-            });
-            console.log("Donation updated to COMPLETED");
-        } catch (e) {
-            console.error("Error updating donation:", e);
-        }
+      await prisma.donation.update({
+        where: { id: parseInt(donationId) },
+        data: { status: DONATION_STATUS.SUCCEEDED },
+      });
     } else if (membershipId) {
-        try {
-            await prisma.membership.update({
-                where: { id: parseInt(membershipId) },
-                data: { status: "ACTIVE" },
-            });
-            console.log("Membership activated via membershipId");
-        } catch (e) {
-            console.error("Error activating membership:", e);
-        }
+      await prisma.membership.update({
+        where: { id: parseInt(membershipId) },
+        data: { status: "ACTIVE" },
+      });
     } else if (userId && email) {
       console.log("Processing membership for userId:", userId, "email:", email);
 

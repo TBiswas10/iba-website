@@ -2,16 +2,7 @@ import { fail, ok } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
 import { eventSchema } from "@/lib/validators";
-
-function parseLocalDateTime(value: string): Date {
-  if (value.includes("T") && !value.includes("Z")) {
-    const [datePart, timePart] = value.split("T");
-    const [year, month, day] = datePart.split("-").map(Number);
-    const [hour, minute] = timePart.split(":").map(Number);
-    return new Date(year, month - 1, day, hour, minute);
-  }
-  return new Date(value);
-}
+import { parseSydneyDatetime } from "@/lib/dates";
 
 interface RouteParams {
   params: {
@@ -55,8 +46,8 @@ export async function PUT(request: Request, { params }: RouteParams) {
       where: { id },
       data: {
         title: parsed.data.title,
-        start: parseLocalDateTime(parsed.data.start),
-        end: parseLocalDateTime(parsed.data.end),
+        start: parseSydneyDatetime(parsed.data.start),
+        end: parseSydneyDatetime(parsed.data.end),
         location: parsed.data.location,
         description: parsed.data.description,
         imageUrl: parsed.data.imageUrl,

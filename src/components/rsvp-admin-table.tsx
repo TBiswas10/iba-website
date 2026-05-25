@@ -34,7 +34,7 @@ export function RsvpAdminTable() {
 
   const loadRows = async () => {
     setError(null);
-    const response = await fetch("/api/rsvps", { cache: "no-store" });
+    const response = await fetch("/api/rsvps", { method: "POST", cache: "no-store" });
     const json = await response.json();
 
     if (!response.ok || !json.ok) {

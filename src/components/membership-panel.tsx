@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState, useEffect } from "react";
+import { FormEvent, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/supabase-auth-context";
@@ -20,11 +20,13 @@ export function MembershipPanel() {
   const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [familyMembersList, setFamilyMembersList] = useState([""]);
+  const loginEmailRef = useRef<HTMLInputElement>(null);
+  const loginPasswordRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user?.email) {
       setIsChecking(true);
-      fetch("/api/memberships/mine")
+      fetch("/api/memberships/mine", { method: "POST" })
         .then((res) => res.json())
         .then((data) => {
           if (data.ok && data.data) {
@@ -76,9 +78,8 @@ export function MembershipPanel() {
     event.preventDefault();
     setMessage("");
 
-    const formData = new FormData(event.currentTarget);
-    const email = String(formData.get("email") || "");
-    const password = String(formData.get("password") || "");
+    const email = loginEmailRef.current?.value || "";
+    const password = loginPasswordRef.current?.value || "";
 
     try {
       await signInWithEmail(email, password);
@@ -88,7 +89,7 @@ export function MembershipPanel() {
     }
   }
 
-  if (loading || isChecking) {
+  if ((!user && loading) || isChecking) {
     return (
       <section className="glass-panel skeleton-panel">
         <div className="skeleton skeleton-circle" />
@@ -206,12 +207,12 @@ export function MembershipPanel() {
         <form className="grid-form grid-form-auth" onSubmit={handleLogin}>
           <label>
             Email
-            <input required type="email" name="email" placeholder="you@example.com" />
+            <input required type="email" placeholder="you@example.com" ref={loginEmailRef} />
           </label>
           <label>
             Password
             <span className="password-wrapper">
-              <input required type={showLoginPassword ? "text" : "password"} name="password" placeholder="Your password" />
+              <input required type={showLoginPassword ? "text" : "password"} placeholder="Your password" ref={loginPasswordRef} />
               <button type="button" className="password-toggle" onClick={() => setShowLoginPassword(!showLoginPassword)} tabIndex={-1}>
                 {showLoginPassword ? "Hide" : "Show"}
               </button>

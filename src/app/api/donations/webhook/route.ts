@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { fail, ok } from "@/lib/api";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
+import { DONATION_STATUS } from "@/lib/constants";
 
 const stripe = env.STRIPE_SECRET_KEY ? new Stripe(env.STRIPE_SECRET_KEY) : null;
 
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
         await prisma.donation.update({
           where: { id: donationId },
           data: {
-            status: "SUCCEEDED",
+            status: DONATION_STATUS.SUCCEEDED,
           },
         });
       }
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
         await prisma.donation.update({
           where: { id: donationId },
           data: {
-            status: "FAILED",
+            status: DONATION_STATUS.FAILED,
           },
         });
       }

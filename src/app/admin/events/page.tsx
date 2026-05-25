@@ -37,7 +37,7 @@ export default function AdminEventsPage() {
   });
 
   useEffect(() => {
-    fetch("/api/session")
+    fetch("/api/session", { method: "POST" })
       .then(res => res.json())
       .then(data => {
         if (!data.user) {
@@ -55,7 +55,7 @@ export default function AdminEventsPage() {
   }, [router]);
 
   async function fetchEvents() {
-    const res = await fetch("/api/admin/events");
+    const res = await fetch("/api/admin/events", { method: "POST" });
     const data = await res.json();
     if (data.ok) {
       setEvents(data.data || []);

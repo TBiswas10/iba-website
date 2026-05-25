@@ -27,7 +27,7 @@ export default function AdminPage() {
   const [counts, setCounts] = useState<Counts | null>(null);
 
   useEffect(() => {
-    fetch("/api/session")
+    fetch("/api/session", { method: "POST" })
       .then(res => res.json())
       .then(data => {
         if (!data.user) {
@@ -39,7 +39,7 @@ export default function AdminPage() {
           return;
         }
         setUser(data.user);
-        fetch("/api/stats")
+        fetch("/api/stats", { method: "POST" })
           .then(res => res.json())
           .then(data => {
             if (data.ok) {

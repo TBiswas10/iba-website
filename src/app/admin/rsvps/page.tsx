@@ -46,7 +46,7 @@ export default function AdminRsvpsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/session")
+    fetch("/api/session", { method: "POST" })
       .then(res => res.json())
       .then(data => {
         if (!data.user) {
@@ -64,7 +64,7 @@ export default function AdminRsvpsPage() {
   }, [router]);
 
   async function fetchEvents() {
-    const res = await fetch("/api/events");
+    const res = await fetch("/api/events", { method: "POST" });
     const data = await res.json();
     if (data.ok) {
       setEvents(data.data || []);
@@ -74,7 +74,7 @@ export default function AdminRsvpsPage() {
 
   useEffect(() => {
     if (selectedEventId) {
-      fetch(`/api/rsvps?eventId=${selectedEventId}`)
+      fetch(`/api/rsvps?eventId=${selectedEventId}`, { method: "POST" })
         .then(res => res.json())
         .then(data => {
           if (data.ok) {

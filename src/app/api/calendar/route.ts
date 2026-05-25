@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+function escapeIcsField(value: string): string {
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "");
+}
+
+export async function POST(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const title = searchParams.get("title") || "Event";
   const start = searchParams.get("start");
@@ -12,8 +21,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing start or end date" }, { status: 400 });
   }
 
-  const formatDate = (date: string) => new Date(date).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-  const desc = description.replace(/[\n\r]/g, "\\n");
+  const formatDate = (date: string) => new Date(date).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
 
   const ics = `BEGIN:VCALENDAR
 VERSION:2.0
@@ -22,9 +30,9 @@ BEGIN:VEVENT
 UID:${title.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}@iba.org
 DTSTART:${formatDate(start)}
 DTEND:${formatDate(end)}
-SUMMARY:${title}
-DESCRIPTION:${desc}
-LOCATION:${location}
+SUMMARY:${escapeIcsField(title)}
+DESCRIPTION:${escapeIcsField(description)}
+LOCATION:${escapeIcsField(location)}
 END:VEVENT
 END:VCALENDAR`;
 

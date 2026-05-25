@@ -24,7 +24,7 @@ export function AdminAuth({ children }: AdminAuthProps) {
     }
   }, [user, loading, router]);
 
-  if (loading || !user) {
+  if (loading) {
     return (
       <section className="panel-stack">
         <section className="glass-panel">
@@ -32,6 +32,16 @@ export function AdminAuth({ children }: AdminAuthProps) {
         </section>
       </section>
     );
+  }
+
+  if (!user) {
+    router.push("/membership");
+    return null;
+  }
+
+  if (user.role !== "ADMIN") {
+    router.push("/dashboard");
+    return null;
   }
 
   return <>{children}</>;

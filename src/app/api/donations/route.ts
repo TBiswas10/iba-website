@@ -2,6 +2,7 @@ import { fail, ok } from "@/lib/api";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 import { donationSchema } from "@/lib/validators";
+import { DONATION_STATUS } from "@/lib/constants";
 import Stripe from "stripe";
 
 const stripe = env.STRIPE_SECRET_KEY ? new Stripe(env.STRIPE_SECRET_KEY) : null;
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
     const draft = await prisma.donation.create({
       data: {
         amountCents: parsed.data.amountCents,
-        status: "PENDING",
+        status: DONATION_STATUS.PENDING,
         donorName: parsed.data.donorName,
         donorEmail: parsed.data.donorEmail,
         message: parsed.data.message,

@@ -44,7 +44,7 @@ export function RsvpForm() {
         name: user.name || prev.name,
       }));
       if (!user.name) {
-        fetch("/api/session")
+        fetch("/api/session", { method: "POST" })
           .then(res => res.json())
           .then(data => {
             if (data.user?.name) {
@@ -61,7 +61,7 @@ export function RsvpForm() {
   useEffect(() => {
     const loadEvents = async () => {
       setIsLoading(true);
-      const response = await fetch("/api/events", { cache: "no-store" });
+      const response = await fetch("/api/events", { method: "POST", cache: "no-store" });
       const json = await response.json();
 
       if (response.ok && json.ok) {

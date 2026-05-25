@@ -2,7 +2,7 @@ import { fail, ok } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
-export async function GET() {
+export async function POST() {
   const dbUser = await getCurrentUser();
 
   if (!dbUser) {

@@ -2,35 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
 import { uploadImageToStorage } from "@/lib/storage";
-
-function parseLocalDateTime(value: string): Date {
-  // datetime-local input is in Sydney time (user is in Sydney)
-  // Parse as Sydney time and convert to UTC for storage
-  if (value.includes("T") && !value.includes("Z")) {
-    // Create ISO string with Sydney timezone offset (+10 standard, +11 DST)
-    // Using +10:00 for simplicity - works for most of the year
-    const sydneyTime = value + ":00+10:00";
-    const date = new Date(sydneyTime);
-    // Return as UTC
-    return new Date(date.toISOString());
-  }
-  return new Date(value);
-}
-
-export async function GET() {
-  const denied = await requireAdmin();
-  if (denied) return denied;
-
-  try {
-    const events = await prisma.event.findMany({
-      orderBy: { start: "desc" },
-      take: 50,
-    });
-    return NextResponse.json({ ok: true, data: events });
-  } catch (error) {
-    return NextResponse.json({ ok: false, error: "Failed to fetch events" }, { status: 500 });
-  }
-}
+import { parseSydneyDatetime } from "@/lib/dates";
 
 export async function POST(request: NextRequest) {
   const denied = await requireAdmin();
@@ -60,6 +32,14 @@ export async function POST(request: NextRequest) {
       }
     }
     
+    if (!contentType.includes("application/json")) {
+      const events = await prisma.event.findMany({
+        orderBy: { start: "desc" },
+        take: 50,
+      });
+      return NextResponse.json({ ok: true, data: events });
+    }
+    
     const body = await request.json();
     const { title, slug, start, end, location, description, imageUrl } = body;
 
@@ -75,8 +55,8 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         slug: slugFinal,
-        start: parseLocalDateTime(start),
-        end: parseLocalDateTime(end),
+        start: parseSydneyDatetime(start),
+        end: parseSydneyDatetime(end),
         location: location || "",
         description: description || "",
         imageUrl: imageUrl || "",
@@ -111,8 +91,8 @@ export async function PUT(request: Request) {
       data: {
         title,
         slug: slugFinal,
-        start: parseLocalDateTime(start),
-        end: parseLocalDateTime(end),
+        start: parseSydneyDatetime(start),
+        end: parseSydneyDatetime(end),
         location: location || "",
         description: description || "",
         imageUrl: imageUrl || "",

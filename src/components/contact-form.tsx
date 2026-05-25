@@ -6,20 +6,20 @@ import { useAuth } from "@/components/supabase-auth-context";
 export function ContactForm() {
   const { user } = useAuth();
   const [status, setStatus] = useState<string>("");
-  const [prefillName, setPrefillName] = useState("");
-  const [prefillEmail, setPrefillEmail] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     if (user?.email) {
-      setPrefillEmail(user.email);
+      setEmail(user.email);
       if (user.name) {
-        setPrefillName(user.name);
+        setName(user.name);
       } else {
-        fetch("/api/session")
+        fetch("/api/session", { method: "POST" })
           .then(res => res.json())
           .then(data => {
             if (data.user?.name) {
-              setPrefillName(data.user.name);
+              setName(data.user.name);
             }
           })
           .catch(() => {});
@@ -59,11 +59,11 @@ export function ContactForm() {
     <form className="grid-form" onSubmit={onSubmit}>
       <label>
         Name
-        <input required name="name" defaultValue={prefillName} />
+        <input required name="name" value={name} onChange={(e) => setName(e.target.value)} />
       </label>
       <label>
         Email
-        <input required type="email" name="email" defaultValue={prefillEmail} />
+        <input required type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />
       </label>
       <label>
         Phone
