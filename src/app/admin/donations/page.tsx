@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/supabase-auth-context";
 
 type Donation = {
   id: number;
@@ -13,15 +14,9 @@ type Donation = {
   createdAt: string;
 };
 
-type User = {
-  uid: string;
-  email: string;
-  role: string;
-};
-
 export default function AdminDonationsPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const { user, loading: authLoading } = useAuth();
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -29,26 +24,15 @@ export default function AdminDonationsPage() {
   const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
-    fetch("/api/session", { method: "POST" })
-      .then(res => res.json())
-      .then(data => {
-        if (!data.user) {
-          router.push("/membership");
-          return;
-        }
-        if (data.user.role !== "ADMIN") {
-          router.push("/dashboard");
-          return;
-        }
-        setUser(data.user);
-        fetchDonations(1);
-      })
-      .catch(() => router.push("/membership"));
-  }, [router]);
+    if (authLoading) return;
+    if (!user) { router.push("/membership"); return; }
+    if (user.role !== "ADMIN") { router.push("/dashboard"); return; }
+    fetchDonations(1);
+  }, [user, authLoading, router]);
 
   async function fetchDonations(pageNum: number) {
     setLoading(true);
-    const res = await fetch(`/api/admin/donations?page=${pageNum}`);
+    const res = await fetch(`/api/admin/donations?page=${pageNum}`, { method: "POST" });
     const data = await res.json();
     if (data.ok) {
       setDonations(data.data || []);
@@ -59,13 +43,15 @@ export default function AdminDonationsPage() {
     setLoading(false);
   }
 
-  if (!user) {
+  if (authLoading || loading) {
     return (
       <section className="panel-stack">
         <section className="glass-panel"><p>Loading...</p></section>
       </section>
     );
   }
+
+  if (!user) return null;
 
   const totalCents = totalAmount;
 

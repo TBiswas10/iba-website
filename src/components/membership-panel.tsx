@@ -2,7 +2,6 @@
 
 import { FormEvent, useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/supabase-auth-context";
 
 type Membership = {
@@ -12,7 +11,6 @@ type Membership = {
 };
 
 export function MembershipPanel() {
-  const router = useRouter();
   const { user, loading, signInWithEmail, logout } = useAuth();
   const [message, setMessage] = useState<string>("");
   const [membership, setMembership] = useState<Membership | null>(null);
@@ -68,7 +66,6 @@ export function MembershipPanel() {
 
       // User created and confirmed — sign them in
       await signInWithEmail(email, password);
-      router.push("/dashboard");
     } catch (error: any) {
       setMessage(error.message || "Signup failed. Please try again.");
     }
@@ -83,13 +80,12 @@ export function MembershipPanel() {
 
     try {
       await signInWithEmail(email, password);
-      router.push("/dashboard");
     } catch (error: any) {
       setMessage("Invalid email or password.");
     }
   }
 
-  if ((!user && loading) || isChecking) {
+  if (loading || isChecking) {
     return (
       <section className="glass-panel skeleton-panel">
         <div className="skeleton skeleton-circle" />

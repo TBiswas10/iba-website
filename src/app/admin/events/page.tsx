@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/supabase-auth-context";
 
 type Event = {
   id: number;
@@ -14,15 +15,9 @@ type Event = {
   imageUrl: string;
 };
 
-type User = {
-  uid: string;
-  email: string;
-  role: string;
-};
-
 export default function AdminEventsPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const { user, loading: authLoading } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -37,22 +32,11 @@ export default function AdminEventsPage() {
   });
 
   useEffect(() => {
-    fetch("/api/session", { method: "POST" })
-      .then(res => res.json())
-      .then(data => {
-        if (!data.user) {
-          router.push("/membership");
-          return;
-        }
-        if (data.user.role !== "ADMIN") {
-          router.push("/dashboard");
-          return;
-        }
-        setUser(data.user);
-        fetchEvents();
-      })
-      .catch(() => router.push("/membership"));
-  }, [router]);
+    if (authLoading) return;
+    if (!user) { router.push("/membership"); return; }
+    if (user.role !== "ADMIN") { router.push("/dashboard"); return; }
+    fetchEvents();
+  }, [user, authLoading, router]);
 
   async function fetchEvents() {
     const res = await fetch("/api/admin/events", { method: "POST" });
@@ -130,13 +114,15 @@ export default function AdminEventsPage() {
     }
   }
 
-  if (!user) {
+  if (authLoading || loading) {
     return (
       <section className="panel-stack">
         <section className="glass-panel"><p>Loading...</p></section>
       </section>
     );
   }
+
+  if (!user) return null;
 
   return (
     <section className="panel-stack">

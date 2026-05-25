@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/components/supabase-auth-context";
 
 type Membership = {
@@ -13,6 +13,7 @@ type Membership = {
 
 function DashboardContent() {
   const { user, loading, logout } = useAuth();
+  const router = useRouter();
   const [membership, setMembership] = useState<Membership | null>(null);
   const [isActivating, setIsActivating] = useState(false);
   const searchParams = useSearchParams();
@@ -65,18 +66,14 @@ function DashboardContent() {
   }
 
   if (!user) {
-    if (typeof window !== "undefined") {
-      window.location.href = "/membership";
-    }
+    router.replace("/membership");
     return null;
   }
 
   const role = user.role || "USER";
 
   if (role === "ADMIN") {
-    if (typeof window !== "undefined") {
-      window.location.href = "/admin";
-    }
+    router.replace("/admin");
     return null;
   }
 

@@ -5,12 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/supabase-auth-context";
 
-type User = {
-  uid: string;
-  email: string;
-  role: string;
-};
-
 type Counts = {
   events: number;
   memberships: number;
@@ -22,35 +16,20 @@ type Counts = {
 
 export default function AdminPage() {
   const router = useRouter();
-  const { logout } = useAuth();
-  const [user, setUser] = useState<User | null>(null);
+  const { user, logout } = useAuth();
   const [counts, setCounts] = useState<Counts | null>(null);
 
   useEffect(() => {
-    fetch("/api/session", { method: "POST" })
+    if (!user) return;
+    if (user.role !== "ADMIN") { router.replace("/dashboard"); return; }
+    fetch("/api/stats", { method: "POST" })
       .then(res => res.json())
       .then(data => {
-        if (!data.user) {
-          router.push("/membership");
-          return;
+        if (data.ok) {
+          setCounts(data.data);
         }
-        if (data.user.role !== "ADMIN") {
-          router.push("/dashboard");
-          return;
-        }
-        setUser(data.user);
-        fetch("/api/stats", { method: "POST" })
-          .then(res => res.json())
-          .then(data => {
-            if (data.ok) {
-              setCounts(data.data);
-            }
-          });
-      })
-      .catch(() => {
-        router.push("/membership");
       });
-  }, [router]);
+  }, [user, router]);
 
   const handleLogout = async () => {
     await logout();

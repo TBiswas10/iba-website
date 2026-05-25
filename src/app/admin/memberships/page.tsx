@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/supabase-auth-context";
 
 type Membership = {
   id: number;
@@ -18,42 +19,25 @@ type UserData = {
   memberships: Membership[];
 };
 
-type AdminUser = {
-  uid: string;
-  email: string;
-  role: string;
-};
-
 export default function AdminMembershipsPage() {
   const router = useRouter();
-  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const { user, loading: authLoading } = useAuth();
   const [canManageRoles, setCanManageRoles] = useState(false);
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/session", { method: "POST" })
+    if (authLoading) return;
+    if (!user) { router.push("/membership"); return; }
+    if (user.role !== "ADMIN") { router.push("/dashboard"); return; }
+    fetchUsers();
+    fetch("/api/admin/can-manage-roles", { method: "POST" })
       .then(res => res.json())
       .then(data => {
-        if (!data.user) {
-          router.push("/membership");
-          return;
-        }
-        if (data.user.role !== "ADMIN") {
-          router.push("/dashboard");
-          return;
-        }
-        setAdminUser(data.user);
-        fetchUsers();
-        fetch("/api/admin/can-manage-roles", { method: "POST" })
-          .then(res => res.json())
-          .then(data => {
-            if (data.ok) setCanManageRoles(data.canManageRoles);
-          })
-          .catch(() => {});
+        if (data.ok) setCanManageRoles(data.canManageRoles);
       })
-      .catch(() => router.push("/membership"));
-  }, [router]);
+      .catch(() => {});
+  }, [user, authLoading, router]);
 
   async function fetchUsers() {
     setLoading(true);
@@ -106,13 +90,15 @@ export default function AdminMembershipsPage() {
     fetchUsers();
   }
 
-  if (!adminUser) {
+  if (authLoading || loading) {
     return (
       <section className="panel-stack">
         <section className="glass-panel"><p>Loading...</p></section>
       </section>
     );
   }
+
+  if (!user) return null;
 
   return (
     <section className="panel-stack">
@@ -161,7 +147,7 @@ export default function AdminMembershipsPage() {
                           }}>
                             {u.role}
                           </span>
-                          {canManageRoles && adminUser && u.email !== adminUser.email && (
+                          {canManageRoles && user && u.email !== user.email && (
                             <button 
                               className="btn-small" 
                               style={{ padding: "1px 4px", fontSize: "0.65rem", background: "transparent", border: "1px solid rgba(0,0,0,0.1)", color: "var(--ink)" }}

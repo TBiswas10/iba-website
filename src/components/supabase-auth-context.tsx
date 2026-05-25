@@ -7,7 +7,6 @@ import {
   useMemo,
   useState,
   ReactNode,
-  useCallback,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -35,6 +34,14 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
 
+  // Safety timeout: force loading to false after 5s to prevent stuck skeleton
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => setLoading(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
+
   async function syncUser() {
     try {
       // Use the in-memory session access token to bypass cookie timing issues
@@ -57,12 +64,10 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event) => {
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-        setLoading(true);
         await syncUser();
       } else if (event === "SIGNED_OUT") {
         setUser(null);
       }
-      setLoading(false);
     });
 
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -82,22 +87,17 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       password,
     });
     if (error) throw error;
-
-    // Mirror Firebase behavior: sync user immediately after sign-in,
-    // so the caller has the user before navigating.
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.access_token) {
-      const res = await fetch("/api/session", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
-      const data = await res.json();
-      if (data.user) setUser(data.user);
-    }
+    // The SIGNED_IN event fires inside signInWithPassword, which triggers
+    // syncUser() via the onAuthStateChange subscription above.
   }
 
   async function logout() {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // signOut API call failed — still clear local state
+    }
+    setUser(null);
   }
 
   return (
