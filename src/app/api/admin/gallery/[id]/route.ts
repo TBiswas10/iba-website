@@ -11,11 +11,13 @@ export async function PATCH(
 
   try {
     const { id } = await params;
+    const albumId = parseInt(id);
+    if (isNaN(albumId)) return NextResponse.json({ error: "Invalid album ID" }, { status: 400 });
     const body = await request.json();
     const { title, description, eventId } = body;
 
     await prisma.album.update({
-      where: { id: parseInt(id) },
+      where: { id: albumId },
       data: {
         ...(title && { title }),
         ...(description !== undefined && { description }),

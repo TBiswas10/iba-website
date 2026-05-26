@@ -9,7 +9,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres.zqaugesqeehuubcytlfw:9oKTsifFm4c3YWoV@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres?connection_limit=1"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -79,6 +79,7 @@ model Membership {
   id         Int              @id @default(autoincrement())
   userId     Int
   status     MembershipStatus @default(PENDING)
+  type       String?
   startDate  DateTime
   expiryDate DateTime
   user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)

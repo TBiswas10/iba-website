@@ -2,6 +2,10 @@ import nodemailer from "nodemailer";
 
 import { env } from "@/lib/env";
 
+function escHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
 type EventDetails = {
   title: string;
   start: Date;
@@ -44,7 +48,12 @@ export async function sendEmail({ to, subject, text }: { to: string; subject: st
   const from = env.SMTP_FROM || "Illawarra Bengali Association <hello@illawarrabengali.org>";
   const transport = getTransport();
 
-  await transport.sendMail({ from, to, subject, text });
+  try {
+    await transport.sendMail({ from, to, subject, text });
+  } catch (err) {
+    console.error("Email send failed:", err);
+    throw err;
+  }
 }
 
 export async function sendRsvpConfirmationEmail({
@@ -60,9 +69,11 @@ export async function sendRsvpConfirmationEmail({
   const eventRange = `${event.start.toLocaleString("en-AU", {
     dateStyle: "full",
     timeStyle: "short",
+    timeZone: "Australia/Sydney",
   })} to ${event.end.toLocaleString("en-AU", {
     dateStyle: "full",
     timeStyle: "short",
+    timeZone: "Australia/Sydney",
   })}`;
 
   const kidsAgesStr = rsvp.kidsAges ? `Ages: ${rsvp.kidsAges.join(", ")}` : null;
@@ -95,14 +106,14 @@ export async function sendRsvpConfirmationEmail({
       .join("\n"),
     html: `
       <div style="font-family:Arial,sans-serif;line-height:1.6;color:#101010">
-        <h1 style="margin-bottom:0.5rem">RSVP confirmed for ${event.title}</h1>
-        <p>Thanks ${rsvp.name}, we have received your RSVP.</p>
-        <p><strong>Event time:</strong> ${eventRange}</p>
-        ${event.location ? `<p><strong>Location:</strong> ${event.location}</p>` : ""}
+        <h1 style="margin-bottom:0.5rem">RSVP confirmed for ${escHtml(event.title)}</h1>
+        <p>Thanks ${escHtml(rsvp.name)}, we have received your RSVP.</p>
+        <p><strong>Event time:</strong> ${escHtml(eventRange)}</p>
+        ${event.location ? `<p><strong>Location:</strong> ${escHtml(event.location)}</p>` : ""}
         <ul>
-          <li><strong>Adults:</strong> ${rsvp.attendees}</li>
-          ${rsvp.kidsCount !== undefined && rsvp.kidsCount !== null ? `<li><strong>Kids:</strong> ${rsvp.kidsCount}</li>` : ""}
-          ${rsvp.kidsAges ? `<li><strong>Kids ages:</strong> ${rsvp.kidsAges.join(", ")}</li>` : ""}
+          <li><strong>Adults:</strong> ${escHtml(String(rsvp.attendees))}</li>
+          ${rsvp.kidsCount !== undefined && rsvp.kidsCount !== null ? `<li><strong>Kids:</strong> ${escHtml(String(rsvp.kidsCount))}</li>` : ""}
+          ${rsvp.kidsAges ? `<li><strong>Kids ages:</strong> ${escHtml(rsvp.kidsAges.join(", "))}</li>` : ""}
         </ul>
         <p>We will follow up if anything changes.</p>
       </div>

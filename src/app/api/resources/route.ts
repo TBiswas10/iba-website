@@ -4,13 +4,17 @@ import { requireAdmin } from "@/lib/role";
 import { resourceSchema } from "@/lib/validators";
 
 export async function GET() {
-  const resources = await prisma.resource.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  try {
+    const resources = await prisma.resource.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-  return ok(resources);
+    return ok(resources);
+  } catch (error) {
+    return fail("Error fetching resources", 500, error);
+  }
 }
 
 export async function POST(request: Request) {

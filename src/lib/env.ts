@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-  DATABASE_URL: z.string().optional(),
+  DATABASE_URL: z.string(),
+  NEXT_PUBLIC_SUPABASE_URL: z.string(),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string(),
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   NEXT_PUBLIC_BASE_URL: z.string().optional(),
@@ -10,13 +12,18 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
   SMTP_FROM: z.string().optional(),
-  NEXT_PUBLIC_SUPABASE_URL: z.string().optional(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
 
-export const env = parsed.success ? parsed.data : {};
+if (!parsed.success) {
+  const missing = parsed.error.issues
+    .filter(i => i.code === "invalid_type" && i.received === "undefined")
+    .map(i => i.path.join("."));
+  throw new Error(`Missing required environment variables: ${missing.join(", ")}`);
+}
+
+export const env = parsed.data;
 
 export function requireEnv(key: keyof typeof env) {
   const value = env[key];

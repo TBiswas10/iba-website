@@ -7,6 +7,8 @@ import { useAuth } from "@/components/supabase-auth-context";
 type Membership = {
   id: number;
   status: string;
+  type: string | null;
+  startDate: string;
   expiryDate: string;
 };
 
@@ -18,6 +20,7 @@ export function MembershipPanel() {
   const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [familyMembersList, setFamilyMembersList] = useState([""]);
+  const [applicationSubmitted, setApplicationSubmitted] = useState(false);
   const loginEmailRef = useRef<HTMLInputElement>(null);
   const loginPasswordRef = useRef<HTMLInputElement>(null);
 
@@ -64,8 +67,11 @@ export function MembershipPanel() {
         return;
       }
 
-      // User created and confirmed — sign them in
-      await signInWithEmail(email, password);
+      // Sign them in then show application submitted screen
+      try {
+        await signInWithEmail(email, password);
+      } catch { /* ignore — user already created */ }
+      setApplicationSubmitted(true);
     } catch (error: any) {
       setMessage(error.message || "Signup failed. Please try again.");
     }
@@ -99,6 +105,27 @@ export function MembershipPanel() {
     );
   }
 
+  if (applicationSubmitted) {
+    return (
+      <section className="glass-panel member-welcome" style={{ textAlign: "center" }}>
+        <div style={{ fontSize: "4rem", marginBottom: "1rem", color: "var(--teal, #2a9d8f)" }}>✓</div>
+        <h2>Application Submitted</h2>
+        <p style={{ marginTop: "1rem", maxWidth: "400px", marginInline: "auto" }}>
+          Your membership application has been submitted to the management team for review.
+          You will be notified once it has been approved.
+        </p>
+        <div className="button-row" style={{ marginTop: "1.5rem" }}>
+          <Link href="/" className="btn-primary">
+            Go to Home
+          </Link>
+          <button className="btn-ghost" onClick={() => logout()} type="button">
+            Log out
+          </button>
+        </div>
+      </section>
+    );
+  }
+
   if (user) {
     if (user.role === "ADMIN") {
       return (
@@ -119,29 +146,36 @@ export function MembershipPanel() {
       );
     }
 
-    const isActive = membership && membership.status === "ACTIVE";
+    const isActive = membership?.status === "ACTIVE";
+    const isPending = membership?.status === "PENDING";
 
     return (
       <section className="glass-panel member-welcome">
-        <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>👋</div>
+        <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>{isActive ? "👋" : "⏳"}</div>
         <h2>Welcome back!</h2>
         <p>{user.name || user.email}</p>
         
         {isActive ? (
           <div style={{ marginTop: "1.5rem" }}>
             <p className="status-badge active" style={{ display: "inline-block" }}>Membership Active</p>
-            <p style={{ marginTop: "0.5rem" }}>Valid until {new Date(membership!.expiryDate).toLocaleDateString(undefined)}</p>
+            {membership!.type && <p style={{ marginTop: "0.5rem" }}>Type: <strong>{membership!.type}</strong></p>}
+            <p style={{ marginTop: "0.25rem" }}>Valid until {new Date(membership!.expiryDate).toLocaleDateString(undefined)}</p>
             <div style={{ marginTop: "1rem", padding: "1rem", background: "rgba(255,255,255,0.5)", borderRadius: "12px" }}>
               <p><strong>Email:</strong> {user.email}</p>
               <p><strong>Status:</strong> {membership?.status}</p>
             </div>
           </div>
+        ) : isPending ? (
+          <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
+            <p className="status-badge" style={{ display: "inline-block", background: "var(--yellow, #e9c46a)", color: "#333" }}>Pending Review</p>
+            <p style={{ marginTop: "1rem" }}>Your application is being reviewed by the management team.</p>
+          </div>
         ) : (
           <p style={{ marginTop: "1.5rem", textAlign: "center" }}>No active membership found. Contact the association for assistance.</p>
         )}
 
-
         <div className="button-row" style={{ marginTop: "1.5rem" }}>
+          <Link href="/" className="btn-primary">Home</Link>
           <button className="btn-ghost" onClick={() => logout()} type="button">
             Log out
           </button>

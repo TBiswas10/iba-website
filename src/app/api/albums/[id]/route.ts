@@ -9,19 +9,23 @@ export async function GET(
   _req: Request,
   { params }: { params: { id: string } }
 ) {
-  const albumId = parseInt(params.id, 10);
-  if (isNaN(albumId)) return fail("Invalid album ID", 400);
+  try {
+    const albumId = parseInt(params.id, 10);
+    if (isNaN(albumId)) return fail("Invalid album ID", 400);
 
-  const album = await prisma.album.findUnique({
-    where: { id: albumId },
-    include: {
-      event: { select: { id: true, title: true, start: true, slug: true } },
-      items: { orderBy: { createdAt: "asc" } },
-    },
-  });
+    const album = await prisma.album.findUnique({
+      where: { id: albumId },
+      include: {
+        event: { select: { id: true, title: true, start: true, slug: true } },
+        items: { orderBy: { createdAt: "asc" } },
+      },
+    });
 
-  if (!album) return fail("Album not found", 404);
-  return ok(album);
+    if (!album) return fail("Album not found", 404);
+    return ok(album);
+  } catch (error) {
+    return fail("Error fetching album", 500, error);
+  }
 }
 
 const patchAlbumSchema = z.object({

@@ -4,13 +4,17 @@ import { requireAdmin } from "@/lib/role";
 import { gallerySchema } from "@/lib/validators";
 
 export async function GET() {
-  const items = await prisma.galleryItem.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  try {
+    const items = await prisma.galleryItem.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-  return ok(items);
+    return ok(items);
+  } catch (error) {
+    return fail("Error fetching gallery items", 500, error);
+  }
 }
 
 export async function POST(request: Request) {

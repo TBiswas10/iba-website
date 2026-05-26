@@ -34,13 +34,6 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
 
-  useEffect(() => {
-    if (loading) {
-      const timer = setTimeout(() => setLoading(false), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [loading]);
-
   async function syncUser() {
     try {
       const res = await fetch("/api/session");
@@ -52,26 +45,24 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
+    let cancelled = false;
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event) => {
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
         await syncUser();
       } else if (event === "SIGNED_OUT") {
         setUser(null);
       }
+      if (!cancelled) setLoading(false);
     });
 
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        syncUser().finally(() => setLoading(false));
-      } else {
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, [supabase.auth]);
 
   async function signInWithEmail(email: string, password: string) {
     const { error } = await supabase.auth.signInWithPassword({

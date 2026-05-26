@@ -10,21 +10,23 @@ export function ContactForm() {
   const [email, setEmail] = useState("");
 
   useEffect(() => {
+    const controller = new AbortController();
     if (user?.email) {
       setEmail(user.email);
       if (user.name) {
         setName(user.name);
       } else {
-        fetch("/api/session", { method: "POST" })
+        fetch("/api/session", { method: "POST", signal: controller.signal })
           .then(res => res.json())
           .then(data => {
-            if (data.user?.name) {
+            if (!controller.signal.aborted && data.user?.name) {
               setName(data.user.name);
             }
           })
           .catch(() => {});
       }
     }
+    return () => controller.abort();
   }, [user]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {

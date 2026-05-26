@@ -23,7 +23,9 @@ export default async function AlbumDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const album = await getAlbum(parseInt(id));
+  const albumId = parseInt(id);
+  if (isNaN(albumId)) notFound();
+  const album = await getAlbum(albumId);
 
   if (!album) {
     notFound();

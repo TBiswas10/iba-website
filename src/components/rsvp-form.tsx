@@ -37,6 +37,7 @@ export function RsvpForm() {
   const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
     if (user?.email) {
       setForm(prev => ({
         ...prev,
@@ -44,10 +45,10 @@ export function RsvpForm() {
         name: user.name || prev.name,
       }));
       if (!user.name) {
-        fetch("/api/session", { method: "POST" })
+        fetch("/api/session", { method: "POST", signal: controller.signal })
           .then(res => res.json())
           .then(data => {
-            if (data.user?.name) {
+            if (!controller.signal.aborted && data.user?.name) {
               setForm(prev => ({ ...prev, name: data.user.name }));
             }
           })
@@ -56,6 +57,7 @@ export function RsvpForm() {
           });
       }
     }
+    return () => controller.abort();
   }, [user]);
 
   useEffect(() => {

@@ -17,6 +17,8 @@ coverage
 /src/generated/prisma
 
 # Tooling caches and local skill metadata
-.agents/cache
+.agents/
 .gstack/
 .opencode/
+dev-server.log
+skills-lock.json

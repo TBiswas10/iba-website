@@ -8,7 +8,7 @@ export default async function sitemap() {
     { url: "/events", changefreq: "monthly", priority: 0.8 },
     { url: "/membership", changefreq: "monthly", priority: 0.7 },
     { url: "/about", changefreq: "monthly", priority: 0.7 },
-    { url: "/dashboard", changefreq: "monthly", priority: 0.6 },
+    { url: "/contact", changefreq: "monthly", priority: 0.6 },
   ];
 
   return staticPages.map((page) => ({

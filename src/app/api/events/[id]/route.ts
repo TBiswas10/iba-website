@@ -11,17 +11,21 @@ interface RouteParams {
 }
 
 export async function GET(_request: Request, { params }: RouteParams) {
-  const id = Number(params.id);
-  if (!Number.isFinite(id)) {
-    return fail("Invalid event id", 400);
-  }
+  try {
+    const id = Number(params.id);
+    if (!Number.isFinite(id)) {
+      return fail("Invalid event id", 400);
+    }
 
-  const event = await prisma.event.findUnique({ where: { id } });
-  if (!event) {
-    return fail("Event not found", 404);
-  }
+    const event = await prisma.event.findUnique({ where: { id } });
+    if (!event) {
+      return fail("Event not found", 404);
+    }
 
-  return ok(event);
+    return ok(event);
+  } catch (error) {
+    return fail("Error fetching event", 500, error);
+  }
 }
 
 export async function PUT(request: Request, { params }: RouteParams) {

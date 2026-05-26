@@ -105,7 +105,7 @@ export function EventDetailsClient({ event }: { event: Event }) {
             >
               Google Calendar
             </a>
-            <form method="get" action="/api/calendar" style={{ display: "inline" }}>
+            <form method="post" action="/api/calendar" style={{ display: "inline" }}>
               <input type="hidden" name="title" value={event.title} />
               <input type="hidden" name="start" value={startDate.toISOString()} />
               <input type="hidden" name="end" value={endDate.toISOString()} />

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { fail, ok } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { checkSignupEmailRateLimit, checkSignupRateLimit } from "@/lib/rate-limit";
 import { signupSchema } from "@/lib/validators";
 
 async function findAuthUserByEmail(email: string) {
-  const { data } = await supabaseAdmin.auth.admin.listUsers();
+  const { data } = await getSupabaseAdmin().auth.admin.listUsers();
   const users = (data?.users ?? []) as Array<{ id: string; email?: string }>;
   return users.find(u => u.email === email) || null;
 }
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const parsed = signupSchema.safeParse(body);
     if (!parsed.success) {
-      return fail("Invalid signup data", 400);
+      return fail(parsed.error.issues.map(i => i.message).join("; "), 400);
     }
 
     const { email, password, name, phone, familyMembers } = parsed.data;
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
 
     if (existingUser?.supabaseUserId) {
       // Verify the Supabase Auth user still exists
-      const { error: lookupError } = await supabaseAdmin.auth.admin.getUserById(existingUser.supabaseUserId);
+      const { error: lookupError } = await getSupabaseAdmin().auth.admin.getUserById(existingUser.supabaseUserId);
       if (!lookupError) {
         return fail("An account with this email already exists.", 409);
       }
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     }
 
     // Create or confirm user in Supabase Auth
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    const { data: authData, error: authError } = await getSupabaseAdmin().auth.admin.createUser({
       email,
       password,
       email_confirm: true,
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
           return fail("Account already exists. Please sign in.", 409);
         }
         supabaseUserId = authUser.id;
-        await supabaseAdmin.auth.admin.updateUserById(authUser.id, {
+        await getSupabaseAdmin().auth.admin.updateUserById(authUser.id, {
           email_confirm: true,
           user_metadata: { full_name: name },
         });
@@ -106,7 +106,7 @@ export async function POST(request: Request) {
           supabaseUserId,
           memberships: {
             create: {
-              status: "ACTIVE",
+              status: "PENDING",
               startDate: now,
               expiryDate: expiry,
             },

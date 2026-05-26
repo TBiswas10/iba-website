@@ -25,7 +25,7 @@ export async function GET(request: Request) {
           amountCents: true,
         },
         where: {
-          status: "COMPLETED",
+          status: "SUCCEEDED",
         },
       }),
     ]);

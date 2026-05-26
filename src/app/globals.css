@@ -1240,8 +1240,6 @@ h4 { font-size: 1.1rem; }
 .btn-small.btn-danger { background: #dc2626; }
 .btn-small.btn-danger:hover { background: #b91c1c; }
 
-.status-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
-
 /* Site Header - Stacked Premium Layout */
 .site-header {
   position: fixed;

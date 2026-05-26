@@ -304,7 +304,9 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
                     document.execCommand("copy");
                     document.body.removeChild(textArea);
                   }
-                  const btn = document.activeElement as HTMLButtonElement;
+                  const active = document.activeElement;
+                  const btn = active instanceof HTMLButtonElement ? active : null;
+                  if (!btn) return;
                   const originalText = btn.textContent;
                   btn.textContent = "Copied!";
                   setTimeout(() => {

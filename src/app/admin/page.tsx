@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/components/supabase-auth-context";
+import { AccessDenied } from "@/components/access-denied";
 
 type Counts = {
   events: number;
@@ -16,12 +17,11 @@ type Counts = {
 
 export default function AdminPage() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
   const [counts, setCounts] = useState<Counts | null>(null);
 
   useEffect(() => {
-    if (!user) return;
-    if (user.role !== "ADMIN") { router.replace("/dashboard"); return; }
+    if (!user || user.role !== "ADMIN") return;
     fetch("/api/stats", { method: "POST" })
       .then(res => res.json())
       .then(data => {
@@ -29,14 +29,14 @@ export default function AdminPage() {
           setCounts(data.data);
         }
       });
-  }, [user, router]);
+  }, [user]);
 
   const handleLogout = async () => {
     await logout();
     router.push("/membership");
   };
 
-  if (!user) {
+  if (authLoading) {
     return (
       <section className="glass-panel skeleton-panel">
         <div className="skeleton skeleton-heading" style={{ width: "40%" }} />
@@ -44,6 +44,10 @@ export default function AdminPage() {
         <div className="skeleton skeleton-block" style={{ width: "100%", height: "200px", marginTop: "1.5rem" }} />
       </section>
     );
+  }
+
+  if (!user || user.role !== "ADMIN") {
+    return <AccessDenied />;
   }
 
   return (

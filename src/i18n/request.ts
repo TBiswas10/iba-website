@@ -17,7 +17,7 @@ export default getRequestConfig(async () => {
   let locale: Locale = defaultLocale;
   
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     locale = resolveLocale(cookieStore.get("NEXT_LOCALE")?.value);
   } catch {
     // Cookies not available during build, use default

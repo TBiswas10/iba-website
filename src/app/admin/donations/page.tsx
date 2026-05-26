@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/supabase-auth-context";
+import { AccessDenied } from "@/components/access-denied";
 
 type Donation = {
   id: number;
@@ -15,7 +15,6 @@ type Donation = {
 };
 
 export default function AdminDonationsPage() {
-  const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,10 +24,9 @@ export default function AdminDonationsPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) { router.push("/membership"); return; }
-    if (user.role !== "ADMIN") { router.push("/dashboard"); return; }
+    if (!user || user.role !== "ADMIN") { setLoading(false); return; }
     fetchDonations(1);
-  }, [user, authLoading, router]);
+  }, [user, authLoading]);
 
   async function fetchDonations(pageNum: number) {
     setLoading(true);
@@ -51,7 +49,7 @@ export default function AdminDonationsPage() {
     );
   }
 
-  if (!user) return null;
+  if (!user || user.role !== "ADMIN") return <AccessDenied />;
 
   const totalCents = totalAmount;
 

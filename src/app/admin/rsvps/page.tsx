@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/supabase-auth-context";
+import { AccessDenied } from "@/components/access-denied";
 
 type Event = {
   id: number;
@@ -33,7 +33,6 @@ function formatKidsAges(agesJson: string | null) {
 }
 
 export default function AdminRsvpsPage() {
-  const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [rsvps, setRsvps] = useState<Rsvp[]>([]);
@@ -42,10 +41,9 @@ export default function AdminRsvpsPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) { router.push("/membership"); return; }
-    if (user.role !== "ADMIN") { router.push("/dashboard"); return; }
+    if (!user || user.role !== "ADMIN") { setLoading(false); return; }
     fetchEvents();
-  }, [user, authLoading, router]);
+  }, [user, authLoading]);
 
   async function fetchEvents() {
     const res = await fetch("/api/events", { method: "POST" });
@@ -91,7 +89,7 @@ export default function AdminRsvpsPage() {
     );
   }
 
-  if (!user) return null;
+  if (!user || user.role !== "ADMIN") return <AccessDenied />;
 
   return (
     <section className="panel-stack admin-rsvps">

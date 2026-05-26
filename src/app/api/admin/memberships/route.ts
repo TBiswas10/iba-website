@@ -6,7 +6,10 @@ import { getCurrentUser } from "@/lib/auth";
 
 const updateMembershipSchema = z.object({
   id: z.number().int().positive(),
-  status: z.enum(["ACTIVE", "EXPIRED", "PENDING"]),
+  status: z.enum(["ACTIVE", "EXPIRED", "PENDING"]).optional(),
+  type: z.string().optional(),
+  startDate: z.string().datetime().optional(),
+  expiryDate: z.string().datetime().optional(),
 });
 
 async function checkAdmin() {
@@ -48,12 +51,18 @@ export async function POST(request: Request) {
       const expiry = new Date(now);
       expiry.setFullYear(expiry.getFullYear() + 1);
 
+      const userExists = await prisma.user.findUnique({ where: { id: userId } });
+      if (!userExists) {
+        return NextResponse.json({ ok: false, error: "User not found" }, { status: 404 });
+      }
+
       const membership = await prisma.membership.create({
         data: {
           userId,
           status: "ACTIVE",
-          startDate: now,
-          expiryDate: expiry,
+          type: body.type || null,
+          startDate: body.startDate ? new Date(body.startDate) : now,
+          expiryDate: body.expiryDate ? new Date(body.expiryDate) : expiry,
         },
       });
       return NextResponse.json({ ok: true, data: membership });
@@ -67,6 +76,9 @@ export async function POST(request: Request) {
       }
 
       const { role } = body;
+      if (!["ADMIN", "MEMBER", "USER"].includes(role)) {
+        return NextResponse.json({ ok: false, error: "Invalid role" }, { status: 400 });
+      }
       const updated = await prisma.user.update({
         where: { id: userId },
         data: { role },
@@ -93,11 +105,16 @@ export async function PUT(request: Request) {
       return NextResponse.json({ ok: false, error: "Invalid request body" }, { status: 400 });
     }
 
-    const { id, status } = parsed.data;
+    const { id, status, type, startDate, expiryDate } = parsed.data;
 
     const membership = await prisma.membership.update({
       where: { id },
-      data: { status },
+      data: {
+        ...(status !== undefined && { status }),
+        ...(type !== undefined && { type }),
+        ...(startDate !== undefined && { startDate: new Date(startDate) }),
+        ...(expiryDate !== undefined && { expiryDate: new Date(expiryDate) }),
+      },
     });
 
     return NextResponse.json({ ok: true, data: membership });

@@ -67,7 +67,7 @@ export function GalleryManager({
       });
       const data = await res.json();
       if (data.ok) {
-        setAlbums([data.album, ...albums]);
+        setAlbums(prev => [data.album, ...prev]);
         setShowCreateAlbum(false);
       }
     } catch (error) {
@@ -93,7 +93,7 @@ export function GalleryManager({
       });
       const data = await res.json();
       if (data.ok) {
-        setAlbums(albums.map(a => 
+        setAlbums(prev => prev.map(a => 
           a.id === albumId ? { ...a, title: editForm.title, description: editForm.description || null } : a
         ));
         if (selectedAlbum?.id === albumId) {
@@ -175,21 +175,16 @@ export function GalleryManager({
         body: JSON.stringify({ type }),
       });
       if (type === "album") {
-        setAlbums(albums.filter((a) => a.id !== id));
+        setAlbums(prev => prev.filter((a) => a.id !== id));
       } else {
-        setItems(items.filter((i) => i.id !== id));
-        setAlbums(
-          albums.map((a) => ({
+        setItems(prev => prev.filter((i) => i.id !== id));
+        setAlbums(prev =>
+          prev.map((a) => ({
             ...a,
             items: (a.items || []).filter((i) => i.id !== id),
           }))
         );
-        if (selectedAlbum) {
-          setSelectedAlbum({
-            ...selectedAlbum,
-            items: (selectedAlbum.items || []).filter((i) => i.id !== id)
-          });
-        }
+        setSelectedAlbum(prev => prev ? { ...prev, items: (prev.items || []).filter((i) => i.id !== id) } : null);
       }
     } catch (error) {
       console.error("Failed to delete:", error);

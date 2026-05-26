@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/supabase-auth-context";
+import { AccessDenied } from "@/components/access-denied";
 
 type Event = {
   id: number;
@@ -16,7 +16,6 @@ type Event = {
 };
 
 export default function AdminEventsPage() {
-  const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,10 +32,9 @@ export default function AdminEventsPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) { router.push("/membership"); return; }
-    if (user.role !== "ADMIN") { router.push("/dashboard"); return; }
+    if (!user || user.role !== "ADMIN") { setLoading(false); return; }
     fetchEvents();
-  }, [user, authLoading, router]);
+  }, [user, authLoading]);
 
   async function fetchEvents() {
     const res = await fetch("/api/admin/events", { method: "POST" });
@@ -47,7 +45,7 @@ export default function AdminEventsPage() {
     setLoading(false);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     
     const payload = {
@@ -65,17 +63,20 @@ export default function AdminEventsPage() {
     const url = isEdit ? `/api/admin/events` : "/api/admin/events";
     const method = isEdit ? "PUT" : "POST";
 
-    fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    }).then(res => {
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       if (res.ok) {
         setEditingId(null);
         setFormData({ title: "", slug: "", start: "", end: "", location: "", description: "", imageUrl: "" });
         fetchEvents();
       }
-    });
+    } catch (err) {
+      console.error("Failed to save event:", err);
+    }
   }
 
   function startEdit(event: Event) {
@@ -122,7 +123,7 @@ export default function AdminEventsPage() {
     );
   }
 
-  if (!user) return null;
+  if (!user || user.role !== "ADMIN") return <AccessDenied />;
 
   return (
     <section className="panel-stack">

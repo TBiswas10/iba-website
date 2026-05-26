@@ -18,7 +18,7 @@ export default async function AdminGalleryPage() {
   }
 
   if (dbUser.role !== "ADMIN") {
-    redirect("/dashboard");
+    redirect("/membership");
   }
 
   const albums = await prisma.album.findMany({

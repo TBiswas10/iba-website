@@ -52,6 +52,6 @@ async function handleSession() {
     });
   } catch (error) {
     console.error("Session error:", error);
-    return NextResponse.json({ user: null });
+    return NextResponse.json({ user: null, error: "Session lookup failed" }, { status: 500 });
   }
 }
