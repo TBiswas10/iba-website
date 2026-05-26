@@ -1,43 +1,31 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { supabaseAdmin } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: Request) {
-  return handleSession(request);
+// Middleware (src/middleware.ts) refreshes the auth token before this runs,
+// so the server client always has a valid session via cookies.
+
+export async function GET() {
+  return handleSession();
 }
 
-export async function POST(request: Request) {
-  return handleSession(request);
+export async function POST() {
+  return handleSession();
 }
 
-async function handleSession(request: Request) {
+async function handleSession() {
   try {
-    let email: string | undefined;
+    const supabase = await createClient();
+    const { data: { user: authUser } } = await supabase.auth.getUser();
 
-    // Try Authorization header (Bearer token) first
-    const authHeader = request.headers.get("Authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-      const token = authHeader.slice(7);
-      const { data: { user: authUser } } = await supabaseAdmin.auth.getUser(token);
-      email = authUser?.email;
-    }
-
-    // Fall back to cookie-based session
-    if (!email) {
-      const supabase = await createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      email = user?.email;
-    }
-
-    if (!email) {
+    if (!authUser?.email) {
       return NextResponse.json({ user: null });
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email: authUser.email },
     });
 
     if (!dbUser) {
@@ -63,7 +51,7 @@ async function handleSession(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Session GET error:", error);
+    console.error("Session error:", error);
     return NextResponse.json({ user: null });
   }
 }

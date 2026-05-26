@@ -34,7 +34,6 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
 
-  // Safety timeout: force loading to false after 5s to prevent stuck skeleton
   useEffect(() => {
     if (loading) {
       const timer = setTimeout(() => setLoading(false), 5000);
@@ -44,18 +43,11 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
 
   async function syncUser() {
     try {
-      // Use the in-memory session access token to bypass cookie timing issues
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) return;
-
-      const res = await fetch("/api/session", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
+      const res = await fetch("/api/session");
       const data = await res.json();
       if (data.user) setUser(data.user);
     } catch {
-      // fetch failed — will retry on next auth event
+      // will retry on next auth event
     }
   }
 
@@ -87,15 +79,13 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       password,
     });
     if (error) throw error;
-    // The SIGNED_IN event fires inside signInWithPassword, which triggers
-    // syncUser() via the onAuthStateChange subscription above.
   }
 
   async function logout() {
     try {
       await supabase.auth.signOut();
     } catch {
-      // signOut API call failed — still clear local state
+      // still clear local state
     }
     setUser(null);
   }
