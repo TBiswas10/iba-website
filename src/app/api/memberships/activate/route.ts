@@ -29,17 +29,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "Membership not found" }, { status: 404 });
     }
 
-    // Update to ACTIVE
-    const now = new Date();
-    const expiry = new Date(now);
-    expiry.setFullYear(expiry.getFullYear() + 1);
-
     const updated = await prisma.membership.update({
       where: { id: membership.id },
       data: {
         status: "ACTIVE",
-        startDate: now,
-        expiryDate: expiry,
+        startDate: new Date(),
       },
     });
 

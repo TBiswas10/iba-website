@@ -6,13 +6,13 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminGalleryPage() {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { user: authUser } } = await supabase.auth.getUser();
 
-  if (!session?.user?.email) {
+  if (!authUser?.email) {
     redirect("/membership");
   }
 
-  const dbUser = await prisma.user.findUnique({ where: { email: session.user.email } });
+  const dbUser = await prisma.user.findUnique({ where: { email: authUser.email } });
   if (!dbUser) {
     redirect("/membership");
   }

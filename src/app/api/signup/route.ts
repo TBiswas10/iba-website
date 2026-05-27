@@ -87,10 +87,6 @@ export async function POST(request: Request) {
     }
 
     // Create or link Prisma user
-    const now = new Date();
-    const expiry = new Date(now);
-    expiry.setFullYear(expiry.getFullYear() + 1);
-
     if (existingUser) {
       await prisma.user.update({
         where: { email },
@@ -107,8 +103,7 @@ export async function POST(request: Request) {
           memberships: {
             create: {
               status: "PENDING",
-              startDate: now,
-              expiryDate: expiry,
+              startDate: new Date(),
             },
           },
         },

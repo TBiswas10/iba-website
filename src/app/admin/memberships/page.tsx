@@ -4,12 +4,13 @@ import { useEffect, useState, useMemo, memo } from "react";
 import { useAuth } from "@/components/supabase-auth-context";
 import { AccessDenied } from "@/components/access-denied";
 
+
 type Membership = {
   id: number;
   status: string;
   type: string | null;
   startDate: string;
-  expiryDate: string;
+  createdAt: string;
 };
 
 type UserData = {
@@ -17,6 +18,7 @@ type UserData = {
   email: string;
   name: string | null;
   phone: string | null;
+  familyMembers: string | null;
   role: string;
   createdAt: string;
   memberships: Membership[];
@@ -27,8 +29,6 @@ type EditingMembership = {
   userId: number;
   status: string;
   type: string;
-  startDate: string;
-  expiryDate: string;
 };
 
 type ConfirmAction = {
@@ -39,25 +39,17 @@ type ConfirmAction = {
 
 const MEMBERSHIP_TYPES = ["", "Regular", "Family", "Life", "Senior", "Associate", "Honorary"];
 
-const todayStr = () => new Date().toISOString().slice(0, 10);
-const oneYearFromNow = () => {
-  const d = new Date();
-  d.setFullYear(d.getFullYear() + 1);
-  return d.toISOString().slice(0, 10);
-};
-
 const UserRow = memo(function UserRow({
-  user, currentUserEmail, canManageRoles,
-  onOpenCreate, onOpenEdit, onConfirm,
-  onToggleRole, onUpdateStatus, onDeleteMembership,
+  user, currentUserEmail,
+  onOpenCreate, onOpenReview, onOpenEdit, onConfirm,
+  onUpdateStatus, onDeleteMembership,
 }: {
   user: UserData;
   currentUserEmail: string;
-  canManageRoles: boolean;
   onOpenCreate: (userId: number) => void;
+  onOpenReview: (m: Membership, userId: number) => void;
   onOpenEdit: (m: Membership, userId: number) => void;
   onConfirm: (a: ConfirmAction) => void;
-  onToggleRole: (userId: number, currentRole: string) => void;
   onUpdateStatus: (id: number, status: string) => void;
   onDeleteMembership: (id: number) => void;
 }) {
@@ -82,57 +74,50 @@ const UserRow = memo(function UserRow({
           )}
           {user.name || "—"}
         </div>
-        <div style={{ fontSize: "0.8rem", opacity: 0.7 }}>{user.email}</div>
-        {user.phone && <div style={{ fontSize: "0.75rem", opacity: 0.5 }}>{user.phone}</div>}
+      </td>
+      <td style={{ fontSize: "0.85rem" }}>{user.email}</td>
+      <td style={{ fontSize: "0.85rem" }}>{user.phone || <span style={{ opacity: 0.3 }}>—</span>}</td>
+      <td style={{ fontSize: "0.85rem" }}>
+        {user.familyMembers ? (
+          <span style={{ lineHeight: 1.5 }}>{user.familyMembers}</span>
+        ) : (
+          <span style={{ opacity: 0.3, fontSize: "0.8rem" }}>—</span>
+        )}
       </td>
       <td>
         <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap" }}>
-          <span className={`status-badge ${user.role === "ADMIN" ? "status-active" : "status-pending"}`}
-            style={{
-              background: user.role === "ADMIN" ? "var(--berry)" : "rgba(0,0,0,0.06)",
-              color: user.role === "ADMIN" ? "white" : "inherit",
-              padding: "2px 8px", borderRadius: "4px", fontSize: "0.7rem", fontWeight: 600
-            }}>
-            {user.role}
+          <span style={{
+            padding: "2px 10px", borderRadius: "4px", fontSize: "0.7rem", fontWeight: 600,
+            background: "rgba(13,127,120,0.1)", color: "var(--teal)",
+          }}>
+            Member
           </span>
-          {canManageRoles && user.email !== currentUserEmail && (
-            <button
-              className="btn-small"
-              style={{
-                padding: "1px 5px", fontSize: "0.6rem", background: "transparent",
-                border: "1px solid rgba(0,0,0,0.12)", color: "var(--ink)"
-              }}
-              onClick={() => {
-                const msg = user.role === "ADMIN"
-                  ? `Demote ${user.name || user.email} to a regular user?`
-                  : `Promote ${user.name || user.email} to admin?`;
-                onConfirm({
-                  title: user.role === "ADMIN" ? "Demote User" : "Promote User",
-                  message: msg,
-                  onConfirm: () => onToggleRole(user.id, user.role),
-                });
-              }}
-            >
-              {user.role === "ADMIN" ? "Demote" : "Make Admin"}
-            </button>
+          {m?.type === "Life" && (
+            <span style={{
+              padding: "2px 10px", borderRadius: "4px", fontSize: "0.7rem", fontWeight: 700,
+              background: "linear-gradient(135deg,rgba(212,175,55,0.2),rgba(255,215,0,0.15))",
+              color: "#b8860b", letterSpacing: "0.5px",
+            }}>
+              LIFE
+            </span>
           )}
         </div>
       </td>
       <td>
         {m ? (
-          <span className={`status-badge ${m.status === "ACTIVE" ? "status-active" : m.status === "PENDING" ? "status-pending" : "status-expired"}`}
+          <span className={`status-badge ${m.status === "ACTIVE" ? "status-active" : "status-pending"}`}
             style={{
               display: "inline-flex", alignItems: "center", gap: "4px",
               padding: "3px 10px", borderRadius: "20px", fontSize: "0.75rem", fontWeight: 600,
-              background: isActive ? "rgba(13,127,120,0.1)" : isExpired ? "rgba(220,38,38,0.1)" : "rgba(249,168,38,0.12)",
-              color: isActive ? "var(--teal)" : isExpired ? "#dc2626" : "#b45309",
+              background: isActive ? "rgba(13,127,120,0.1)" : "rgba(249,168,38,0.12)",
+              color: isActive ? "var(--teal)" : "#b45309",
             }}>
             <span style={{
               width: "6px", height: "6px", borderRadius: "50%",
-              background: isActive ? "var(--teal)" : isExpired ? "#dc2626" : "#d97706",
+              background: isActive ? "var(--teal)" : "#d97706",
               display: "inline-block"
             }} />
-            {m.status === "ACTIVE" ? "Active" : m.status === "PENDING" ? "Pending" : "Expired"}
+            {m.status}
           </span>
         ) : (
           <span className="status-badge status-pending"
@@ -158,30 +143,82 @@ const UserRow = memo(function UserRow({
           <span style={{ opacity: 0.3, fontSize: "0.85rem" }}>—</span>
         )}
       </td>
-      <td style={{ fontSize: "0.85rem", whiteSpace: "nowrap" }}>
-        {m ? new Date(m.expiryDate).toLocaleDateString() : "—"}
-      </td>
       <td>
-        <div className="action-buttons" style={{ flexWrap: "nowrap" }}>
-          {isPending ? (
-            <>
-              <button
-                className="btn-small"
-                onClick={() => onOpenCreate(user.id)}
-                title={!m ? "Create membership" : "Review application"}
-                style={{
-                  background: "var(--teal)", color: "white",
-                  padding: "0.4rem 0.75rem", fontSize: "0.75rem",
-                  borderRadius: "8px", border: "none", cursor: "pointer",
-                  fontWeight: 600, whiteSpace: "nowrap"
-                }}>
-                {!m ? "Create" : "Review"}
-              </button>
-              {m && (
+        {user.email === currentUserEmail ? (
+          <span style={{ fontSize: "0.8rem", opacity: 0.4, fontStyle: "italic" }}>You</span>
+        ) : (
+          <div className="action-buttons" style={{ flexWrap: "nowrap" }}>
+            {isPending ? (
+              <>
                 <button
                   className="btn-small"
-                  onClick={() => onDeleteMembership(m.id)}
-                  title="Delete application"
+                  onClick={() => m ? onOpenReview(m, user.id) : onOpenCreate(user.id)}
+                  title={!m ? "Create membership" : "Review application"}
+                  style={{
+                    background: "var(--teal)", color: "white",
+                    padding: "0.4rem 0.75rem", fontSize: "0.75rem",
+                    borderRadius: "8px", border: "none", cursor: "pointer",
+                    fontWeight: 600, whiteSpace: "nowrap"
+                  }}>
+                  {!m ? "Create" : "Review"}
+                </button>
+                {m && (
+                  <button
+                    className="btn-small"
+                    onClick={() => onDeleteMembership(m.id)}
+                    title="Delete application"
+                    style={{
+                      background: "transparent", color: "#dc2626",
+                      padding: "0.4rem 0.6rem", fontSize: "0.75rem",
+                      borderRadius: "8px", border: "1px solid rgba(220,38,38,0.3)",
+                      cursor: "pointer", fontWeight: 500, whiteSpace: "nowrap"
+                    }}>
+                    Delete
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                {isActive && (
+                  <button
+                    className="btn-small"
+                    onClick={() => {
+                      onConfirm({
+                        title: "Expire Membership",
+                        message: `Expire ${user.name || user.email}'s membership? They will lose access.`,
+                        onConfirm: () => onUpdateStatus(m!.id, "EXPIRED"),
+                      });
+                    }}
+                    style={{
+                      background: "rgba(220,38,38,0.1)", color: "#dc2626",
+                      padding: "0.4rem 0.75rem", fontSize: "0.75rem",
+                      borderRadius: "8px", border: "none", cursor: "pointer",
+                      fontWeight: 500, whiteSpace: "nowrap"
+                    }}>
+                    Expire
+                  </button>
+                )}
+                <button
+                  className="btn-small"
+                  onClick={() => onOpenEdit(m!, user.id)}
+                  title="Edit membership details"
+                  style={{
+                    background: "rgba(30,58,68,0.08)", color: "var(--deep)",
+                    padding: "0.4rem 0.75rem", fontSize: "0.75rem",
+                    borderRadius: "8px", border: "none", cursor: "pointer",
+                    fontWeight: 500, whiteSpace: "nowrap"
+                  }}>
+                  Edit
+                </button>
+                <button
+                  className="btn-small"
+                  onClick={() => {
+                    onConfirm({
+                      title: "Delete Membership",
+                      message: `Delete ${user.name || user.email}'s membership record? This cannot be undone.`,
+                      onConfirm: () => onDeleteMembership(m!.id),
+                    });
+                  }}
                   style={{
                     background: "transparent", color: "#dc2626",
                     padding: "0.4rem 0.6rem", fontSize: "0.75rem",
@@ -190,61 +227,10 @@ const UserRow = memo(function UserRow({
                   }}>
                   Delete
                 </button>
-              )}
-            </>
-          ) : (
-            <>
-              {isActive && (
-                <button
-                  className="btn-small"
-                  onClick={() => {
-                    onConfirm({
-                      title: "Expire Membership",
-                      message: `Expire ${user.name || user.email}'s membership? They will lose access.`,
-                      onConfirm: () => onUpdateStatus(m!.id, "EXPIRED"),
-                    });
-                  }}
-                  style={{
-                    background: "rgba(220,38,38,0.1)", color: "#dc2626",
-                    padding: "0.4rem 0.75rem", fontSize: "0.75rem",
-                    borderRadius: "8px", border: "none", cursor: "pointer",
-                    fontWeight: 500, whiteSpace: "nowrap"
-                  }}>
-                  Expire
-                </button>
-              )}
-              <button
-                className="btn-small"
-                onClick={() => onOpenEdit(m!, user.id)}
-                title="Edit membership details"
-                style={{
-                  background: "rgba(30,58,68,0.08)", color: "var(--deep)",
-                  padding: "0.4rem 0.75rem", fontSize: "0.75rem",
-                  borderRadius: "8px", border: "none", cursor: "pointer",
-                  fontWeight: 500, whiteSpace: "nowrap"
-                }}>
-                Edit
-              </button>
-              <button
-                className="btn-small"
-                onClick={() => {
-                  onConfirm({
-                    title: "Delete Membership",
-                    message: `Delete ${user.name || user.email}'s membership record? This cannot be undone.`,
-                    onConfirm: () => onDeleteMembership(m!.id),
-                  });
-                }}
-                style={{
-                  background: "transparent", color: "#dc2626",
-                  padding: "0.4rem 0.6rem", fontSize: "0.75rem",
-                  borderRadius: "8px", border: "1px solid rgba(220,38,38,0.3)",
-                  cursor: "pointer", fontWeight: 500, whiteSpace: "nowrap"
-                }}>
-                Delete
-              </button>
-            </>
-          )}
-        </div>
+              </>
+            )}
+          </div>
+        )}
       </td>
     </tr>
   );
@@ -252,29 +238,41 @@ const UserRow = memo(function UserRow({
 
 export default function AdminMembershipsPage() {
   const { user, loading: authLoading } = useAuth();
-  const [canManageRoles, setCanManageRoles] = useState(false);
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<EditingMembership | null>(null);
   const [confirm, setConfirm] = useState<ConfirmAction>(null);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     if (authLoading) return;
     if (!user || user.role !== "ADMIN") { setLoading(false); return; }
     setLoading(true);
-    Promise.all([
-      fetch("/api/admin/memberships", { method: "POST" }).then(r => r.json()),
-      fetch("/api/admin/can-manage-roles", { method: "POST" }).then(r => r.json()),
-    ]).then(([usersData, rolesData]) => {
-      if (usersData.ok) setUsers(usersData.data || []);
-      if (rolesData.ok) setCanManageRoles(rolesData.canManageRoles);
+    fetch("/api/admin/memberships", { method: "GET" }).then(r => r.json()).then(data => {
+      if (data.ok) setUsers(data.data || []);
     }).catch(() => {}).finally(() => setLoading(false));
   }, [user, authLoading]);
 
+  useEffect(() => {
+    if (!user?.email || users.length === 0) return;
+    const me = users.find(u => u.email === user.email);
+    if (!me) return;
+    const m = me.memberships[0];
+    if (m && m.type !== "Life") {
+      fetch("/api/admin/memberships", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: m.id, type: "Life" }),
+      }).then(r => r.json()).then(data => {
+        if (data.ok) fetchUsers();
+      });
+    }
+  }, [users, user?.email]);
+
   async function fetchUsers() {
     setLoading(true);
-    const res = await fetch("/api/admin/memberships", { method: "POST" });
+    const res = await fetch("/api/admin/memberships", { method: "GET" });
     const data = await res.json();
     if (data.ok) {
       setUsers(data.data || []);
@@ -296,25 +294,21 @@ export default function AdminMembershipsPage() {
     fetchUsers();
   }
 
-  async function toggleRole(userId: number, currentRole: string) {
-    const newRole = currentRole === "ADMIN" ? "USER" : "ADMIN";
-
-    await fetch("/api/admin/memberships", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, action: "CHANGE_ROLE", role: newRole }),
-    });
-    fetchUsers();
-  }
-
   function openCreate(userId: number) {
     setEditing({
       id: 0,
       userId,
       status: "ACTIVE",
       type: "Regular",
-      startDate: todayStr(),
-      expiryDate: oneYearFromNow(),
+    });
+  }
+
+  function openReview(m: Membership, userId: number) {
+    setEditing({
+      id: m.id,
+      userId,
+      status: "ACTIVE",
+      type: m.type || "",
     });
   }
 
@@ -324,37 +318,39 @@ export default function AdminMembershipsPage() {
       userId,
       status: m.status,
       type: m.type || "",
-      startDate: m.startDate.slice(0, 10),
-      expiryDate: m.expiryDate.slice(0, 10),
     });
   }
 
   async function saveEditing() {
     if (!editing) return;
     const isNew = editing.id === 0;
+    let res: Response;
     if (isNew) {
-      await fetch("/api/admin/memberships", {
+      res = await fetch("/api/admin/memberships", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: editing.userId,
           action: "CREATE_MEMBERSHIP",
           type: editing.type || undefined,
-          startDate: new Date(editing.startDate).toISOString(),
-          expiryDate: new Date(editing.expiryDate).toISOString(),
         }),
       });
     } else {
-      await fetch("/api/admin/memberships", {
+      res = await fetch("/api/admin/memberships", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: editing.id,
+          status: editing.status,
           type: editing.type || undefined,
-          startDate: new Date(editing.startDate).toISOString(),
-          expiryDate: new Date(editing.expiryDate).toISOString(),
         }),
       });
+    }
+    const data = await res.json();
+    if (!data.ok) {
+      setEditing(null);
+      setConfirm({ title: "Error", message: data.error || "Failed to save", onConfirm: () => {} });
+      return;
     }
     setEditing(null);
     fetchUsers();
@@ -370,23 +366,61 @@ export default function AdminMembershipsPage() {
     return m?.status === "ACTIVE";
   }).length, [users]);
 
+  const editingUser = useMemo(() =>
+    editing ? users.find(u => u.id === editing.userId) : null
+  , [editing, users]);
+
+  const isReview = editing && editing.id !== 0 && editingUser?.memberships[0]?.status === "PENDING";
+
   const filteredUsers = useMemo(() => {
-    if (!search.trim()) return users;
+    let list = users.filter(u => { const m = u.memberships[0]; return !m || m.status !== "EXPIRED"; });
+    if (statusFilter === "pending") {
+      list = list.filter(u => { const m = u.memberships[0]; return !m || m.status === "PENDING"; });
+    } else if (statusFilter === "active") {
+      list = list.filter(u => { const m = u.memberships[0]; return m?.status === "ACTIVE"; });
+    }
+    if (!search.trim()) return list;
     const q = search.toLowerCase();
-    return users.filter(u =>
+    return list.filter(u =>
       (u.name?.toLowerCase() || "").includes(q) ||
       u.email.toLowerCase().includes(q) ||
       (u.phone?.toLowerCase() || "").includes(q)
     );
-  }, [users, search]);
+  }, [users, search, statusFilter]);
 
   if (authLoading || loading) {
     return (
       <section className="panel-stack">
-        <section className="glass-panel">
-          <div className="skeleton skeleton-heading" />
-          <div className="skeleton skeleton-line" style={{ width: "60%" }} />
-          <div className="skeleton skeleton-block" style={{ marginTop: "1rem", height: "200px" }} />
+        <section className="admin-header" style={{ marginBottom: "1.5rem" }}>
+          <div>
+            <div className="skeleton skeleton-heading" style={{ width: "260px" }} />
+            <div className="skeleton skeleton-line" style={{ width: "320px", marginTop: "0.35rem" }} />
+          </div>
+          <div className="skeleton skeleton-line" style={{ width: "140px" }} />
+        </section>
+        <div className="stats-grid" style={{ marginBottom: "2.5rem" }}>
+          {["Pending Review", "Active Members", "Total Users"].map((_, i) => (
+            <div key={i} className="stat-card" style={{ pointerEvents: "none", textAlign: "center", padding: "1.5rem" }}>
+              <div className="skeleton skeleton-heading" style={{ width: "28px", height: "28px", margin: "0 auto" }} />
+              <div className="skeleton skeleton-line" style={{ width: "50%", margin: "0.5rem auto 0" }} />
+            </div>
+          ))}
+        </div>
+        <section className="glass-panel" style={{ padding: "1.5rem" }}>
+          <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", marginBottom: "1rem" }}>
+            <div className="skeleton skeleton-block" style={{ flex: 1, maxWidth: "320px", height: "40px", borderRadius: "8px" }} />
+            <div className="skeleton skeleton-line" style={{ width: "120px" }} />
+          </div>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} style={{ display: "flex", gap: "1rem", padding: "0.75rem 0", borderBottom: i < 3 ? "1px solid rgba(29,35,59,0.08)" : "none" }}>
+              <div className="skeleton skeleton-block" style={{ width: "36px", height: "36px", borderRadius: "50%", flexShrink: 0 }} />
+              <div style={{ flex: 1 }}>
+                <div className="skeleton skeleton-heading" style={{ width: "180px", height: "16px" }} />
+                <div className="skeleton skeleton-line" style={{ width: "240px", marginTop: "0.25rem" }} />
+              </div>
+              <div className="skeleton skeleton-line" style={{ width: "80px", alignSelf: "center" }} />
+            </div>
+          ))}
         </section>
       </section>
     );
@@ -396,26 +430,26 @@ export default function AdminMembershipsPage() {
 
   return (
     <section className="panel-stack">
-      <section className="admin-header">
+      <section className="admin-header" style={{ marginBottom: "1.5rem" }}>
         <div>
           <h1>Membership Applications</h1>
-          <p>Review and manage membership applications.</p>
+          <p style={{ marginBottom: "0.75rem" }}>Review and manage membership applications.</p>
         </div>
         <a href="/admin" className="btn-ghost">← Back to Admin</a>
       </section>
 
-      <div className="stats-grid" style={{ marginBottom: "1.5rem" }}>
-        <div className="stat-card">
+      <div className="stats-grid" style={{ marginBottom: "2.5rem" }}>
+        <div className="stat-card" onClick={() => setStatusFilter("pending")} style={{ cursor: "pointer" }}>
           <div className="stat-icon" style={{ color: "var(--teal)" }}>⏳</div>
           <h3>{pendingCount}</h3>
           <p>Pending Review</p>
         </div>
-        <div className="stat-card">
+        <div className="stat-card" onClick={() => setStatusFilter("active")} style={{ cursor: "pointer" }}>
           <div className="stat-icon" style={{ color: "var(--teal)" }}>✓</div>
           <h3>{activeCount}</h3>
           <p>Active Members</p>
         </div>
-        <div className="stat-card">
+        <div className="stat-card" onClick={() => setStatusFilter("all")} style={{ cursor: "pointer" }}>
           <div className="stat-icon" style={{ color: "var(--teal)" }}>👥</div>
           <h3>{users.length}</h3>
           <p>Total Users</p>
@@ -424,6 +458,21 @@ export default function AdminMembershipsPage() {
 
       <section className="glass-panel" style={{ padding: "1.5rem" }}>
         <div style={{ marginBottom: "1rem", display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "0.25rem", background: "rgba(29,35,59,0.04)", padding: "3px", borderRadius: "10px" }}>
+            {(["pending", "active", "all"] as const).map(tab => (
+              <button key={tab} onClick={() => setStatusFilter(tab)}
+                style={{
+                  padding: "0.35rem 0.85rem", borderRadius: "8px", border: "none",
+                  font: "inherit", fontSize: "0.8rem", fontWeight: statusFilter === tab ? 600 : 400,
+                  cursor: "pointer", transition: "all 0.15s",
+                  background: statusFilter === tab ? "white" : "transparent",
+                  color: statusFilter === tab ? "var(--deep)" : "rgba(16,16,16,0.5)",
+                  boxShadow: statusFilter === tab ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
+                }}>
+                {tab === "all" ? "All" : tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
+          </div>
           <div style={{ position: "relative", flex: 1, minWidth: "200px", maxWidth: "320px" }}>
             <input
               type="text"
@@ -453,27 +502,27 @@ export default function AdminMembershipsPage() {
               <thead>
                 <tr>
                   <th>User</th>
-                  <th>Role</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Family Members</th>
                   <th>Status</th>
                   <th>Type</th>
-                  <th>Expiry</th>
                   <th style={{ width: "1px" }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map((u) => (
-                  <UserRow
-                    key={u.id}
-                    user={u}
-                    currentUserEmail={user?.email || ""}
-                    canManageRoles={canManageRoles}
-                    onOpenCreate={openCreate}
-                    onOpenEdit={openEdit}
-                    onConfirm={setConfirm}
-                    onToggleRole={toggleRole}
-                    onUpdateStatus={updateStatus}
-                    onDeleteMembership={deleteMembership}
-                  />
+                  {filteredUsers.map((u) => (
+                    <UserRow
+                      key={u.id}
+                      user={u}
+                      currentUserEmail={user?.email || ""}
+                      onOpenCreate={openCreate}
+                      onOpenReview={openReview}
+                      onOpenEdit={openEdit}
+                      onConfirm={setConfirm}
+                      onUpdateStatus={updateStatus}
+                      onDeleteMembership={deleteMembership}
+                    />
                 ))}
               </tbody>
             </table>
@@ -490,7 +539,7 @@ export default function AdminMembershipsPage() {
             }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
               <h2 style={{ margin: 0, fontSize: "1.4rem" }}>
-                {editing.id === 0 ? "Review Application" : "Edit Membership"}
+                {editing.id === 0 ? "Create Membership" : isReview ? "Review Application" : "Edit Membership"}
               </h2>
               <button onClick={() => setEditing(null)}
                 style={{
@@ -504,6 +553,25 @@ export default function AdminMembershipsPage() {
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              {editingUser && (
+                <div style={{
+                  background: "rgba(30,58,68,0.04)", borderRadius: "12px",
+                  padding: "1rem 1.25rem", fontSize: "0.9rem", lineHeight: 1.6
+                }}>
+                  <div style={{ fontWeight: 600, marginBottom: "0.5rem", fontSize: "0.85rem", opacity: 0.7 }}>
+                    {editing.id === 0 ? "New Membership" : "Applicant Details"}
+                  </div>
+                  <div><strong>Name:</strong> {editingUser.name || "—"}</div>
+                  <div><strong>Email:</strong> {editingUser.email}</div>
+                  <div><strong>Phone:</strong> {editingUser.phone || "—"}</div>
+                  {editingUser.familyMembers && (
+                    <div><strong>Family Members:</strong> {editingUser.familyMembers}</div>
+                  )}
+                  <div style={{ marginTop: "0.35rem", fontSize: "0.8rem", opacity: 0.6 }}>
+                    Applied {new Date(editingUser.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              )}
               <div>
                 <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--ink)", marginBottom: "0.35rem" }}>
                   Status
@@ -529,24 +597,7 @@ export default function AdminMembershipsPage() {
                   This can be changed later if needed.
                 </p>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--ink)", marginBottom: "0.35rem" }}>
-                    Start Date
-                  </label>
-                  <input type="date" value={editing.startDate}
-                    onChange={e => setEditing({ ...editing, startDate: e.target.value })}
-                    className="modal-field" />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--ink)", marginBottom: "0.35rem" }}>
-                    Expiry Date
-                  </label>
-                  <input type="date" value={editing.expiryDate}
-                    onChange={e => setEditing({ ...editing, expiryDate: e.target.value })}
-                    className="modal-field" />
-                </div>
-              </div>
+
             </div>
 
             <div className="button-row" style={{ marginTop: "1.5rem", justifyContent: "flex-end" }}>
@@ -556,7 +607,7 @@ export default function AdminMembershipsPage() {
               </button>
               <button className="btn-primary" onClick={saveEditing}
                 style={{ fontSize: "0.9rem", padding: "0.6rem 1.5rem" }}>
-                {editing.id === 0 ? "Approve & Save" : "Save Changes"}
+                {editing.id === 0 || isReview ? "Approve & Save" : "Save Changes"}
               </button>
             </div>
           </section>

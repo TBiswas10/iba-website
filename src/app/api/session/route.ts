@@ -37,8 +37,6 @@ async function handleSession() {
       orderBy: { createdAt: "desc" },
     });
 
-    const isMembershipActive = membership?.status === "ACTIVE" && new Date(membership.expiryDate) > new Date();
-
     return NextResponse.json({
       user: {
         id: String(dbUser.id),
@@ -46,8 +44,7 @@ async function handleSession() {
         name: dbUser.name,
         role: dbUser.role,
         supabaseUserId: dbUser.supabaseUserId,
-        membershipStatus: isMembershipActive ? "ACTIVE" : "NONE",
-        membershipExpiry: membership?.expiryDate || null,
+        membershipStatus: membership?.status === "ACTIVE" ? "ACTIVE" : "NONE",
       },
     });
   } catch (error) {

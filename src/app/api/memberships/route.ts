@@ -46,7 +46,6 @@ export async function POST(request: Request) {
         userId: parsed.data.userId,
         status: parsed.data.status,
         startDate: new Date(parsed.data.startDate),
-        expiryDate: new Date(parsed.data.expiryDate),
       },
     });
 

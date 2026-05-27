@@ -9,7 +9,6 @@ type Membership = {
   status: string;
   type: string | null;
   startDate: string;
-  expiryDate: string;
 };
 
 export function MembershipPanel() {
@@ -27,7 +26,7 @@ export function MembershipPanel() {
   useEffect(() => {
     if (user?.email) {
       setIsChecking(true);
-      fetch("/api/memberships/mine", { method: "POST" })
+      fetch("/api/memberships/mine", { method: "GET" })
         .then((res) => res.json())
         .then((data) => {
           if (data.ok && data.data) {
@@ -131,7 +130,7 @@ export function MembershipPanel() {
       return (
         <section className="glass-panel member-welcome">
           <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>👑</div>
-          <h2>Welcome, Administrator</h2>
+          <h2>Welcome, {user.name || "Administrator"}</h2>
           <p>{user.email}</p>
           <span className="member-badge" style={{ marginTop: "0.5rem" }}>ADMIN</span>
           <div className="button-row" style={{ marginTop: "1.5rem" }}>
@@ -159,7 +158,6 @@ export function MembershipPanel() {
           <div style={{ marginTop: "1.5rem" }}>
             <p className="status-badge active" style={{ display: "inline-block" }}>Membership Active</p>
             {membership!.type && <p style={{ marginTop: "0.5rem" }}>Type: <strong>{membership!.type}</strong></p>}
-            <p style={{ marginTop: "0.25rem" }}>Valid until {new Date(membership!.expiryDate).toLocaleDateString(undefined)}</p>
             <div style={{ marginTop: "1rem", padding: "1rem", background: "rgba(255,255,255,0.5)", borderRadius: "12px" }}>
               <p><strong>Email:</strong> {user.email}</p>
               <p><strong>Status:</strong> {membership?.status}</p>

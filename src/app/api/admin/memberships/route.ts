@@ -8,8 +8,6 @@ const updateMembershipSchema = z.object({
   id: z.number().int().positive(),
   status: z.enum(["ACTIVE", "EXPIRED", "PENDING"]).optional(),
   type: z.string().optional(),
-  startDate: z.string().datetime().optional(),
-  expiryDate: z.string().datetime().optional(),
 });
 
 async function checkAdmin() {
@@ -23,34 +21,36 @@ async function checkAdmin() {
   return dbUser;
 }
 
+export async function GET() {
+  const dbUser = await checkAdmin();
+  if (dbUser instanceof NextResponse) return dbUser;
+
+  try {
+    const users = await prisma.user.findMany({
+      include: {
+        memberships: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json({ ok: true, data: users });
+  } catch (error) {
+    console.error("Admin GET error:", error);
+    return NextResponse.json({ ok: false, error: "Failed to fetch users" }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   const dbUser = await checkAdmin();
   if (dbUser instanceof NextResponse) return dbUser;
 
   try {
-    const contentType = request.headers.get("content-type") || "";
-
-    if (!contentType.includes("application/json")) {
-      const users = await prisma.user.findMany({
-        include: { 
-          memberships: {
-            orderBy: { createdAt: "desc" },
-            take: 1
-          } 
-        },
-        orderBy: { createdAt: "desc" },
-      });
-      return NextResponse.json({ ok: true, data: users });
-    }
-
     const body = await request.json();
     const { userId, action } = body;
 
     if (action === "CREATE_MEMBERSHIP") {
-      const now = new Date();
-      const expiry = new Date(now);
-      expiry.setFullYear(expiry.getFullYear() + 1);
-
       const userExists = await prisma.user.findUnique({ where: { id: userId } });
       if (!userExists) {
         return NextResponse.json({ ok: false, error: "User not found" }, { status: 404 });
@@ -61,8 +61,7 @@ export async function POST(request: Request) {
           userId,
           status: "ACTIVE",
           type: body.type || null,
-          startDate: body.startDate ? new Date(body.startDate) : now,
-          expiryDate: body.expiryDate ? new Date(body.expiryDate) : expiry,
+          startDate: body.startDate ? new Date(body.startDate) : new Date(),
         },
       });
       return NextResponse.json({ ok: true, data: membership });
@@ -105,15 +104,13 @@ export async function PUT(request: Request) {
       return NextResponse.json({ ok: false, error: "Invalid request body" }, { status: 400 });
     }
 
-    const { id, status, type, startDate, expiryDate } = parsed.data;
+    const { id, status, type } = parsed.data;
 
     const membership = await prisma.membership.update({
       where: { id },
       data: {
         ...(status !== undefined && { status }),
         ...(type !== undefined && { type }),
-        ...(startDate !== undefined && { startDate: new Date(startDate) }),
-        ...(expiryDate !== undefined && { expiryDate: new Date(expiryDate) }),
       },
     });
 

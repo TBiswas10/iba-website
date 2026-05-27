@@ -59,10 +59,6 @@ export async function POST(request: Request) {
     } else if (userId && email) {
       console.log("Processing membership for userId:", userId, "email:", email);
 
-      const now = new Date();
-      const expiry = new Date(now);
-      expiry.setFullYear(expiry.getFullYear() + 1);
-
       const parsedUserId = parseInt(userId);
       if (isNaN(parsedUserId)) {
         console.error("Invalid userId in webhook:", userId);
@@ -70,7 +66,6 @@ export async function POST(request: Request) {
       }
 
       try {
-        // Check if membership exists for this user, get the most recent one
         const existingMembership = await prisma.membership.findFirst({
           where: { userId: parsedUserId },
           orderBy: { createdAt: "desc" },
@@ -79,23 +74,17 @@ export async function POST(request: Request) {
         console.log("Existing membership:", existingMembership);
 
         if (existingMembership) {
-          // Update existing membership
           const updated = await prisma.membership.update({
             where: { id: existingMembership.id },
-            data: {
-              status: "ACTIVE",
-              expiryDate: expiry,
-            },
+            data: { status: "ACTIVE" },
           });
           console.log("Membership updated:", updated);
         } else {
-          // Create new membership
           const created = await prisma.membership.create({
             data: {
               userId: parsedUserId,
               status: "ACTIVE",
-              startDate: now,
-              expiryDate: expiry,
+              startDate: new Date(),
             },
           });
           console.log("Membership created:", created);

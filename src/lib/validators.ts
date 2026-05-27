@@ -60,7 +60,6 @@ export const membershipSchema = z.object({
   userId: z.number().int().positive(),
   status: z.nativeEnum(MembershipStatus),
   startDate: z.string().datetime(),
-  expiryDate: z.string().datetime(),
 });
 
 export const rsvpSchema = z.object({
