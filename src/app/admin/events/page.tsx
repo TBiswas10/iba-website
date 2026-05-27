@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/supabase-auth-context";
 import { AccessDenied } from "@/components/access-denied";
 
+
 type Event = {
   id: number;
   title: string;
@@ -37,7 +38,7 @@ export default function AdminEventsPage() {
   }, [user, authLoading]);
 
   async function fetchEvents() {
-    const res = await fetch("/api/admin/events", { method: "POST" });
+    const res = await fetch("/api/admin/events", { method: "GET" });
     const data = await res.json();
     if (data.ok) {
       setEvents(data.data || []);
@@ -118,7 +119,43 @@ export default function AdminEventsPage() {
   if (authLoading || loading) {
     return (
       <section className="panel-stack">
-        <section className="glass-panel"><p>Loading...</p></section>
+        <section className="glass-panel">
+          <div className="skeleton skeleton-heading" style={{ width: "120px" }} />
+          <div className="skeleton skeleton-line" style={{ width: "280px", marginTop: "0.35rem" }} />
+          <div className="skeleton skeleton-line" style={{ width: "140px", marginTop: "0.75rem" }} />
+        </section>
+        <section className="glass-panel">
+          <div className="skeleton skeleton-heading" style={{ width: "160px" }} />
+          <div className="grid-form admin-event-form" style={{ marginTop: "1rem" }}>
+            <label className="form-field">
+              <div className="skeleton skeleton-line" style={{ width: "40px" }} />
+              <div className="skeleton skeleton-block" style={{ width: "100%", height: "40px", marginTop: "0.35rem" }} />
+            </label>
+            <label className="form-field">
+              <div className="skeleton skeleton-line" style={{ width: "40px" }} />
+              <div className="skeleton skeleton-block" style={{ width: "100%", height: "40px", marginTop: "0.35rem" }} />
+            </label>
+            <label className="form-field">
+              <div className="skeleton skeleton-line" style={{ width: "40px" }} />
+              <div className="skeleton skeleton-block" style={{ width: "100%", height: "40px", marginTop: "0.35rem" }} />
+            </label>
+            <label className="form-field">
+              <div className="skeleton skeleton-line" style={{ width: "40px" }} />
+              <div className="skeleton skeleton-block" style={{ width: "100%", height: "40px", marginTop: "0.35rem" }} />
+            </label>
+            <label className="form-field">
+              <div className="skeleton skeleton-line" style={{ width: "40px" }} />
+              <div className="skeleton skeleton-block" style={{ width: "100%", height: "40px", marginTop: "0.35rem" }} />
+            </label>
+            <label className="form-field">
+              <div className="skeleton skeleton-line" style={{ width: "60px" }} />
+              <div className="skeleton skeleton-block" style={{ width: "100%", height: "80px", marginTop: "0.35rem" }} />
+            </label>
+            <div className="span-2 button-row">
+              <div className="skeleton skeleton-block" style={{ width: "140px", height: "40px", borderRadius: "8px" }} />
+            </div>
+          </div>
+        </section>
       </section>
     );
   }

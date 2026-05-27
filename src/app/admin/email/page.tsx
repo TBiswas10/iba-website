@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { requireAdmin } from "@/lib/role";
@@ -17,6 +18,7 @@ export default async function AdminEmailPage() {
   return (
     <section className="panel-stack">
       <section className="glass-panel">
+        <Link href="/admin" className="btn-ghost" style={{ marginBottom: "0.75rem", display: "inline-block" }}>&larr; Back to Admin</Link>
         <h1>Email Members</h1>
         <p>Send an email to all members or select recipients.</p>
       </section>

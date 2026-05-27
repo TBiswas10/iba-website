@@ -14,7 +14,7 @@ export async function GET() {
   if (!dbUser || dbUser.role !== "ADMIN") return NextResponse.json({ ok: false, error: "Admin required" }, { status: 403 });
 
   const invoices = await prisma.reimbursementInvoice.findMany({
-    include: { user: { select: { name: true, email: true } } },
+    include: { user: { select: { name: true, email: true, bankAccountName: true, bankBsb: true, bankAccountNumber: true } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -35,4 +35,20 @@ export async function PUT(request: Request) {
   });
 
   return NextResponse.json({ ok: true, data: invoice });
+}
+
+export async function DELETE(request: Request) {
+  const dbUser = await getCurrentUser();
+  if (!dbUser || dbUser.role !== "ADMIN") return NextResponse.json({ ok: false, error: "Admin required" }, { status: 403 });
+
+  const url = new URL(request.url);
+  const id = parseInt(url.searchParams.get("id") || "0");
+  if (!id) return NextResponse.json({ ok: false, error: "ID required" }, { status: 400 });
+
+  try {
+    await prisma.reimbursementInvoice.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    return NextResponse.json({ ok: false, error: "Failed to delete" }, { status: 500 });
+  }
 }

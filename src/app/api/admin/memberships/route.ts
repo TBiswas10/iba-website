@@ -1,13 +1,19 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/role";
 import { getCurrentUser } from "@/lib/auth";
 
 const updateMembershipSchema = z.object({
   id: z.number().int().positive(),
-  status: z.enum(["ACTIVE", "EXPIRED", "PENDING"]).optional(),
+  status: z.enum(["ACTIVE", "EXPIRED", "PENDING", "REJECTED"]).optional(),
   type: z.string().optional(),
+});
+
+const updateUserSchema = z.object({
+  userId: z.number().int().positive(),
+  name: z.string().min(1).optional(),
+  phone: z.string().optional(),
+  familyMembers: z.string().optional(),
 });
 
 async function checkAdmin() {
@@ -81,6 +87,22 @@ export async function POST(request: Request) {
       const updated = await prisma.user.update({
         where: { id: userId },
         data: { role },
+      });
+      return NextResponse.json({ ok: true, data: updated });
+    }
+
+    if (action === "UPDATE_USER") {
+      const parsed = updateUserSchema.safeParse(body);
+      if (!parsed.success) {
+        return NextResponse.json({ ok: false, error: "Invalid input" }, { status: 400 });
+      }
+      const updated = await prisma.user.update({
+        where: { id: parsed.data.userId },
+        data: {
+          ...(parsed.data.name !== undefined && { name: parsed.data.name }),
+          ...(parsed.data.phone !== undefined && { phone: parsed.data.phone }),
+          ...(parsed.data.familyMembers !== undefined && { familyMembers: parsed.data.familyMembers }),
+        },
       });
       return NextResponse.json({ ok: true, data: updated });
     }

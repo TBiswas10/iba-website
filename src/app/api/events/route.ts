@@ -4,30 +4,31 @@ import { requireAdmin } from "@/lib/role";
 import { eventSchema } from "@/lib/validators";
 import { parseSydneyDatetime } from "@/lib/dates";
 
+export async function GET() {
+  try {
+    const events = await prisma.event.findMany({
+      orderBy: {
+        start: "asc",
+      },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        start: true,
+        end: true,
+        location: true,
+        description: true,
+        imageUrl: true,
+      },
+    });
+    return ok(events);
+  } catch (error) {
+    return fail("Error fetching events", 500, error);
+  }
+}
+
 export async function POST(request: Request) {
   try {
-    const contentType = request.headers.get("content-type") || "";
-    const hasBody = contentType.includes("application/json");
-
-    if (!hasBody) {
-      const events = await prisma.event.findMany({
-        orderBy: {
-          start: "asc",
-        },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          start: true,
-          end: true,
-          location: true,
-          description: true,
-          imageUrl: true,
-        },
-      });
-      return ok(events);
-    }
-
     const denied = await requireAdmin();
     if (denied) {
       return denied;

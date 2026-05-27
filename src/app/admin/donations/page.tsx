@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/supabase-auth-context";
 import { AccessDenied } from "@/components/access-denied";
 
+
 type Donation = {
   id: number;
   donorName: string;
@@ -30,7 +31,7 @@ export default function AdminDonationsPage() {
 
   async function fetchDonations(pageNum: number) {
     setLoading(true);
-    const res = await fetch(`/api/admin/donations?page=${pageNum}`, { method: "POST" });
+    const res = await fetch(`/api/admin/donations?page=${pageNum}`, { method: "GET" });
     const data = await res.json();
     if (data.ok) {
       setDonations(data.data || []);
@@ -44,7 +45,26 @@ export default function AdminDonationsPage() {
   if (authLoading || loading) {
     return (
       <section className="panel-stack">
-        <section className="glass-panel"><p>Loading...</p></section>
+        <section className="glass-panel">
+          <div className="skeleton skeleton-heading" style={{ width: "220px" }} />
+          <div className="skeleton skeleton-line" style={{ width: "200px", marginTop: "0.35rem" }} />
+          <div className="skeleton skeleton-line" style={{ width: "160px", marginTop: "0.75rem" }} />
+          <div className="skeleton skeleton-line" style={{ width: "140px", marginTop: "0.5rem" }} />
+        </section>
+        <section className="glass-panel">
+          <div className="donation-cards">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="donation-card">
+                <div className="donation-card-header">
+                  <div className="skeleton skeleton-heading" style={{ width: "100px", height: "24px" }} />
+                  <div className="skeleton skeleton-line" style={{ width: "80px" }} />
+                </div>
+                <div className="skeleton skeleton-line" style={{ width: "160px", marginTop: "0.5rem" }} />
+                <div className="skeleton skeleton-line" style={{ width: "220px" }} />
+              </div>
+            ))}
+          </div>
+        </section>
       </section>
     );
   }

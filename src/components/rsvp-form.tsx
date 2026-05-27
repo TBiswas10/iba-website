@@ -63,7 +63,7 @@ export function RsvpForm() {
   useEffect(() => {
     const loadEvents = async () => {
       setIsLoading(true);
-      const response = await fetch("/api/events", { method: "POST", cache: "no-store" });
+      const response = await fetch("/api/events", { method: "GET" });
       const json = await response.json();
 
       if (response.ok && json.ok) {

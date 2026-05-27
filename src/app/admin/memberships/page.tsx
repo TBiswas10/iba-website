@@ -29,6 +29,9 @@ type EditingMembership = {
   userId: number;
   status: string;
   type: string;
+  userName: string;
+  userPhone: string;
+  userFamilyMembers: string;
 };
 
 type ConfirmAction = {
@@ -57,6 +60,7 @@ const UserRow = memo(function UserRow({
   const isPending = !m || m.status === "PENDING";
   const isExpired = m?.status === "EXPIRED";
   const isActive = m?.status === "ACTIVE";
+  const isRejected = m?.status === "REJECTED";
 
   return (
     <tr style={{
@@ -64,7 +68,7 @@ const UserRow = memo(function UserRow({
       transition: "background 0.15s ease"
     }}>
       <td>
-        <div style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
           {isPending && (
             <span style={{
               width: "8px", height: "8px", borderRadius: "50%",
@@ -73,6 +77,22 @@ const UserRow = memo(function UserRow({
             }} />
           )}
           {user.name || "—"}
+          <span style={{
+            padding: "2px 8px", borderRadius: "4px", fontSize: "0.65rem", fontWeight: 600,
+            background: user.role === "ADMIN" ? "var(--berry)" : "rgba(13,127,120,0.1)",
+            color: user.role === "ADMIN" ? "white" : "var(--teal)",
+          }}>
+            {user.role === "ADMIN" ? "ADMIN" : "Member"}
+          </span>
+          {m?.type === "Life" && (
+            <span style={{
+              padding: "2px 8px", borderRadius: "4px", fontSize: "0.65rem", fontWeight: 700,
+              background: "linear-gradient(135deg,rgba(212,175,55,0.2),rgba(255,215,0,0.15))",
+              color: "#b8860b",
+            }}>
+              LIFE
+            </span>
+          )}
         </div>
       </td>
       <td style={{ fontSize: "0.85rem" }}>{user.email}</td>
@@ -85,36 +105,17 @@ const UserRow = memo(function UserRow({
         )}
       </td>
       <td>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap" }}>
-          <span style={{
-            padding: "2px 10px", borderRadius: "4px", fontSize: "0.7rem", fontWeight: 600,
-            background: "rgba(13,127,120,0.1)", color: "var(--teal)",
-          }}>
-            Member
-          </span>
-          {m?.type === "Life" && (
-            <span style={{
-              padding: "2px 10px", borderRadius: "4px", fontSize: "0.7rem", fontWeight: 700,
-              background: "linear-gradient(135deg,rgba(212,175,55,0.2),rgba(255,215,0,0.15))",
-              color: "#b8860b", letterSpacing: "0.5px",
-            }}>
-              LIFE
-            </span>
-          )}
-        </div>
-      </td>
-      <td>
         {m ? (
-          <span className={`status-badge ${m.status === "ACTIVE" ? "status-active" : "status-pending"}`}
+          <span className={`status-badge ${isActive ? "status-active" : isRejected ? "" : "status-pending"}`}
             style={{
               display: "inline-flex", alignItems: "center", gap: "4px",
               padding: "3px 10px", borderRadius: "20px", fontSize: "0.75rem", fontWeight: 600,
-              background: isActive ? "rgba(13,127,120,0.1)" : "rgba(249,168,38,0.12)",
-              color: isActive ? "var(--teal)" : "#b45309",
+              background: isActive ? "rgba(13,127,120,0.1)" : isRejected ? "rgba(220,38,38,0.1)" : "rgba(249,168,38,0.12)",
+              color: isActive ? "var(--teal)" : isRejected ? "#dc2626" : "#b45309",
             }}>
             <span style={{
               width: "6px", height: "6px", borderRadius: "50%",
-              background: isActive ? "var(--teal)" : "#d97706",
+              background: isActive ? "var(--teal)" : isRejected ? "#dc2626" : "#d97706",
               display: "inline-block"
             }} />
             {m.status}
@@ -163,18 +164,38 @@ const UserRow = memo(function UserRow({
                   {!m ? "Create" : "Review"}
                 </button>
                 {m && (
-                  <button
-                    className="btn-small"
-                    onClick={() => onDeleteMembership(m.id)}
-                    title="Delete application"
-                    style={{
-                      background: "transparent", color: "#dc2626",
-                      padding: "0.4rem 0.6rem", fontSize: "0.75rem",
-                      borderRadius: "8px", border: "1px solid rgba(220,38,38,0.3)",
-                      cursor: "pointer", fontWeight: 500, whiteSpace: "nowrap"
-                    }}>
-                    Delete
-                  </button>
+                  <>
+                    <button
+                      className="btn-small"
+                      onClick={() => {
+                        onConfirm({
+                          title: "Reject Application",
+                          message: `Reject ${user.name || user.email}'s membership application?`,
+                          onConfirm: () => onUpdateStatus(m.id, "REJECTED"),
+                        });
+                      }}
+                      title="Reject application"
+                      style={{
+                        background: "rgba(220,38,38,0.1)", color: "#dc2626",
+                        padding: "0.4rem 0.75rem", fontSize: "0.75rem",
+                        borderRadius: "8px", border: "none", cursor: "pointer",
+                        fontWeight: 500, whiteSpace: "nowrap"
+                      }}>
+                      Reject
+                    </button>
+                    <button
+                      className="btn-small"
+                      onClick={() => onDeleteMembership(m.id)}
+                      title="Delete application"
+                      style={{
+                        background: "transparent", color: "#dc2626",
+                        padding: "0.4rem 0.6rem", fontSize: "0.75rem",
+                        borderRadius: "8px", border: "1px solid rgba(220,38,38,0.3)",
+                        cursor: "pointer", fontWeight: 500, whiteSpace: "nowrap"
+                      }}>
+                      Delete
+                    </button>
+                  </>
                 )}
               </>
             ) : (
@@ -254,22 +275,6 @@ export default function AdminMembershipsPage() {
     }).catch(() => {}).finally(() => setLoading(false));
   }, [user, authLoading]);
 
-  useEffect(() => {
-    if (!user?.email || users.length === 0) return;
-    const me = users.find(u => u.email === user.email);
-    if (!me) return;
-    const m = me.memberships[0];
-    if (m && m.type !== "Life") {
-      fetch("/api/admin/memberships", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: m.id, type: "Life" }),
-      }).then(r => r.json()).then(data => {
-        if (data.ok) fetchUsers();
-      });
-    }
-  }, [users, user?.email]);
-
   async function fetchUsers() {
     setLoading(true);
     const res = await fetch("/api/admin/memberships", { method: "GET" });
@@ -295,29 +300,41 @@ export default function AdminMembershipsPage() {
   }
 
   function openCreate(userId: number) {
+    const u = users.find(x => x.id === userId);
     setEditing({
       id: 0,
       userId,
       status: "ACTIVE",
       type: "Regular",
+      userName: u?.name || "",
+      userPhone: u?.phone || "",
+      userFamilyMembers: u?.familyMembers || "",
     });
   }
 
   function openReview(m: Membership, userId: number) {
+    const u = users.find(x => x.id === userId);
     setEditing({
       id: m.id,
       userId,
       status: "ACTIVE",
       type: m.type || "",
+      userName: u?.name || "",
+      userPhone: u?.phone || "",
+      userFamilyMembers: u?.familyMembers || "",
     });
   }
 
   function openEdit(m: Membership, userId: number) {
+    const u = users.find(x => x.id === userId);
     setEditing({
       id: m.id,
       userId,
       status: m.status,
       type: m.type || "",
+      userName: u?.name || "",
+      userPhone: u?.phone || "",
+      userFamilyMembers: u?.familyMembers || "",
     });
   }
 
@@ -352,6 +369,11 @@ export default function AdminMembershipsPage() {
       setConfirm({ title: "Error", message: data.error || "Failed to save", onConfirm: () => {} });
       return;
     }
+    await fetch("/api/admin/memberships", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "UPDATE_USER", userId: editing.userId, name: editing.userName || undefined, phone: editing.userPhone || undefined, familyMembers: editing.userFamilyMembers || undefined }),
+    });
     setEditing(null);
     fetchUsers();
   }
@@ -373,7 +395,7 @@ export default function AdminMembershipsPage() {
   const isReview = editing && editing.id !== 0 && editingUser?.memberships[0]?.status === "PENDING";
 
   const filteredUsers = useMemo(() => {
-    let list = users.filter(u => { const m = u.memberships[0]; return !m || m.status !== "EXPIRED"; });
+    let list = users.filter(u => { const m = u.memberships[0]; return !m || (m.status !== "EXPIRED" && m.status !== "REJECTED"); });
     if (statusFilter === "pending") {
       list = list.filter(u => { const m = u.memberships[0]; return !m || m.status === "PENDING"; });
     } else if (statusFilter === "active") {
@@ -596,6 +618,24 @@ export default function AdminMembershipsPage() {
                 <p style={{ fontSize: "0.75rem", color: "rgba(16,16,16,0.5)", marginTop: "0.25rem" }}>
                   This can be changed later if needed.
                 </p>
+              </div>
+
+              <div style={{ borderTop: "1px solid rgba(29,35,59,0.1)", paddingTop: "1rem" }}>
+                <p style={{ fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.75rem", opacity: 0.6 }}>User Details</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--ink)", marginBottom: "0.35rem" }}>Name</label>
+                    <input value={editing.userName} onChange={e => setEditing({ ...editing, userName: e.target.value })} className="modal-field" />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--ink)", marginBottom: "0.35rem" }}>Phone</label>
+                    <input value={editing.userPhone} onChange={e => setEditing({ ...editing, userPhone: e.target.value })} className="modal-field" />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--ink)", marginBottom: "0.35rem" }}>Family Members</label>
+                    <textarea value={editing.userFamilyMembers} onChange={e => setEditing({ ...editing, userFamilyMembers: e.target.value })} className="modal-field" rows={3} />
+                  </div>
+                </div>
               </div>
 
             </div>

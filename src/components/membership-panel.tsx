@@ -18,6 +18,7 @@ type Invoice = {
   description: string;
   category: string | null;
   receiptUrl: string | null;
+  invoicePdfUrl: string | null;
   status: string;
   adminNotes: string | null;
   createdAt: string;
@@ -42,6 +43,18 @@ export function MembershipPanel() {
   const [formCategory, setFormCategory] = useState("");
   const [formReceipt, setFormReceipt] = useState<File | null>(null);
   const [formMsg, setFormMsg] = useState("");
+  const [bankAccountName, setBankAccountName] = useState("");
+  const [bankBsb, setBankBsb] = useState("");
+  const [bankAccountNumber, setBankAccountNumber] = useState("");
+
+  useEffect(() => {
+    if (user?.email) {
+      fetch("/api/user/bank-details", { method: "GET" })
+        .then(r => r.json())
+        .then(d => { if (d.ok) { setBankAccountName(d.data.bankAccountName || ""); setBankBsb(d.data.bankBsb || ""); setBankAccountNumber(d.data.bankAccountNumber || ""); } })
+        .catch(() => {});
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user?.email) {
@@ -268,7 +281,10 @@ export function MembershipPanel() {
                     </div>
                     <div style={{ opacity: 0.7 }}>${(inv.amountCents / 100).toFixed(2)} — {inv.description}</div>
                     {inv.category && <span style={{ fontSize: "0.75rem", opacity: 0.5 }}>{inv.category}</span>}
-                    {inv.receiptUrl && <div><a href={inv.receiptUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.75rem", color: "var(--teal)" }}>View Receipt</a></div>}
+                    <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+                      {inv.invoicePdfUrl && <a href={inv.invoicePdfUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.75rem", color: "var(--teal)" }}>Invoice PDF ↗</a>}
+                      {inv.receiptUrl && <a href={inv.receiptUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.75rem", color: "var(--teal)" }}>Receipt ↗</a>}
+                    </div>
                     {inv.adminNotes && <div style={{ marginTop: "0.25rem", fontSize: "0.75rem", fontStyle: "italic", opacity: 0.6 }}>Admin: {inv.adminNotes}</div>}
                     <div style={{ fontSize: "0.7rem", opacity: 0.4, marginTop: "0.25rem" }}>{new Date(inv.createdAt).toLocaleDateString()}</div>
                   </div>
@@ -280,6 +296,25 @@ export function MembershipPanel() {
           </section>
         )}
 
+        <section style={{ marginTop: "2rem", paddingTop: "1.5rem", borderTop: "1px solid rgba(29,35,59,0.1)" }}>
+          <h3 style={{ marginBottom: "1rem", fontSize: "1.1rem" }}>Bank Details for Reimbursement</h3>
+          <p style={{ fontSize: "0.85rem", opacity: 0.6, marginBottom: "0.75rem" }}>
+            Enter your bank account details so the association can pay approved reimbursement invoices.
+          </p>
+          <form onSubmit={async e => {
+            e.preventDefault(); setMessage("");
+            const res = await fetch("/api/user/bank-details", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ bankAccountName, bankBsb, bankAccountNumber }) });
+            const d = await res.json(); if (d.ok) setMessage("Bank details saved"); else setMessage("Failed to save");
+          }} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <input name="bankAccountName" placeholder="Account name" value={bankAccountName} onChange={e => setBankAccountName(e.target.value)} style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit", fontSize: "0.85rem" }} />
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <input name="bankBsb" placeholder="BSB" value={bankBsb} onChange={e => setBankBsb(e.target.value)} style={{ flex: 1, padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit", fontSize: "0.85rem" }} />
+              <input name="bankAccountNumber" placeholder="Account number" value={bankAccountNumber} onChange={e => setBankAccountNumber(e.target.value)} style={{ flex: 2, padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit", fontSize: "0.85rem" }} />
+            </div>
+            <button className="btn-primary" type="submit" style={{ fontSize: "0.85rem", alignSelf: "flex-start" }}>{bankAccountName || bankAccountNumber ? "Edit Bank Details" : "Save Bank Details"}</button>
+          </form>
+        </section>
+
         <div className="button-row" style={{ marginTop: "1.5rem" }}>
           <Link href="/" className="btn-primary">Home</Link>
           <button className="btn-ghost" onClick={() => logout()} type="button">
@@ -287,6 +322,8 @@ export function MembershipPanel() {
           </button>
         </div>
         {message && <p style={{ marginTop: "1rem" }}>{message}</p>}
+
+
       </section>
     );
   }

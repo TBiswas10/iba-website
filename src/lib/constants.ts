@@ -5,3 +5,4 @@ export const DONATION_STATUS = {
 } as const;
 
 export type DonationStatus = (typeof DONATION_STATUS)[keyof typeof DONATION_STATUS];
+

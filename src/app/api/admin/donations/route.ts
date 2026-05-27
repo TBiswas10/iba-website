@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
 
-export async function GET(request: Request) {
+async function handleGet(request: Request) {
   const denied = await requireAdmin();
   if (denied) return denied;
 
@@ -40,4 +40,12 @@ export async function GET(request: Request) {
   } catch (error) {
     return NextResponse.json({ ok: false, error: "Failed to fetch donations" }, { status: 500 });
   }
+}
+
+export async function GET(request: Request) {
+  return handleGet(request);
+}
+
+export async function POST(request: Request) {
+  return handleGet(request);
 }

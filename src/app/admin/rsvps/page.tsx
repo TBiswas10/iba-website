@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/supabase-auth-context";
 import { AccessDenied } from "@/components/access-denied";
 
+
 type Event = {
   id: number;
   title: string;
@@ -46,7 +47,7 @@ export default function AdminRsvpsPage() {
   }, [user, authLoading]);
 
   async function fetchEvents() {
-    const res = await fetch("/api/events", { method: "POST" });
+    const res = await fetch("/api/events", { method: "GET" });
     const data = await res.json();
     if (data.ok) {
       setEvents(data.data || []);
@@ -56,7 +57,7 @@ export default function AdminRsvpsPage() {
 
   useEffect(() => {
     if (selectedEventId) {
-      fetch(`/api/rsvps?eventId=${selectedEventId}`, { method: "POST" })
+      fetch(`/api/rsvps?eventId=${selectedEventId}`, { method: "GET" })
         .then(res => res.json())
         .then(data => {
           if (data.ok) {
@@ -83,8 +84,18 @@ export default function AdminRsvpsPage() {
 
   if (authLoading || loading) {
     return (
-      <section className="panel-stack">
-        <section className="glass-panel"><p>Loading...</p></section>
+      <section className="panel-stack admin-rsvps">
+        <header className="glass-panel admin-rsvps-header">
+          <div>
+            <div className="skeleton skeleton-heading" style={{ width: "80px" }} />
+            <div className="skeleton skeleton-line" style={{ width: "220px", marginTop: "0.35rem" }} />
+          </div>
+          <div className="skeleton skeleton-line" style={{ width: "140px" }} />
+        </header>
+        <section className="glass-panel">
+          <div className="skeleton skeleton-line" style={{ width: "100px" }} />
+          <div className="skeleton skeleton-block" style={{ width: "100%", height: "42px", marginTop: "0.35rem", borderRadius: "8px" }} />
+        </section>
       </section>
     );
   }

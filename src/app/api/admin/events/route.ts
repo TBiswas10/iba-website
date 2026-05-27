@@ -4,42 +4,49 @@ import { requireAdmin } from "@/lib/role";
 import { uploadImageToStorage } from "@/lib/storage";
 import { parseSydneyDatetime } from "@/lib/dates";
 
+export async function GET() {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+  try {
+    const events = await prisma.event.findMany({
+      orderBy: { start: "desc" },
+      take: 50,
+    });
+    return NextResponse.json({ ok: true, data: events });
+  } catch (error) {
+    return NextResponse.json({ ok: false, error: "Failed to fetch events" }, { status: 500 });
+  }
+}
+
 export async function POST(request: NextRequest) {
   const denied = await requireAdmin();
   if (denied) return denied;
 
   try {
     const contentType = request.headers.get("content-type") || "";
-    
+
     if (contentType.includes("multipart/form-data")) {
       const formData = await request.formData();
       const action = formData.get("action") as string;
-      
+
       if (action === "upload-event-image") {
         const file = formData.get("file") as File;
-        
+
         if (!file) {
           return NextResponse.json({ ok: false, error: "No file provided" }, { status: 400 });
         }
-        
+
         const buffer = Buffer.from(await file.arrayBuffer());
         const fileName = file.name;
         const mimeType = file.type || "image/jpeg";
-        
+
         const mediaUrl = await uploadImageToStorage(buffer, fileName, mimeType);
-        
+
         return NextResponse.json({ ok: true, url: mediaUrl });
       }
     }
-    
-    if (!contentType.includes("application/json")) {
-      const events = await prisma.event.findMany({
-        orderBy: { start: "desc" },
-        take: 50,
-      });
-      return NextResponse.json({ ok: true, data: events });
-    }
-    
+
     const body = await request.json();
     const { title, slug, start, end, location, description, imageUrl } = body;
 
@@ -47,7 +54,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: "Title, start, and end are required" }, { status: 400 });
     }
 
-    const slugFinal = slug 
+    const slugFinal = slug
       ? slug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
       : title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -82,7 +89,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ ok: false, error: "ID, title, start, and end are required" }, { status: 400 });
     }
 
-    const slugFinal = slug 
+    const slugFinal = slug
       ? slug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
       : title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 

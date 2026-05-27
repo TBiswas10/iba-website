@@ -11,10 +11,11 @@ type Invoice = {
   description: string;
   category: string | null;
   receiptUrl: string | null;
+  invoicePdfUrl: string | null;
   status: string;
   adminNotes: string | null;
   createdAt: string;
-  user: { name: string | null; email: string };
+  user: { name: string | null; email: string; bankAccountName: string | null; bankBsb: string | null; bankAccountNumber: string | null };
 };
 
 export default function AdminReimbursementsPage() {
@@ -22,6 +23,7 @@ export default function AdminReimbursementsPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState<Record<number, string>>({});
+  const [bankModal, setBankModal] = useState<Invoice | null>(null);
 
   async function fetchInvoices() {
     setLoading(true);
@@ -43,6 +45,11 @@ export default function AdminReimbursementsPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, status, adminNotes: notes[id] || undefined }),
     });
+    fetchInvoices();
+  }
+
+  async function deleteInvoice(id: number) {
+    await fetch(`/api/admin/reimbursements?id=${id}`, { method: "DELETE" });
     fetchInvoices();
   }
 
@@ -91,7 +98,8 @@ export default function AdminReimbursementsPage() {
                   <th>Amount</th>
                   <th>Description</th>
                   <th>Category</th>
-                  <th>Receipt</th>
+                  <th>Receipt / Invoice</th>
+                  <th>Bank</th>
                   <th>Status</th>
                   <th>Notes</th>
                   <th>Date</th>
@@ -106,7 +114,18 @@ export default function AdminReimbursementsPage() {
                     <td>${(inv.amountCents / 100).toFixed(2)}</td>
                     <td style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{inv.description}</td>
                     <td>{inv.category || "—"}</td>
-                    <td>{inv.receiptUrl ? <a href={inv.receiptUrl} target="_blank" rel="noopener noreferrer" style={{ color: "var(--teal)", fontSize: "0.85rem" }}>View</a> : "—"}</td>
+                    <td>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+                        {inv.invoicePdfUrl ? <a href={inv.invoicePdfUrl} target="_blank" rel="noopener noreferrer" style={{ color: "var(--teal)", fontSize: "0.8rem" }}>Invoice PDF ↗</a> : null}
+                        {inv.receiptUrl ? <a href={inv.receiptUrl} target="_blank" rel="noopener noreferrer" style={{ color: "var(--teal)", fontSize: "0.8rem" }}>Receipt ↗</a> : null}
+                        {!inv.invoicePdfUrl && !inv.receiptUrl ? "—" : null}
+                      </div>
+                    </td>
+                    <td>
+                      <button onClick={() => { setBankModal(inv); }} style={{ background: "rgba(30,58,68,0.08)", color: "var(--deep)", border: "none", padding: "0.3rem 0.6rem", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}>
+                        {inv.user.bankAccountName || inv.user.bankAccountNumber ? "View Details" : "—"}
+                      </button>
+                    </td>
                     <td>
                       <span style={{
                         padding: "2px 10px", borderRadius: "12px", fontSize: "0.7rem", fontWeight: 600,
@@ -130,30 +149,39 @@ export default function AdminReimbursementsPage() {
                     </td>
                     <td style={{ fontSize: "0.8rem", whiteSpace: "nowrap" }}>{new Date(inv.createdAt).toLocaleDateString()}</td>
                     <td>
-                      {inv.status === "PENDING" ? (
-                        <div className="action-buttons" style={{ flexWrap: "nowrap" }}>
-                          <button
-                            onClick={() => updateStatus(inv.id, "APPROVED")}
-                            style={{
-                              background: "var(--teal)", color: "white", border: "none",
-                              padding: "0.35rem 0.75rem", borderRadius: "8px", fontSize: "0.75rem",
-                              fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap"
-                            }}>
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => updateStatus(inv.id, "REJECTED")}
-                            style={{
-                              background: "transparent", color: "#dc2626", border: "1px solid rgba(220,38,38,0.3)",
-                              padding: "0.35rem 0.75rem", borderRadius: "8px", fontSize: "0.75rem",
-                              fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap"
-                            }}>
-                            Reject
-                          </button>
-                        </div>
-                      ) : (
-                        <span style={{ fontSize: "0.8rem", opacity: 0.4 }}>—</span>
-                      )}
+                      <div className="action-buttons" style={{ flexWrap: "nowrap" }}>
+                        {inv.status === "PENDING" ? (
+                          <>
+                            <button
+                              onClick={() => updateStatus(inv.id, "APPROVED")}
+                              style={{
+                                background: "var(--teal)", color: "white", border: "none",
+                                padding: "0.35rem 0.75rem", borderRadius: "8px", fontSize: "0.75rem",
+                                fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap"
+                              }}>
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => updateStatus(inv.id, "REJECTED")}
+                              style={{
+                                background: "transparent", color: "#dc2626", border: "1px solid rgba(220,38,38,0.3)",
+                                padding: "0.35rem 0.75rem", borderRadius: "8px", fontSize: "0.75rem",
+                                fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap"
+                              }}>
+                              Reject
+                            </button>
+                          </>
+                        ) : null}
+                        <button
+                          onClick={() => deleteInvoice(inv.id)}
+                          style={{
+                            background: "transparent", color: "#dc2626", border: "1px solid rgba(220,38,38,0.3)",
+                            padding: "0.35rem 0.6rem", borderRadius: "8px", fontSize: "0.75rem",
+                            fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap"
+                          }}>
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -162,6 +190,38 @@ export default function AdminReimbursementsPage() {
           </div>
         )}
       </section>
+
+      {bankModal && (
+        <div className="modal-overlay" onClick={() => setBankModal(null)}>
+          <section className="glass-panel modal-panel" onClick={e => e.stopPropagation()}
+            style={{ maxWidth: "420px", width: "100%", margin: "2rem auto", padding: "2rem", borderRadius: "20px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+              <h2 style={{ margin: 0, fontSize: "1.3rem" }}>Bank Details</h2>
+              <button onClick={() => setBankModal(null)}
+                style={{ width: "32px", height: "32px", borderRadius: "50%", border: "none", background: "rgba(0,0,0,0.06)", cursor: "pointer", fontSize: "1.1rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                ✕
+              </button>
+            </div>
+            <p style={{ fontSize: "0.85rem", opacity: 0.6, marginBottom: "1rem" }}>
+              {bankModal.user.name || bankModal.user.email}
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, opacity: 0.5, marginBottom: "0.2rem" }}>Account Name</label>
+                <p style={{ fontSize: "1rem" }}>{bankModal.user.bankAccountName || "—"}</p>
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, opacity: 0.5, marginBottom: "0.2rem" }}>BSB</label>
+                <p style={{ fontSize: "1rem" }}>{bankModal.user.bankBsb || "—"}</p>
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, opacity: 0.5, marginBottom: "0.2rem" }}>Account Number</label>
+                <p style={{ fontSize: "1rem" }}>{bankModal.user.bankAccountNumber || "—"}</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      )}
     </section>
   );
 }

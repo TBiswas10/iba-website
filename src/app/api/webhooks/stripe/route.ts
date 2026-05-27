@@ -24,7 +24,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
   }
 
-  // Idempotency check
   try {
     await prisma.webhookEvent.create({
       data: {
@@ -42,60 +41,44 @@ export async function POST(request: Request) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const { userId, email, donationId, membershipId } = session.metadata || {};
-
-    console.log("Stripe webhook: checkout.session.completed", { userId, email, donationId, membershipId });
+    const donationId = session.metadata?.donationId;
 
     if (donationId) {
       await prisma.donation.update({
         where: { id: parseInt(donationId) },
         data: { status: DONATION_STATUS.SUCCEEDED },
       });
-    } else if (membershipId) {
-      await prisma.membership.update({
-        where: { id: parseInt(membershipId) },
-        data: { status: "ACTIVE" },
-      });
-    } else if (userId && email) {
-      console.log("Processing membership for userId:", userId, "email:", email);
-
-      const parsedUserId = parseInt(userId);
-      if (isNaN(parsedUserId)) {
-        console.error("Invalid userId in webhook:", userId);
-        return NextResponse.json({ error: "Invalid userId" }, { status: 400 });
-      }
-
-      try {
-        const existingMembership = await prisma.membership.findFirst({
-          where: { userId: parsedUserId },
-          orderBy: { createdAt: "desc" },
-        });
-
-        console.log("Existing membership:", existingMembership);
-
-        if (existingMembership) {
-          const updated = await prisma.membership.update({
-            where: { id: existingMembership.id },
-            data: { status: "ACTIVE" },
-          });
-          console.log("Membership updated:", updated);
-        } else {
-          const created = await prisma.membership.create({
-            data: {
-              userId: parsedUserId,
-              status: "ACTIVE",
-              startDate: new Date(),
-            },
-          });
-          console.log("Membership created:", created);
-        }
-
-      } catch (e) {
-        console.error("Error creating/updating membership:", e);
-        return NextResponse.json({ error: "Database error" }, { status: 500 });
-      }
     }
   }
+
+  if (event.type === "payment_intent.succeeded") {
+    const intent = event.data.object as Stripe.PaymentIntent;
+    const donationId = Number(intent.metadata?.donationId);
+
+    if (Number.isFinite(donationId)) {
+      await prisma.donation.update({
+        where: { id: donationId },
+        data: { status: DONATION_STATUS.SUCCEEDED },
+      });
+    }
+  }
+
+  if (event.type === "payment_intent.payment_failed") {
+    const intent = event.data.object as Stripe.PaymentIntent;
+    const donationId = Number(intent.metadata?.donationId);
+
+    if (Number.isFinite(donationId)) {
+      await prisma.donation.update({
+        where: { id: donationId },
+        data: { status: DONATION_STATUS.FAILED },
+      });
+    }
+  }
+
+  await prisma.webhookEvent.update({
+    where: { providerEventId: event.id },
+    data: { processedAt: new Date() },
+  });
 
   return NextResponse.json({ received: true });
 }

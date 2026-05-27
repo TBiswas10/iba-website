@@ -13,18 +13,21 @@ datasource db {
 }
 
 model User {
-  id              Int          @id @default(autoincrement())
-  supabaseUserId  String?      @unique
-  email           String       @unique
-  name            String?
-  phone           String?
-  familyMembers   String?
-  role            UserRole     @default(USER)
-  memberships     Membership[]
-  reimbursements  ReimbursementInvoice[]
-  donations       Donation[]
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  id                Int          @id @default(autoincrement())
+  supabaseUserId    String?      @unique
+  email             String       @unique
+  name              String?
+  phone             String?
+  familyMembers     String?
+  role              UserRole     @default(USER)
+  bankAccountName   String?
+  bankBsb           String?
+  bankAccountNumber String?
+  memberships       Membership[]
+  reimbursements    ReimbursementInvoice[]
+  donations         Donation[]
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 }
 
 model Event {
@@ -149,6 +152,7 @@ model ReimbursementInvoice {
   description   String
   category      String?
   receiptUrl    String?
+  invoicePdfUrl String?
   status        InvoiceStatus @default(PENDING)
   adminNotes    String?
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -177,6 +181,7 @@ enum MembershipStatus {
   ACTIVE
   EXPIRED
   PENDING
+  REJECTED
 }
 
 enum InvoiceStatus {

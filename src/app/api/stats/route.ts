@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
 
-export async function POST() {
+async function handleStats() {
   const denied = await requireAdmin();
   if (denied) return denied;
   try {
@@ -30,4 +30,12 @@ export async function POST() {
     console.error("Stats error:", error);
     return NextResponse.json({ ok: false, error: "Failed to load stats" }, { status: 500 });
   }
+}
+
+export async function GET() {
+  return handleStats();
+}
+
+export async function POST() {
+  return handleStats();
 }
