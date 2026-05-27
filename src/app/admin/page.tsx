@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/components/supabase-auth-context";
 import { AccessDenied } from "@/components/access-denied";
 
+
 type Counts = {
   events: number;
   memberships: number;
@@ -22,7 +23,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!user || user.role !== "ADMIN") return;
-    fetch("/api/stats", { method: "POST" })
+    fetch("/api/stats", { method: "GET" })
       .then(res => res.json())
       .then(data => {
         if (data.ok) {
@@ -38,10 +39,22 @@ export default function AdminPage() {
 
   if (authLoading) {
     return (
-      <section className="glass-panel skeleton-panel">
-        <div className="skeleton skeleton-heading" style={{ width: "40%" }} />
-        <div className="skeleton skeleton-line" style={{ width: "60%" }} />
-        <div className="skeleton skeleton-block" style={{ width: "100%", height: "200px", marginTop: "1.5rem" }} />
+      <section className="panel-stack">
+        <section className="admin-header" style={{ marginBottom: "2rem" }}>
+          <div>
+            <div className="skeleton skeleton-heading" style={{ width: "220px" }} />
+            <div className="skeleton skeleton-line" style={{ width: "280px", marginTop: "0.35rem" }} />
+          </div>
+          <div className="skeleton skeleton-block" style={{ width: "80px", height: "36px", borderRadius: "8px" }} />
+        </section>
+        <section className="stats-grid">
+          {["Events", "Memberships", "Donations", "RSVPs", "Gallery", "Email Members"].map((label, i) => (
+            <div key={i} className="stat-card" style={{ pointerEvents: "none" }}>
+              <div className="skeleton skeleton-heading" style={{ width: "32px", height: "28px", margin: "0 auto" }} />
+              <div className="skeleton skeleton-line" style={{ width: "60%", margin: "0.5rem auto 0" }} />
+            </div>
+          ))}
+        </section>
       </section>
     );
   }
@@ -52,9 +65,9 @@ export default function AdminPage() {
 
   return (
     <section className="panel-stack">
-      <section className="admin-header">
+      <section className="admin-header" style={{ marginBottom: "2rem" }}>
         <div>
-          <h1>Admin Console</h1>
+          <h1>Admin Console - {user.name}</h1>
           <p>{user.email}</p>
         </div>
         <button className="btn-ghost" onClick={handleLogout}>Log out</button>
@@ -84,6 +97,10 @@ export default function AdminPage() {
         <Link href="/admin/email" className="stat-card">
           <h3>✉️</h3>
           <p>Email Members</p>
+        </Link>
+        <Link href="/admin/reimbursements" className="stat-card">
+          <h3>💳</h3>
+          <p>Reimbursements</p>
         </Link>
       </section>
     </section>

@@ -11,6 +11,18 @@ type Membership = {
   startDate: string;
 };
 
+type Invoice = {
+  id: number;
+  recipientName: string;
+  amountCents: number;
+  description: string;
+  category: string | null;
+  receiptUrl: string | null;
+  status: string;
+  adminNotes: string | null;
+  createdAt: string;
+};
+
 export function MembershipPanel() {
   const { user, loading, signInWithEmail, logout } = useAuth();
   const [message, setMessage] = useState<string>("");
@@ -22,6 +34,14 @@ export function MembershipPanel() {
   const [applicationSubmitted, setApplicationSubmitted] = useState(false);
   const loginEmailRef = useRef<HTMLInputElement>(null);
   const loginPasswordRef = useRef<HTMLInputElement>(null);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [formRecipient, setFormRecipient] = useState("");
+  const [formAmount, setFormAmount] = useState("");
+  const [formDesc, setFormDesc] = useState("");
+  const [formCategory, setFormCategory] = useState("");
+  const [formReceipt, setFormReceipt] = useState<File | null>(null);
+  const [formMsg, setFormMsg] = useState("");
 
   useEffect(() => {
     if (user?.email) {
@@ -41,6 +61,16 @@ export function MembershipPanel() {
       setIsChecking(false);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (!user?.email) return;
+    fetch("/api/reimbursements", { method: "GET" })
+      .then(r => r.json())
+      .then(d => { if (d.ok) setInvoices(d.data || []); })
+      .catch(() => {});
+  }, [user]);
+
+  const isLifeMember = membership?.type === "Life" && membership?.status === "ACTIVE";
 
   async function handleSignup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -158,10 +188,6 @@ export function MembershipPanel() {
           <div style={{ marginTop: "1.5rem" }}>
             <p className="status-badge active" style={{ display: "inline-block" }}>Membership Active</p>
             {membership!.type && <p style={{ marginTop: "0.5rem" }}>Type: <strong>{membership!.type}</strong></p>}
-            <div style={{ marginTop: "1rem", padding: "1rem", background: "rgba(255,255,255,0.5)", borderRadius: "12px" }}>
-              <p><strong>Email:</strong> {user.email}</p>
-              <p><strong>Status:</strong> {membership?.status}</p>
-            </div>
           </div>
         ) : isPending ? (
           <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
@@ -170,6 +196,88 @@ export function MembershipPanel() {
           </div>
         ) : (
           <p style={{ marginTop: "1.5rem", textAlign: "center" }}>No active membership found. Contact the association for assistance.</p>
+        )}
+
+        {isLifeMember && (
+          <section style={{ marginTop: "2rem", paddingTop: "1.5rem", borderTop: "1px solid rgba(29,35,59,0.1)" }}>
+            <h3 style={{ marginBottom: "1rem", fontSize: "1.1rem" }}>Reimbursement Invoices</h3>
+
+            {showForm ? (
+              <form onSubmit={async e => {
+                e.preventDefault(); setFormMsg("");
+                let receiptUrl = "";
+                if (formReceipt) {
+                  const fd = new FormData(); fd.append("file", formReceipt);
+                  const r = await fetch("/api/reimbursements/upload", { method: "POST", body: fd });
+                  const rd = await r.json();
+                  if (!rd.ok) { setFormMsg("Upload failed"); return; }
+                  receiptUrl = rd.url;
+                }
+                const res = await fetch("/api/reimbursements", {
+                  method: "POST", headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    recipientName: formRecipient,
+                    amountCents: Math.round(parseFloat(formAmount) * 100),
+                    description: formDesc,
+                    category: formCategory || undefined,
+                    receiptUrl: receiptUrl || undefined,
+                  }),
+                });
+                const d = await res.json();
+                if (!d.ok) { setFormMsg(d.error || "Failed"); return; }
+                setShowForm(false); setFormRecipient(""); setFormAmount(""); setFormDesc(""); setFormCategory(""); setFormReceipt(null);
+                fetch("/api/reimbursements", { method: "GET" }).then(r => r.json()).then(dd => { if (dd.ok) setInvoices(dd.data || []); });
+              }} style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1rem" }}>
+                <input required placeholder="Recipient name" value={formRecipient} onChange={e => setFormRecipient(e.target.value)} style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit" }} />
+                <input required type="number" step="0.01" placeholder="Amount ($)" value={formAmount} onChange={e => setFormAmount(e.target.value)} style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit" }} />
+                <input placeholder="Category (optional)" value={formCategory} onChange={e => setFormCategory(e.target.value)} style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit" }} />
+                <textarea required placeholder="Description" value={formDesc} onChange={e => setFormDesc(e.target.value)} rows={3} style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit", resize: "vertical" }} />
+                <div>
+                  <label style={{ fontSize: "0.85rem", fontWeight: 600, display: "block", marginBottom: "0.25rem" }}>Receipt (optional)</label>
+                  <input type="file" accept="image/*,application/pdf" onChange={e => setFormReceipt(e.target.files?.[0] || null)} style={{ fontSize: "0.85rem" }} />
+                </div>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <button className="btn-primary" type="submit" style={{ fontSize: "0.85rem" }}>Submit Invoice</button>
+                  <button className="btn-ghost" type="button" onClick={() => setShowForm(false)} style={{ fontSize: "0.85rem" }}>Cancel</button>
+                </div>
+                {formMsg && <p style={{ fontSize: "0.85rem", color: "#c42" }}>{formMsg}</p>}
+              </form>
+            ) : (
+              <button className="btn-primary" onClick={() => setShowForm(true)} style={{ fontSize: "0.85rem", marginBottom: "1rem" }}>
+                + New Invoice
+              </button>
+            )}
+
+            {invoices.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                {invoices.map(inv => (
+                  <div key={inv.id} style={{
+                    padding: "0.75rem 1rem", borderRadius: "10px",
+                    background: "rgba(255,255,255,0.5)", border: "1px solid rgba(29,35,59,0.06)",
+                    fontSize: "0.85rem"
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.25rem" }}>
+                      <strong>{inv.recipientName}</strong>
+                      <span style={{
+                        padding: "2px 10px", borderRadius: "12px", fontSize: "0.7rem", fontWeight: 600,
+                        background: inv.status === "APPROVED" ? "rgba(13,127,120,0.1)" : inv.status === "REJECTED" ? "rgba(220,38,38,0.1)" : "rgba(249,168,38,0.12)",
+                        color: inv.status === "APPROVED" ? "var(--teal)" : inv.status === "REJECTED" ? "#dc2626" : "#b45309",
+                      }}>
+                        {inv.status}
+                      </span>
+                    </div>
+                    <div style={{ opacity: 0.7 }}>${(inv.amountCents / 100).toFixed(2)} — {inv.description}</div>
+                    {inv.category && <span style={{ fontSize: "0.75rem", opacity: 0.5 }}>{inv.category}</span>}
+                    {inv.receiptUrl && <div><a href={inv.receiptUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.75rem", color: "var(--teal)" }}>View Receipt</a></div>}
+                    {inv.adminNotes && <div style={{ marginTop: "0.25rem", fontSize: "0.75rem", fontStyle: "italic", opacity: 0.6 }}>Admin: {inv.adminNotes}</div>}
+                    <div style={{ fontSize: "0.7rem", opacity: 0.4, marginTop: "0.25rem" }}>{new Date(inv.createdAt).toLocaleDateString()}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              !showForm && <p style={{ fontSize: "0.85rem", opacity: 0.5 }}>No invoices yet.</p>
+            )}
+          </section>
         )}
 
         <div className="button-row" style={{ marginTop: "1.5rem" }}>

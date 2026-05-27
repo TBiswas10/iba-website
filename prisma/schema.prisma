@@ -21,6 +21,7 @@ model User {
   familyMembers   String?
   role            UserRole     @default(USER)
   memberships     Membership[]
+  reimbursements  ReimbursementInvoice[]
   donations       Donation[]
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
@@ -140,6 +141,23 @@ model ContactSubmission {
   updatedAt DateTime @updatedAt
 }
 
+model ReimbursementInvoice {
+  id            Int            @id @default(autoincrement())
+  userId        Int
+  recipientName String
+  amountCents   Int
+  description   String
+  category      String?
+  receiptUrl    String?
+  status        InvoiceStatus @default(PENDING)
+  adminNotes    String?
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([userId])
+}
+
 model WebhookEvent {
   id              Int       @id @default(autoincrement())
   provider        String
@@ -159,4 +177,10 @@ enum MembershipStatus {
   ACTIVE
   EXPIRED
   PENDING
+}
+
+enum InvoiceStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
