@@ -1,9 +1,8 @@
-export const dynamic = 'force-dynamic';
 import { fail, ok } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
 
-export async function GET() {
+export async function POST() {
   const denied = await requireAdmin();
   if (denied) {
     return denied;
@@ -29,4 +28,3 @@ export async function GET() {
     return fail("Error fetching users", 500, error);
   }
 }
-

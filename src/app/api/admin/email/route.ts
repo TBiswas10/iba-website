@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic';
 import { requireAdmin } from "@/lib/role";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";

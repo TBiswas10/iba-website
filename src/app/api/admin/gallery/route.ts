@@ -3,8 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
 import { uploadImageToStorage } from "@/lib/storage";
 
-export const dynamic = "force-dynamic";
-
 export async function POST(request: NextRequest) {
   const denied = await requireAdmin();
   if (denied) return denied;

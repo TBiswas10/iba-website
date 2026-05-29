@@ -3,8 +3,6 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
-export const dynamic = "force-dynamic";
-
 const updateMembershipSchema = z.object({
   id: z.number().int().positive(),
   status: z.enum(["ACTIVE", "EXPIRED", "PENDING", "REJECTED"]).optional(),

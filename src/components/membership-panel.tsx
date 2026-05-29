@@ -49,7 +49,7 @@ export function MembershipPanel() {
 
   useEffect(() => {
     if (user?.email) {
-      fetch("/api/user/bank-details", { method: "GET" })
+      fetch("/api/user/bank-details", { method: "POST" })
         .then(r => r.json())
         .then(d => { if (d.ok) { setBankAccountName(d.data.bankAccountName || ""); setBankBsb(d.data.bankBsb || ""); setBankAccountNumber(d.data.bankAccountNumber || ""); } })
         .catch(() => {});
@@ -59,7 +59,7 @@ export function MembershipPanel() {
   useEffect(() => {
     if (user?.email) {
       setIsChecking(true);
-      fetch("/api/memberships/mine", { method: "GET" })
+      fetch("/api/memberships/mine", { method: "POST" })
         .then((res) => res.json())
         .then((data) => {
           if (data.ok && data.data) {
@@ -77,7 +77,7 @@ export function MembershipPanel() {
 
   useEffect(() => {
     if (!user?.email) return;
-    fetch("/api/reimbursements", { method: "GET" })
+    fetch("/api/reimbursements", { method: "POST" })
       .then(r => r.json())
       .then(d => { if (d.ok) setInvoices(d.data || []); })
       .catch(() => {});
@@ -239,7 +239,7 @@ export function MembershipPanel() {
                 const d = await res.json();
                 if (!d.ok) { setFormMsg(d.error || "Failed"); return; }
                 setShowForm(false); setFormRecipient(""); setFormAmount(""); setFormDesc(""); setFormCategory(""); setFormReceipt(null);
-                fetch("/api/reimbursements", { method: "GET" }).then(r => r.json()).then(dd => { if (dd.ok) setInvoices(dd.data || []); });
+                fetch("/api/reimbursements", { method: "POST" }).then(r => r.json()).then(dd => { if (dd.ok) setInvoices(dd.data || []); });
               }} style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1rem" }}>
                 <input required placeholder="Recipient name" value={formRecipient} onChange={e => setFormRecipient(e.target.value)} style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit" }} />
                 <input required type="number" step="0.01" placeholder="Amount ($)" value={formAmount} onChange={e => setFormAmount(e.target.value)} style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit" }} />

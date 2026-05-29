@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 
-export const dynamic = "force-dynamic";
-
-export async function GET() {
+export async function POST() {
   const dbUser = await getCurrentUser();
   if (!dbUser || dbUser.role !== "ADMIN") {
     return NextResponse.json({ ok: false, canManageRoles: false }, { status: 401 });

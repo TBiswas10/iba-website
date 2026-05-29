@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
@@ -14,21 +13,18 @@ const createSchema = z.object({
   receiptUrl: z.string().optional(),
 });
 
-export async function GET() {
-  const dbUser = await getCurrentUser();
-  if (!dbUser) return NextResponse.json({ ok: false, error: "Auth required" }, { status: 401 });
-
-  const invoices = await prisma.reimbursementInvoice.findMany({
-    where: { userId: dbUser.id },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return NextResponse.json({ ok: true, data: invoices });
-}
-
 export async function POST(request: Request) {
   const dbUser = await getCurrentUser();
   if (!dbUser) return NextResponse.json({ ok: false, error: "Auth required" }, { status: 401 });
+
+  const contentType = request.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) {
+    const invoices = await prisma.reimbursementInvoice.findMany({
+      where: { userId: dbUser.id },
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json({ ok: true, data: invoices });
+  }
 
   const membership = await prisma.membership.findFirst({
     where: { userId: dbUser.id, status: "ACTIVE", type: "Life" },
@@ -116,4 +112,3 @@ async function getOrCreateReimbursementProduct(stripe: Stripe): Promise<string> 
 
   return product.id;
 }
-

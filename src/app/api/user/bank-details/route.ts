@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
@@ -10,7 +9,7 @@ const schema = z.object({
   bankAccountNumber: z.string().min(1).optional(),
 });
 
-export async function GET() {
+export async function POST() {
   const dbUser = await getCurrentUser();
   if (!dbUser) return NextResponse.json({ ok: false, error: "Auth required" }, { status: 401 });
 
@@ -32,4 +31,3 @@ export async function PUT(request: Request) {
 
   return NextResponse.json({ ok: true, data: { bankAccountName: updated.bankAccountName, bankBsb: updated.bankBsb, bankAccountNumber: updated.bankAccountNumber } });
 }
-

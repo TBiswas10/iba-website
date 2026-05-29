@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic';
 import { fail, ok } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
@@ -55,4 +54,3 @@ export async function POST(request: Request) {
     return fail("Error creating membership", 500, error);
   }
 }
-
