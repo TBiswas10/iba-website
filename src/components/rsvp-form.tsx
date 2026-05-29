@@ -143,8 +143,7 @@ export function RsvpForm() {
         <p className="eyebrow">RSVP</p>
         <h1>Choose the event, then let us know who is coming.</h1>
         <p>
-          RSVP is separate from the homepage. Keep the landing page clean, and use this page for
-          the real submission flow.
+          Select an upcoming event and fill in your details. We&apos;ll send a confirmation to your email.
         </p>
         {selectedEvent ? (
           <p className="note-text">
