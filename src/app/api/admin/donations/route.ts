@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
 
+export const dynamic = "force-dynamic";
+
 async function handleGet(request: Request) {
   const denied = await requireAdmin();
   if (denied) return denied;

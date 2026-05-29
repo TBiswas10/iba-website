@@ -4,6 +4,8 @@ import { requireAdmin } from "@/lib/role";
 import { uploadImageToStorage } from "@/lib/storage";
 import { parseSydneyDatetime } from "@/lib/dates";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const denied = await requireAdmin();
   if (denied) return denied;

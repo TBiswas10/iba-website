@@ -57,37 +57,39 @@ export default async function AdminResourcesPage() {
         {resources.length === 0 ? (
           <p>No resources yet. Add one above.</p>
         ) : (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Category</th>
-                <th>URL</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {resources.map((resource) => (
-                <tr key={resource.id}>
-                  <td>{resource.title}</td>
-                  <td>{resource.category}</td>
-                  <td>
-                    <a href={resource.url} target="_blank" rel="noreferrer">
-                      {resource.url.substring(0, 40)}...
-                    </a>
-                  </td>
-                  <td>
-                    <form action={`/api/resources/${resource.id}`} method="POST">
-                      <input type="hidden" name="_method" value="DELETE" />
-                      <button className="btn-danger btn-sm" type="submit">
-                        Delete
-                      </button>
-                    </form>
-                  </td>
+          <div className="table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>URL</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {resources.map((resource) => (
+                  <tr key={resource.id}>
+                    <td>{resource.title}</td>
+                    <td>{resource.category}</td>
+                    <td>
+                      <a href={resource.url} target="_blank" rel="noreferrer">
+                        {resource.url.substring(0, 40)}...
+                      </a>
+                    </td>
+                    <td>
+                      <form action={`/api/resources/${resource.id}`} method="POST">
+                        <input type="hidden" name="_method" value="DELETE" />
+                        <button className="btn-danger btn-sm" type="submit">
+                          Delete
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
     </section>

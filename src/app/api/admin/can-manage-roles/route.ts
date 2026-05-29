@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const dbUser = await getCurrentUser();
   if (!dbUser || dbUser.role !== "ADMIN") {
