@@ -75,6 +75,17 @@ export async function POST(request: Request) {
       return fail("Event not found", 404);
     }
 
+    const existing = await prisma.rsvp.findFirst({
+      where: {
+        eventId: event.id,
+        email: parsed.data.email.toLowerCase(),
+      },
+    });
+
+    if (existing) {
+      return fail("You have already RSVP'd for this event.", 409);
+    }
+
     const created = await prisma.rsvp.create({
       data: {
         eventId: event.id,
