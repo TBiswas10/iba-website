@@ -99,8 +99,8 @@ export default async function GalleryPage() {
 
       {albums.length === 0 && (
         <section className="glass-panel">
-          <h3>No gallery items yet</h3>
-          <p>Add media via admin dashboard.</p>
+          <h3>Photos coming soon</h3>
+          <p>We&apos;re putting together our gallery. Check back after the next event.</p>
         </section>
       )}
     </section>

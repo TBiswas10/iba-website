@@ -43,11 +43,14 @@ export async function POST(request: Request) {
     try {
       const stripe = new Stripe(stripeKey);
 
-      const customer = await stripe.customers.create({
-        email: dbUser.email,
-        name: dbUser.name || parsed.data.recipientName,
-        metadata: { userId: String(dbUser.id) },
-      });
+      const existingCustomers = await stripe.customers.list({ email: dbUser.email, limit: 1 });
+      const customer = existingCustomers.data.length > 0
+        ? existingCustomers.data[0]
+        : await stripe.customers.create({
+            email: dbUser.email,
+            name: dbUser.name || parsed.data.recipientName,
+            metadata: { userId: String(dbUser.id) },
+          });
 
       const productId = await getOrCreateReimbursementProduct(stripe);
 

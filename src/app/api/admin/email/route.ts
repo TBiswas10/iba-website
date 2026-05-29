@@ -22,7 +22,10 @@ export async function POST(request: Request) {
 
     if (recipients === "all") {
       const users = await prisma.user.findMany({
-        where: { role: { not: "ADMIN" } },
+        where: {
+          role: { not: "ADMIN" },
+          memberships: { some: { status: "ACTIVE" } },
+        },
         select: { email: true },
       });
       emails = users.map((u) => u.email as string);
@@ -41,7 +44,7 @@ export async function POST(request: Request) {
       emails = Array.from(uniqueEmails);
     }
 
-    const MAX_EMAILS = 50;
+    const MAX_EMAILS = 200;
     const batch = emails.slice(0, MAX_EMAILS);
     const skipped = emails.length - batch.length;
 
