@@ -96,10 +96,10 @@ const copy: Record<Lang, CopyShape> = {
     },
     home: {
       hero: {
-        eyebrow: "Hindu community in Wollongong",
-        title: "A home for Hindu culture, service, and celebration in Wollongong.",
+        eyebrow: "Bengali community in the Illawarra",
+        title: "A home for Bengali culture, service, and celebration in the Illawarra.",
         subtitle:
-          "We bring Hindu families, students, young professionals, Bengali and Indian families, members, and volunteers into one place. Real events. Real people. Real continuity.",
+          "We bring Bengali families, students, young professionals, members, and volunteers together in one place. Real events. Real people. Real continuity.",
         primaryCta: "Explore Events",
         secondaryCta: "Meet the Association",
         eventCta: "View Events",
@@ -113,7 +113,7 @@ const copy: Record<Lang, CopyShape> = {
       ],
       mission: {
         eyebrow: "Our mission",
-        title: "Keep Hindu community life visible, welcoming, and useful in Wollongong.",
+        title: "Keep Bengali community life visible, welcoming, and useful in the Illawarra.",
         body:
           "We create a place where people can participate, help, volunteer, and build something that lasts. The association exists to make cultural life easier to join and stronger to sustain.",
       },
@@ -134,7 +134,7 @@ const copy: Record<Lang, CopyShape> = {
         title: "Built for the whole community, not just one age group.",
         items: [
           {
-            title: "Hindu families in Wollongong",
+            title: "Bengali families in the Illawarra",
             body: "A clear place to gather, bring children, and stay connected throughout the year.",
           },
           {
@@ -142,8 +142,8 @@ const copy: Record<Lang, CopyShape> = {
             body: "A way in that feels open, modern, and easy to join.",
           },
           {
-            title: "Bengali and Indian families",
-            body: "Cultural continuity with a broader invitation to participate and help.",
+            title: "Bengali community members",
+            body: "Cultural continuity and a welcoming invitation to participate and help.",
           },
           {
             title: "Existing members and volunteers",
@@ -190,10 +190,10 @@ const copy: Record<Lang, CopyShape> = {
     },
     home: {
       hero: {
-        eyebrow: "ওলংগং-এর হিন্দু কমিউনিটি",
-        title: "ওলংগং-এ হিন্দু সংস্কৃতি, সেবা ও উদযাপনের ঘর।",
+        eyebrow: "ইলাওয়ারার বাঙালি কমিউনিটি",
+        title: "ইলাওয়ারায় বাঙালি সংস্কৃতি, সেবা ও উদযাপনের ঘর।",
         subtitle:
-          "আমরা হিন্দু পরিবার, শিক্ষার্থী, তরুণ পেশাজীবী, বাঙালি ও ভারতীয় পরিবার, সদস্য এবং স্বেচ্ছাসেবকদের এক জায়গায় আনি। সত্যিকারের ইভেন্ট। সত্যিকারের মানুষ। সত্যিকারের ধারাবাহিকতা।",
+          "আমরা বাঙালি পরিবার, শিক্ষার্থী, তরুণ পেশাজীবী, সদস্য এবং স্বেচ্ছাসেবকদের এক জায়গায় আনি। সত্যিকারের ইভেন্ট। সত্যিকারের মানুষ। সত্যিকারের ধারাবাহিকতা।",
         primaryCta: "ইভেন্ট দেখুন",
         secondaryCta: "অ্যাসোসিয়েশন জানুন",
         eventCta: "ইভেন্ট দেখুন",
@@ -207,7 +207,7 @@ const copy: Record<Lang, CopyShape> = {
       ],
       mission: {
         eyebrow: "আমাদের মিশন",
-        title: "ওলংগং-এ হিন্দু কমিউনিটি জীবনকে দৃশ্যমান, স্বাগতপূর্ণ, এবং কাজে লাগার মতো রাখা।",
+        title: "ইলাওয়ারায় বাঙালি কমিউনিটি জীবনকে দৃশ্যমান, স্বাগতপূর্ণ, এবং কাজে লাগার মতো রাখা।",
         body:
           "আমরা এমন একটি জায়গা তৈরি করি যেখানে মানুষ অংশ নিতে পারে, সাহায্য করতে পারে, স্বেচ্ছাসেবক হতে পারে, এবং দীর্ঘমেয়াদে কিছু গড়ে তুলতে পারে।",
       },
@@ -228,7 +228,7 @@ const copy: Record<Lang, CopyShape> = {
         title: "এটি পুরো কমিউনিটির জন্য, শুধু এক বয়সের জন্য নয়।",
         items: [
           {
-            title: "ওলংগং-এর হিন্দু পরিবার",
+            title: "ইলাওয়ারার বাঙালি পরিবার",
             body: "বছরজুড়ে একসাথে থাকার জন্য পরিষ্কার একটি জায়গা।",
           },
           {
@@ -236,8 +236,8 @@ const copy: Record<Lang, CopyShape> = {
             body: "সহজে যুক্ত হওয়ার জন্য আধুনিক ও খোলা পথ।",
           },
           {
-            title: "বাঙালি ও ভারতীয় পরিবার",
-            body: "সংস্কৃতির ধারাবাহিকতা, আর অংশ নেওয়ার খোলা আমন্ত্রণ।",
+            title: "বাঙালি কমিউনিটি সদস্য",
+            body: "সংস্কৃতির ধারাবাহিকতা এবং অংশ নেওয়ার উষ্ণ আমন্ত্রণ।",
           },
           {
             title: "বিদ্যমান সদস্য ও স্বেচ্ছাসেবক",

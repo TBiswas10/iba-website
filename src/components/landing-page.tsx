@@ -248,7 +248,7 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
     <div className="panel-stack landing-shell">
       <motion.section
         className="hero split-hero"
-        initial={prefersReducedMotion ? false : "hidden"}
+        initial={false}
         animate="visible"
         variants={{
           hidden: { opacity: 0 },
@@ -270,9 +270,9 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
             </Link>
           </motion.div>
           <motion.div className="pill-row" variants={fadeUpVariant} aria-label="Community groups">
-            <span>Hindu families</span>
+            <span>Bengali families</span>
             <span>Students</span>
-            <span>Bengali + Indian families</span>
+            <span>Young professionals</span>
             <span>Members + volunteers</span>
           </motion.div>
         </motion.div>
@@ -280,7 +280,7 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
         <motion.aside className="hero-aside glass-panel" variants={fadeUpVariant}>
           <div className="hero-photo-grid" aria-label="Event photos">
             <div className="photo-tile photo-tile-v1">
-              <Image src="/img_2006.jpeg" alt="Event 1" width={300} height={400} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+              <Image src="/img_2006.jpeg" alt="Event 1" width={300} height={400} priority style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
             <div className="photo-tile photo-tile-h1">
               <Image src="/img_2007.jpeg.jpg" alt="Event 2" width={400} height={300} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
