@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function POST(request: Request) {
+  const dbUser = await getCurrentUser();
+  if (!dbUser) return NextResponse.json({ ok: false, error: "Auth required" }, { status: 401 });
+
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
