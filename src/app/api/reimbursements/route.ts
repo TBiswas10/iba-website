@@ -13,18 +13,20 @@ const createSchema = z.object({
   receiptUrl: z.string().optional(),
 });
 
-export async function POST(request: Request) {
+export async function GET() {
   const dbUser = await getCurrentUser();
   if (!dbUser) return NextResponse.json({ ok: false, error: "Auth required" }, { status: 401 });
 
-  const contentType = request.headers.get("content-type") || "";
-  if (!contentType.includes("application/json")) {
-    const invoices = await prisma.reimbursementInvoice.findMany({
-      where: { userId: dbUser.id },
-      orderBy: { createdAt: "desc" },
-    });
-    return NextResponse.json({ ok: true, data: invoices });
-  }
+  const invoices = await prisma.reimbursementInvoice.findMany({
+    where: { userId: dbUser.id },
+    orderBy: { createdAt: "desc" },
+  });
+  return NextResponse.json({ ok: true, data: invoices });
+}
+
+export async function POST(request: Request) {
+  const dbUser = await getCurrentUser();
+  if (!dbUser) return NextResponse.json({ ok: false, error: "Auth required" }, { status: 401 });
 
   const membership = await prisma.membership.findFirst({
     where: { userId: dbUser.id, status: "ACTIVE", type: "Life" },
@@ -97,21 +99,13 @@ export async function POST(request: Request) {
 }
 
 async function getOrCreateReimbursementProduct(stripe: Stripe): Promise<string> {
-  const existing = await stripe.products.list({
-    limit: 100,
-    active: true,
-  });
-
-  const match = existing.data.find(
-    (p) => "name" in p && p.name === "IBA Reimbursement"
-  );
-
+  const existing = await stripe.products.list({ limit: 100, active: true });
+  const match = existing.data.find((p) => "name" in p && p.name === "IBA Reimbursement");
   if (match) return match.id;
 
   const product = await stripe.products.create({
     name: "IBA Reimbursement",
     description: "Reimbursement invoice for Life member expenses",
   });
-
   return product.id;
 }

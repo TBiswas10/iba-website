@@ -18,6 +18,9 @@ coverage
 
 # Tooling caches and local skill metadata
 .agents/
+
+# Local dev server config
+.claude/launch.json
 .gstack/
 .opencode/
 dev-server.log

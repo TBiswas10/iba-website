@@ -80,7 +80,7 @@ export function LandingV2({ nextEvent }: LandingV2Props) {
           <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
             {copy.home.howWeDoIt.features.map((feature, i) => (
               <div key={i} className="v2-feature-item">
-                <div className="v2-feature-icon">âœ“</div>
+                <div className="v2-feature-icon">✓</div>
                 <div className="v2-feature-text">
                   <h4>{feature.title}</h4>
                   <p>{feature.body}</p>

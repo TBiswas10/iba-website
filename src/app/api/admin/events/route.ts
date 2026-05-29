@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
 import { uploadImageToStorage } from "@/lib/storage";
@@ -70,6 +71,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    revalidatePath("/");
     return NextResponse.json({ ok: true, data: event });
   } catch (error) {
     console.error("Create event error:", error);
@@ -106,6 +108,7 @@ export async function PUT(request: Request) {
       },
     });
 
+    revalidatePath("/");
     return NextResponse.json({ ok: true, data: event });
   } catch (error) {
     console.error("Update event error:", error);
