@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";
@@ -39,3 +40,4 @@ export async function GET() {
 export async function POST() {
   return handleStats();
 }
+

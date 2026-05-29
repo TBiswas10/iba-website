@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { Prisma } from "@prisma/client";
 
 import { fail, ok } from "@/lib/api";
@@ -162,3 +163,4 @@ export async function DELETE(request: Request) {
     return fail("Error deleting RSVP", 500, error);
   }
 }
+

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { fail, ok } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/role";

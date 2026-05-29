@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
@@ -115,3 +116,4 @@ async function getOrCreateReimbursementProduct(stripe: Stripe): Promise<string> 
 
   return product.id;
 }
+

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { fail, ok } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
@@ -20,3 +21,4 @@ export async function GET() {
 
   return ok(membership);
 }
+

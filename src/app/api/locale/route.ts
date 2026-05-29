@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { fail, ok } from "@/lib/api";
 
 const allowed = new Set(["en", "bn"]);
