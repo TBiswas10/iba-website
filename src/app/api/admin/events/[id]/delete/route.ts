@@ -10,7 +10,16 @@ export async function POST(
   if (denied) return denied;
 
   const { id } = await params;
-  await prisma.event.delete({ where: { id: parseInt(id) } });
-
-  return NextResponse.json({ ok: true });
+  try {
+    await prisma.event.delete({ where: { id: parseInt(id) } });
+    return NextResponse.json({ ok: true });
+  } catch (error: any) {
+    if (error?.code === "P2003") {
+      return NextResponse.json({ ok: false, error: "Cannot delete event with existing RSVPs. Remove RSVPs first." }, { status: 409 });
+    }
+    if (error?.code === "P2025") {
+      return NextResponse.json({ ok: false, error: "Event not found" }, { status: 404 });
+    }
+    return NextResponse.json({ ok: false, error: "Failed to delete event" }, { status: 500 });
+  }
 }
