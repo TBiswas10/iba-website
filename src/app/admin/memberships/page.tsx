@@ -45,7 +45,7 @@ const MEMBERSHIP_TYPES = ["", "Regular", "Family", "Life", "Senior", "Associate"
 const UserRow = memo(function UserRow({
   user, currentUserEmail, canManageRoles,
   onOpenCreate, onOpenReview, onOpenEdit, onConfirm,
-  onUpdateStatus, onDeleteMembership, onChangeRole,
+  onUpdateStatus, onDeleteMembership, onChangeRole, onDeleteUser,
 }: {
   user: UserData;
   currentUserEmail: string;
@@ -57,6 +57,7 @@ const UserRow = memo(function UserRow({
   onUpdateStatus: (id: number, status: string) => void;
   onDeleteMembership: (id: number) => void;
   onChangeRole: (userId: number, newRole: string) => void;
+  onDeleteUser: (userId: number, name: string) => void;
 }) {
   const m = user.memberships[0];
   const isPending = !m || m.status === "PENDING";
@@ -156,7 +157,7 @@ const UserRow = memo(function UserRow({
               message: user.role === "ADMIN"
                 ? `Remove admin access from ${user.name || user.email}? They will become a regular member.`
                 : `Give ${user.name || user.email} full admin access to the dashboard?`,
-              onConfirm: () => onChangeRole(user.id, user.role === "ADMIN" ? "MEMBER" : "ADMIN"),
+              onConfirm: () => onChangeRole(user.id, user.role === "ADMIN" ? "USER" : "ADMIN"),
             })}
             style={{
               padding: "0.3rem 0.65rem", fontSize: "0.7rem", borderRadius: "6px", border: "none",
@@ -169,6 +170,17 @@ const UserRow = memo(function UserRow({
           </button>
         )}
         {user.email !== currentUserEmail && (
+          <>
+          <button
+            onClick={() => onDeleteUser(user.id, user.name || user.email)}
+            style={{
+              padding: "0.3rem 0.65rem", fontSize: "0.7rem", borderRadius: "6px",
+              border: "1px solid rgba(220,38,38,0.3)", cursor: "pointer", fontWeight: 600,
+              background: "transparent", color: "#dc2626",
+              marginBottom: "0.35rem", display: "block",
+            }}>
+            Delete User
+          </button>
           <div className="action-buttons" style={{ flexWrap: "nowrap" }}>
             {isPending ? (
               <>
@@ -272,6 +284,7 @@ const UserRow = memo(function UserRow({
               </>
             )}
           </div>
+          </>
         )}
       </td>
     </tr>
@@ -332,6 +345,17 @@ export default function AdminMembershipsPage() {
       body: JSON.stringify({ action: "CHANGE_ROLE", userId, role }),
     });
     fetchUsers();
+  }
+
+  function confirmDeleteUser(userId: number, name: string) {
+    setConfirm({
+      title: "Delete User",
+      message: `Permanently delete ${name}? This removes them from the site and Supabase. Their donation records are kept.`,
+      onConfirm: async () => {
+        await fetch(`/api/users?id=${userId}`, { method: "DELETE" });
+        fetchUsers();
+      },
+    });
   }
 
   function openCreate(userId: number) {
@@ -581,6 +605,7 @@ export default function AdminMembershipsPage() {
                       onUpdateStatus={updateStatus}
                       onDeleteMembership={deleteMembership}
                       onChangeRole={changeRole}
+                      onDeleteUser={confirmDeleteUser}
                     />
                 ))}
               </tbody>
