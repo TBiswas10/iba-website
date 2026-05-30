@@ -40,7 +40,7 @@ type ConfirmAction = {
   onConfirm: () => void;
 } | null;
 
-const MEMBERSHIP_TYPES = ["", "General", "Associate", "Life", "Honorary"];
+const MEMBERSHIP_TYPES = ["", "General Member", "Associate Member", "Life Member", "Honorary Member"];
 
 const UserRow = memo(function UserRow({
   user, currentUserEmail, canManageRoles,
@@ -87,7 +87,7 @@ const UserRow = memo(function UserRow({
           }}>
             {user.role === "ADMIN" ? "ADMIN" : "Member"}
           </span>
-          {m?.type === "Life" && (
+          {m?.type === "Life Member" && (
             <span style={{
               padding: "2px 8px", borderRadius: "4px", fontSize: "0.65rem", fontWeight: 700,
               background: "linear-gradient(135deg,rgba(212,175,55,0.2),rgba(255,215,0,0.15))",
@@ -364,7 +364,7 @@ export default function AdminMembershipsPage() {
       id: 0,
       userId,
       status: "ACTIVE",
-      type: "General",
+      type: "General Member",
       userName: u?.name || "",
       userPhone: u?.phone || "",
       userFamilyMembers: u?.familyMembers || "",

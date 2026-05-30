@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   if (!dbUser) return NextResponse.json({ ok: false, error: "Auth required" }, { status: 401 });
 
   const membership = await prisma.membership.findFirst({
-    where: { userId: dbUser.id, status: "ACTIVE", type: "Life" },
+    where: { userId: dbUser.id, status: "ACTIVE", type: "Life Member" },
     orderBy: { createdAt: "desc" },
   });
   if (!membership) return NextResponse.json({ ok: false, error: "Only Life members can create reimbursement invoices" }, { status: 403 });

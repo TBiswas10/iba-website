@@ -83,7 +83,7 @@ export function MembershipPanel() {
       .catch(() => {});
   }, [user]);
 
-  const isLifeMember = membership?.type === "Life" && membership?.status === "ACTIVE";
+  const isLifeMember = membership?.type === "Life Member" && membership?.status === "ACTIVE";
 
   async function handleSignup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
