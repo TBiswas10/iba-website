@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 const updateMembershipSchema = z.object({
   id: z.number().int().positive(),
@@ -12,6 +13,7 @@ const updateMembershipSchema = z.object({
 const updateUserSchema = z.object({
   userId: z.number().int().positive(),
   name: z.string().min(1).optional(),
+  email: z.string().email().optional(),
   phone: z.string().optional(),
   familyMembers: z.string().optional(),
 });
@@ -90,10 +92,18 @@ export async function POST(request: Request) {
       if (!parsed.success) {
         return NextResponse.json({ ok: false, error: "Invalid input" }, { status: 400 });
       }
+      const user = await prisma.user.findUnique({ where: { id: parsed.data.userId } });
+      if (!user) return NextResponse.json({ ok: false, error: "User not found" }, { status: 404 });
+
+      if (parsed.data.email && parsed.data.email !== user.email && user.supabaseUserId) {
+        await getSupabaseAdmin().auth.admin.updateUserById(user.supabaseUserId, { email: parsed.data.email });
+      }
+
       const updated = await prisma.user.update({
         where: { id: parsed.data.userId },
         data: {
           ...(parsed.data.name !== undefined && { name: parsed.data.name }),
+          ...(parsed.data.email !== undefined && { email: parsed.data.email }),
           ...(parsed.data.phone !== undefined && { phone: parsed.data.phone }),
           ...(parsed.data.familyMembers !== undefined && { familyMembers: parsed.data.familyMembers }),
         },

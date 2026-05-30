@@ -30,6 +30,7 @@ type EditingMembership = {
   status: string;
   type: string;
   userName: string;
+  userEmail: string;
   userPhone: string;
   userFamilyMembers: string;
 };
@@ -366,6 +367,7 @@ export default function AdminMembershipsPage() {
       status: "ACTIVE",
       type: "General Member",
       userName: u?.name || "",
+      userEmail: u?.email || "",
       userPhone: u?.phone || "",
       userFamilyMembers: u?.familyMembers || "",
     });
@@ -379,6 +381,7 @@ export default function AdminMembershipsPage() {
       status: "ACTIVE",
       type: m.type || "",
       userName: u?.name || "",
+      userEmail: u?.email || "",
       userPhone: u?.phone || "",
       userFamilyMembers: u?.familyMembers || "",
     });
@@ -392,6 +395,7 @@ export default function AdminMembershipsPage() {
       status: m.status,
       type: m.type || "",
       userName: u?.name || "",
+      userEmail: u?.email || "",
       userPhone: u?.phone || "",
       userFamilyMembers: u?.familyMembers || "",
     });
@@ -431,7 +435,7 @@ export default function AdminMembershipsPage() {
     await fetch("/api/admin/memberships", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "UPDATE_USER", userId: editing.userId, name: editing.userName || undefined, phone: editing.userPhone || undefined, familyMembers: editing.userFamilyMembers || undefined }),
+      body: JSON.stringify({ action: "UPDATE_USER", userId: editing.userId, name: editing.userName || undefined, email: editing.userEmail || undefined, phone: editing.userPhone || undefined, familyMembers: editing.userFamilyMembers || undefined }),
     });
     setEditing(null);
     fetchUsers();
@@ -690,12 +694,16 @@ export default function AdminMembershipsPage() {
                     <input value={editing.userName} onChange={e => setEditing({ ...editing, userName: e.target.value })} className="modal-field" />
                   </div>
                   <div>
+                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--ink)", marginBottom: "0.35rem" }}>Email</label>
+                    <input type="email" value={editing.userEmail} onChange={e => setEditing({ ...editing, userEmail: e.target.value })} className="modal-field" />
+                  </div>
+                  <div>
                     <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--ink)", marginBottom: "0.35rem" }}>Phone</label>
                     <input value={editing.userPhone} onChange={e => setEditing({ ...editing, userPhone: e.target.value })} className="modal-field" />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--ink)", marginBottom: "0.35rem" }}>Family Members</label>
-                    <textarea value={editing.userFamilyMembers} onChange={e => setEditing({ ...editing, userFamilyMembers: e.target.value })} className="modal-field" rows={3} />
+                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--ink)", marginBottom: "0.35rem" }}>Total number of family members</label>
+                    <input type="number" min="0" max="20" value={editing.userFamilyMembers} onChange={e => setEditing({ ...editing, userFamilyMembers: e.target.value })} className="modal-field" />
                   </div>
                 </div>
               </div>
