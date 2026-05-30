@@ -38,6 +38,16 @@ export const metadata: Metadata = {
     template: "%s | IBA",
   },
   description: "A living digital home for Bengali families in Illawarra with events, membership, resources, and collective giving.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "IBA Inc.",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-icon.png",
+    shortcut: "/icon0.svg",
+  },
   openGraph: {
     type: "website",
     locale: "en_AU",
@@ -77,10 +87,10 @@ export default async function RootLayout({
     <html lang={locale}>
       <head>
         <meta name="google-site-verification" content="UL4C9a9xEBsiqC-Fbog3btbkUNw2dlvKHxNtsuYEKOI" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="manifest" href="/site.webmanifest" />
+        <meta name="apple-mobile-web-app-title" content="IBA Inc." />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <body className={`${heading.variable} ${body.variable} ${bengali.variable}`}>
         <NextIntlClientProvider locale={locale} messages={messages}>

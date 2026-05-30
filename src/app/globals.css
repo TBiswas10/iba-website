@@ -1256,10 +1256,10 @@ h4 { font-size: 1.1rem; }
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 0.5rem;
+  gap: 0.1rem;
   max-width: 1100px;
   margin: 0 auto;
-  padding: 0.5rem 1.25rem;
+  padding: 0.35rem 1.25rem;
   width: calc(100% - 2rem);
   background: transparent;
   border-radius: 20px;
@@ -1270,7 +1270,8 @@ h4 { font-size: 1.1rem; }
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
-  padding: 0.35rem 1.25rem;
+  padding: 0.25rem 1.25rem;
+  gap: 0;
 }
 
 .header-top {
@@ -1289,8 +1290,8 @@ h4 { font-size: 1.1rem; }
   }
 
   .header-logo-img {
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   border-radius: 12px;
   object-fit: cover;
   transition: all 0.3s ease;
@@ -1301,8 +1302,8 @@ h4 { font-size: 1.1rem; }
 }
 
 .site-header.scrolled .header-logo-img {
-  width: 44px;
-  height: 44px;
+  width: 80px;
+  height: 80px;
   border-radius: 10px;
 }
 
@@ -1330,8 +1331,8 @@ h4 { font-size: 1.1rem; }
 
 @media (min-width: 901px) {
   .site-header:not(.scrolled) .header-logo-img {
-    width: 68px;
-    height: 68px;
+    width: 72px;
+    height: 72px;
   }
 
   .site-header:not(.scrolled) .header-logo-name {
@@ -1343,7 +1344,7 @@ h4 { font-size: 1.1rem; }
   }
 
   .header-row {
-    gap: 0.1rem;
+    gap: 0;
   }
 
   .nav-row {
@@ -1572,8 +1573,8 @@ h4 { font-size: 1.1rem; }
   }
 
   .site-header.scrolled .header-logo-img {
-    width: 44px !important;
-    height: 44px !important;
+    width: 52px !important;
+    height: 52px !important;
     border-radius: 10px;
   }
 
@@ -1600,8 +1601,8 @@ h4 { font-size: 1.1rem; }
   }
 
   .site-header.scrolled .header-logo-img {
-    width: 44px !important;
-    height: 44px !important;
+    width: 48px !important;
+    height: 48px !important;
   }
 
   .mobile-menu-btn {
