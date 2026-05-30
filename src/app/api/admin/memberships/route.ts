@@ -74,12 +74,6 @@ export async function POST(request: Request) {
     }
 
     if (action === "CHANGE_ROLE") {
-      const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || "tirthabiswasm@gmail.com";
-
-      if (dbUser.email !== superAdminEmail) {
-        return NextResponse.json({ ok: false, error: "Only the Super Admin can change roles" }, { status: 403 });
-      }
-
       const { role } = body;
       if (!["ADMIN", "MEMBER", "USER"].includes(role)) {
         return NextResponse.json({ ok: false, error: "Invalid role" }, { status: 400 });

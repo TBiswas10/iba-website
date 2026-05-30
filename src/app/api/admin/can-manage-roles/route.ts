@@ -7,8 +7,5 @@ export async function POST() {
     return NextResponse.json({ ok: false, canManageRoles: false }, { status: 401 });
   }
 
-  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || "tirthabiswasm@gmail.com";
-  const canManageRoles = dbUser.email === superAdminEmail;
-
-  return NextResponse.json({ ok: true, canManageRoles });
+  return NextResponse.json({ ok: true, canManageRoles: true });
 }
