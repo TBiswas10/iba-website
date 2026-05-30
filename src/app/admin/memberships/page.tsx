@@ -43,18 +43,20 @@ type ConfirmAction = {
 const MEMBERSHIP_TYPES = ["", "Regular", "Family", "Life", "Senior", "Associate", "Honorary"];
 
 const UserRow = memo(function UserRow({
-  user, currentUserEmail,
+  user, currentUserEmail, canManageRoles,
   onOpenCreate, onOpenReview, onOpenEdit, onConfirm,
-  onUpdateStatus, onDeleteMembership,
+  onUpdateStatus, onDeleteMembership, onChangeRole,
 }: {
   user: UserData;
   currentUserEmail: string;
+  canManageRoles: boolean;
   onOpenCreate: (userId: number) => void;
   onOpenReview: (m: Membership, userId: number) => void;
   onOpenEdit: (m: Membership, userId: number) => void;
   onConfirm: (a: ConfirmAction) => void;
   onUpdateStatus: (id: number, status: string) => void;
   onDeleteMembership: (id: number) => void;
+  onChangeRole: (userId: number, newRole: string) => void;
 }) {
   const m = user.memberships[0];
   const isPending = !m || m.status === "PENDING";
@@ -147,7 +149,26 @@ const UserRow = memo(function UserRow({
       <td>
         {user.email === currentUserEmail ? (
           <span style={{ fontSize: "0.8rem", opacity: 0.4, fontStyle: "italic" }}>You</span>
-        ) : (
+        ) : canManageRoles && (
+          <button
+            onClick={() => onConfirm({
+              title: user.role === "ADMIN" ? "Remove Admin" : "Make Admin",
+              message: user.role === "ADMIN"
+                ? `Remove admin access from ${user.name || user.email}? They will become a regular member.`
+                : `Give ${user.name || user.email} full admin access to the dashboard?`,
+              onConfirm: () => onChangeRole(user.id, user.role === "ADMIN" ? "MEMBER" : "ADMIN"),
+            })}
+            style={{
+              padding: "0.3rem 0.65rem", fontSize: "0.7rem", borderRadius: "6px", border: "none",
+              cursor: "pointer", fontWeight: 600,
+              background: user.role === "ADMIN" ? "rgba(220,38,38,0.1)" : "rgba(13,127,120,0.1)",
+              color: user.role === "ADMIN" ? "#dc2626" : "var(--teal)",
+              marginBottom: "0.35rem", display: "block",
+            }}>
+            {user.role === "ADMIN" ? "Remove Admin" : "Make Admin"}
+          </button>
+        )}
+        {user.email !== currentUserEmail && (
           <div className="action-buttons" style={{ flexWrap: "nowrap" }}>
             {isPending ? (
               <>
@@ -265,13 +286,18 @@ export default function AdminMembershipsPage() {
   const [confirm, setConfirm] = useState<ConfirmAction>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [canManageRoles, setCanManageRoles] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
     if (!user || user.role !== "ADMIN") { setLoading(false); return; }
     setLoading(true);
-    fetch("/api/admin/memberships", { method: "GET" }).then(r => r.json()).then(data => {
-      if (data.ok) setUsers(data.data || []);
+    Promise.all([
+      fetch("/api/admin/memberships").then(r => r.json()),
+      fetch("/api/admin/can-manage-roles", { method: "POST" }).then(r => r.json()),
+    ]).then(([membData, rolesData]) => {
+      if (membData.ok) setUsers(membData.data || []);
+      if (rolesData.ok) setCanManageRoles(rolesData.canManageRoles ?? false);
     }).catch(() => {}).finally(() => setLoading(false));
   }, [user, authLoading]);
 
@@ -296,6 +322,15 @@ export default function AdminMembershipsPage() {
 
   async function deleteMembership(id: number) {
     await fetch(`/api/admin/memberships?id=${id}`, { method: "DELETE" });
+    fetchUsers();
+  }
+
+  async function changeRole(userId: number, role: string) {
+    await fetch("/api/admin/memberships", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "CHANGE_ROLE", userId, role }),
+    });
     fetchUsers();
   }
 
@@ -538,12 +573,14 @@ export default function AdminMembershipsPage() {
                       key={u.id}
                       user={u}
                       currentUserEmail={user?.email || ""}
+                      canManageRoles={canManageRoles}
                       onOpenCreate={openCreate}
                       onOpenReview={openReview}
                       onOpenEdit={openEdit}
                       onConfirm={setConfirm}
                       onUpdateStatus={updateStatus}
                       onDeleteMembership={deleteMembership}
+                      onChangeRole={changeRole}
                     />
                 ))}
               </tbody>
