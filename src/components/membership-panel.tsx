@@ -31,7 +31,6 @@ export function MembershipPanel() {
   const [isChecking, setIsChecking] = useState(true);
   const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
-  const [familyMembersList, setFamilyMembersList] = useState([""]);
   const [applicationSubmitted, setApplicationSubmitted] = useState(false);
   const loginEmailRef = useRef<HTMLInputElement>(null);
   const loginPasswordRef = useRef<HTMLInputElement>(null);
@@ -94,7 +93,7 @@ export function MembershipPanel() {
     const password = String(formData.get("password") || "");
     const name = String(formData.get("name") || "");
     const phone = String(formData.get("phone") || "");
-    const familyMembers = familyMembersList.map((_, i) => String(formData.get(`familyMember-${i}`) || "")).filter(Boolean).join(", ");
+    const familyMembers = String(formData.get("familyMembers") || "");
 
     try {
       const res = await fetch("/api/signup", {
@@ -355,20 +354,10 @@ export function MembershipPanel() {
             Phone number
             <input type="tel" name="phone" placeholder="0400000000" />
           </label>
-          <div>
-            <label style={{ marginBottom: "0.35rem", display: "inline-block" }}>Associated family members (if any)</label>
-            {familyMembersList.map((_, i) => (
-              <div key={i} style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                <input name={`familyMember-${i}`} placeholder="Name of family member" style={{ flex: 1 }} />
-                {familyMembersList.length > 1 && (
-                  <button type="button" className="btn-ghost" style={{ padding: "0 0.75rem", fontSize: "1.25rem", lineHeight: 1 }} onClick={() => setFamilyMembersList(familyMembersList.filter((_, j) => j !== i))}>-</button>
-                )}
-                {i === familyMembersList.length - 1 && familyMembersList.length < 4 && (
-                  <button type="button" className="btn-ghost" style={{ padding: "0 0.75rem", fontSize: "1.25rem", lineHeight: 1 }} onClick={() => setFamilyMembersList([...familyMembersList, ""])}>+</button>
-                )}
-              </div>
-            ))}
-          </div>
+          <label>
+            Total number of family members (if any)
+            <input type="number" name="familyMembers" min="0" max="20" placeholder="0" />
+          </label>
           <div className="span-2 button-row">
             <button className="btn-primary" type="submit">
               Submit Application
