@@ -38,7 +38,7 @@ export default function MembershipPage() {
     <section className="panel-stack form-full-width">
       <section className="glass-panel">
         <h1>Membership</h1>
-        <p>Join as a General Member, Associate Member, Life Member, or Honorary Member and access community programs.</p>
+        <p>Become part of the Illawarra Bengali Association and connect with your community, attend events, and help shape our future together.</p>
       </section>
       <MembershipPanel />
     </section>
