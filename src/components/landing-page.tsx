@@ -280,7 +280,7 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
         <motion.aside className="hero-aside glass-panel" variants={fadeUpVariant}>
           <div className="hero-photo-grid" aria-label="Event photos">
             <div className="photo-tile photo-tile-v1">
-              <Image src="/hero1.png" alt="Event 1" width={300} height={400} priority style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+              <Image src="/hero1.jpeg" alt="Event 1" width={300} height={400} priority style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
             <div className="photo-tile photo-tile-h1">
               <Image src="/hero2.jpeg" alt="Event 2" width={400} height={300} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
