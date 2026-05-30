@@ -7,13 +7,14 @@ export default function AboutPage() {
           <h1>Illawarra Bengali Association</h1>
         </div>
         <p className="about-lead">
-          We are a volunteer-led cultural association serving Bengali families across Illawarra.
-          Our work focuses on celebration, support, and intergenerational belonging.
+          The objectives of Illawarra Bengali Association (IBA) Inc are:
         </p>
-        <p>
-          This digital platform helps us coordinate programs, simplify membership, and build
-          sustainable fundraising for long-term community impact.
-        </p>
+        <ol className="about-objectives">
+          <li>to promote, preserve and celebrate Bengali language, culture, heritage and traditions within the Illawarra region and broader community;</li>
+          <li>to organise cultural, social, educational and charitable activities for the benefit of members and the wider community;</li>
+          <li>to foster connections between people of Bengali heritage and the multicultural community of the Illawarra; and</li>
+          <li>to undertake such other activities as are consistent with the above objects.</li>
+        </ol>
         <div className="about-values">
           <div className="value-card">
             <span className="value-icon">🎉</span>
