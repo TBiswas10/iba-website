@@ -40,7 +40,7 @@ type ConfirmAction = {
   onConfirm: () => void;
 } | null;
 
-const MEMBERSHIP_TYPES = ["", "Regular", "Family", "Life", "Senior", "Associate", "Honorary"];
+const MEMBERSHIP_TYPES = ["", "General", "Associate", "Life", "Honorary"];
 
 const UserRow = memo(function UserRow({
   user, currentUserEmail, canManageRoles,
@@ -364,7 +364,7 @@ export default function AdminMembershipsPage() {
       id: 0,
       userId,
       status: "ACTIVE",
-      type: "Regular",
+      type: "General",
       userName: u?.name || "",
       userPhone: u?.phone || "",
       userFamilyMembers: u?.familyMembers || "",
