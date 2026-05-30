@@ -589,7 +589,7 @@ export default function AdminMembershipsPage() {
                   <th>User</th>
                   <th>Email</th>
                   <th>Phone</th>
-                  <th>Family Members</th>
+                  <th>No. of Family Members</th>
                   <th>Status</th>
                   <th>Type</th>
                   <th style={{ width: "1px" }}>Actions</th>

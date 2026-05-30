@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { sendEmail } from "@/lib/email";
 
 const updateMembershipSchema = z.object({
   id: z.number().int().positive(),
@@ -132,6 +133,8 @@ export async function PUT(request: Request) {
 
     const { id, status, type } = parsed.data;
 
+    const before = await prisma.membership.findUnique({ where: { id }, include: { user: true } });
+
     const membership = await prisma.membership.update({
       where: { id },
       data: {
@@ -139,6 +142,17 @@ export async function PUT(request: Request) {
         ...(type !== undefined && { type }),
       },
     });
+
+    // Send approval email when status is set to ACTIVE for the first time
+    if (status === "ACTIVE" && before?.status !== "ACTIVE" && before?.user?.email) {
+      const memberName = before.user.name || "Member";
+      const memberType = membership.type || "General Member";
+      sendEmail({
+        to: before.user.email,
+        subject: "Welcome to IBA — Your membership has been approved!",
+        text: `Hi ${memberName},\n\nGreat news! Your ${memberType} membership with the Illawarra Bengali Association has been approved.\n\nYou can now log in to access member resources, RSVP to events, and more.\n\nVisit us at https://illawarrabengali.org\n\nWarm regards,\nIllawarra Bengali Association`,
+      }).catch(err => console.error("Approval email failed:", err));
+    }
 
     return NextResponse.json({ ok: true, data: membership });
   } catch (error) {
