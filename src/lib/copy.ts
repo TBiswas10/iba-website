@@ -97,9 +97,9 @@ const copy: Record<Lang, CopyShape> = {
     home: {
       hero: {
         eyebrow: "Bengali community in the Illawarra",
-        title: "A home for Bengali culture, service, and celebration in the Illawarra.",
+        title: "Where Bengali culture, services and community come together in the Illawarra.",
         subtitle:
-          "We bring Bengali families, students, young professionals, members, and volunteers together in one place. Real events. Real people. Real continuity.",
+          "Celebrating culture, nurturing community, and empowering the Bengali spirit in Illawarra.",
         primaryCta: "Explore Events",
         secondaryCta: "Meet the Association",
         eventCta: "View Events",

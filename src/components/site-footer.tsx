@@ -5,7 +5,7 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="container footer-grid">
         <div className="footer-brand">
-          <h3>Illawarra Bengali Association</h3>
+          <h3>Illawarra Bengali Association (IBA) Inc.</h3>
           <p>Community, culture, care, and connection across generations.</p>
           <p className="tagline">Join the Community</p>
           <p className="copyright">&copy; Made by <strong>Tirtha Biswas</strong></p>

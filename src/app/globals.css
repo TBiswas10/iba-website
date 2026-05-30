@@ -35,9 +35,10 @@ html {
 }
 
 body {
-  min-height: 100%;
+  min-height: 100vh;
   overscroll-behavior-x: none;
-  display: block;
+  display: flex;
+  flex-direction: column;
   color: var(--ink);
   background: var(--paper);
   font-family: var(--font-body);
@@ -76,7 +77,7 @@ h4 { font-size: 1.1rem; }
 .page-shell {
   padding-top: 8.5rem;
   padding-bottom: 2rem;
-  min-height: auto;
+  flex: 1;
   width: 100%;
   max-width: 100%;
   overflow-x: clip;
@@ -418,7 +419,11 @@ h4 { font-size: 1.1rem; }
 .about-intro .eyebrow { color: var(--berry); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.85rem; }
 .about-intro h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 0.5rem; }
 .about-intro .about-lead { font-size: 1.15rem; line-height: 1.7; color: rgba(16, 16, 16, 0.8); margin-bottom: 1rem; }
-.about-intro .about-objectives { margin: 0 0 1.5rem 1.5rem; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; font-size: 1.05rem; line-height: 1.7; color: rgba(16, 16, 16, 0.8); list-style: lower-alpha; }
+.about-intro .about-objectives { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.5rem; }
+@media (max-width: 600px) { .about-intro .about-objectives { grid-template-columns: 1fr; } }
+.about-objective-card { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.07); border-radius: 14px; padding: 1.25rem 1.25rem; }
+.about-objective-letter { flex-shrink: 0; width: 2rem; height: 2rem; border-radius: 50%; background: var(--berry); color: #fff; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; margin-top: 0.1rem; }
+.about-objective-card p { margin: 0; font-size: 0.98rem; line-height: 1.65; color: rgba(16,16,16,0.8); }
 .about-intro p { margin-bottom: 1rem; line-height: 1.6; }
 
 .about-values { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; }
