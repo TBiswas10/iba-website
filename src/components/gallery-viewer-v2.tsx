@@ -6,7 +6,7 @@ import Image from "next/image";
 
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Keyboard, Zoom, Virtual } from "swiper";
+import { Navigation, Pagination, Keyboard, Zoom, Virtual } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
