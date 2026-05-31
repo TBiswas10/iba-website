@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { GalleryViewer } from "@/components/gallery-viewer";
+import GalleryViewerV2 from "@/components/gallery-viewer-v2";
 
 import "../../gallery/gallery.css";
 
@@ -50,7 +50,7 @@ export default async function AlbumDetailPage({
       </section>
 
       <section className="glass-panel">
-        <GalleryViewer items={album.items} />
+        <GalleryViewerV2 items={album.items} />
       </section>
     </section>
   );
