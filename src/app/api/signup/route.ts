@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import { fail, ok } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { checkSignupEmailRateLimit, checkSignupRateLimit } from "@/lib/rate-limit";
 import { signupSchema } from "@/lib/validators";
+
+// Regular (anon) client — triggers Supabase's built-in email confirmation system
+function getAnonClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
 async function findAuthUserByEmail(email: string) {
   const { data } = await getSupabaseAdmin().auth.admin.listUsers();
@@ -41,77 +50,64 @@ export async function POST(request: Request) {
       return response;
     }
 
-    let supabaseUserId: string;
-
     // Check if user already exists in Prisma
     const existingUser = await prisma.user.findUnique({ where: { email } });
 
     if (existingUser?.supabaseUserId) {
-      // Verify the Supabase Auth user still exists
       const { error: lookupError } = await getSupabaseAdmin().auth.admin.getUserById(existingUser.supabaseUserId);
       if (!lookupError) {
         return fail("An account with this email already exists.", 409);
       }
-      // Auth user was deleted (e.g. from Supabase dashboard) — clear the link and allow re-registration
-      await prisma.user.update({
-        where: { email },
-        data: { supabaseUserId: null },
-      });
+      // Auth user was deleted — clear the link and allow re-registration
+      await prisma.user.update({ where: { email }, data: { supabaseUserId: null } });
     }
 
-    // Create or confirm user in Supabase Auth
-    const { data: authData, error: authError } = await getSupabaseAdmin().auth.admin.createUser({
+    // Use the regular anon client signUp — this triggers Supabase's built-in
+    // confirmation email (requires "Confirm email" enabled in Supabase dashboard)
+    const origin = request.headers.get("origin") || "https://iba-website-i8fy.vercel.app";
+    const { data: authData, error: authError } = await getAnonClient().auth.signUp({
       email,
       password,
-      email_confirm: true,
-      user_metadata: { full_name: name },
+      options: {
+        data: { full_name: name },
+        emailRedirectTo: `${origin}/auth/callback?next=/membership`,
+      },
     });
 
     if (authError) {
-      if (authError.status === 422 || authError.message?.includes("already been registered")) {
-        // User exists in Auth but not linked in Prisma yet - find and update
+      if (authError.message?.includes("already registered") || authError.message?.includes("already been registered")) {
+        // User exists in Auth but not linked — find and use their existing ID
         const authUser = await findAuthUserByEmail(email);
-        if (!authUser) {
-          return fail("Account already exists. Please sign in.", 409);
+        if (!authUser) return fail("Account already exists. Please sign in.", 409);
+
+        // Create or update Prisma record
+        if (existingUser) {
+          await prisma.user.update({ where: { email }, data: { supabaseUserId: authUser.id, name: name || existingUser.name, phone, familyMembers } });
+        } else {
+          await prisma.user.create({ data: { email, name, phone, familyMembers, supabaseUserId: authUser.id, memberships: { create: { status: "PENDING", startDate: new Date() } } } });
         }
-        supabaseUserId = authUser.id;
-        await getSupabaseAdmin().auth.admin.updateUserById(authUser.id, {
-          email_confirm: true,
-          user_metadata: { full_name: name },
-        });
-      } else {
-        return fail("Failed to create account", 500);
+        return ok({ message: "Account created. Please check your email to confirm your address." });
       }
-    } else {
-      supabaseUserId = authData.user.id;
+      return fail("Failed to create account", 500);
     }
+
+    if (!authData.user) return fail("Failed to create account", 500);
+
+    const supabaseUserId = authData.user.id;
 
     // Create or link Prisma user
     if (existingUser) {
-      await prisma.user.update({
-        where: { email },
-        data: { supabaseUserId, name: name || existingUser.name, phone, familyMembers },
-      });
+      await prisma.user.update({ where: { email }, data: { supabaseUserId, name: name || existingUser.name, phone, familyMembers } });
     } else {
       await prisma.user.create({
         data: {
-          email,
-          name,
-          phone,
-          familyMembers,
-          supabaseUserId,
-          memberships: {
-            create: {
-              status: "PENDING",
-              startDate: new Date(),
-            },
-          },
+          email, name, phone, familyMembers, supabaseUserId,
+          memberships: { create: { status: "PENDING", startDate: new Date() } },
         },
       });
     }
 
-    // User is created and confirmed — client will sign them in
-    return ok({ message: "Account created. Welcome!" });
+    return ok({ message: "Account created. Please check your email to confirm your address." });
   } catch (error) {
     console.error("Signup error:", error);
     return fail("Signup request failed", 500);

@@ -203,16 +203,35 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
           <h2>Events Calendar</h2>
           <p className="calendar-subtitle">Plan festivals, workshops, and community gatherings with a single source of truth.</p>
         </div>
+        <div className="calendar-header">
+          <button
+            type="button"
+            className="calendar-nav-btn"
+            aria-label="Previous month"
+            onClick={() => setDate(moment(date).subtract(1, "month").toDate())}
+          >
+            ‹
+          </button>
+          <div className="calendar-header-label">{moment(date).format("MMMM YYYY")}</div>
+          <button
+            type="button"
+            className="calendar-nav-btn"
+            aria-label="Next month"
+            onClick={() => setDate(moment(date).add(1, "month").toDate())}
+          >
+            ›
+          </button>
+        </div>
         <Calendar
           localizer={localizer}
           events={events}
           startAccessor="start"
           endAccessor="end"
-          defaultView={Views.MONTH}
           date={date}
           onNavigate={(d) => setDate(d)}
-          view={view}
-          onView={(v) => setView(v)}
+          view={Views.MONTH}
+          views={[Views.MONTH]}
+          toolbar={false}
           onSelectEvent={(event) => setSelectedId((event as CalendarEvent).id)}
           style={{ height: 560 }}
         />
@@ -229,11 +248,12 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
                 onClick={() => setSelectedId(event.id)}
               >
                 <div className="upcoming-date">
-                  {event.start.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                  <span>{event.start.toLocaleDateString("en-AU", { day: "numeric", timeZone: "Australia/Sydney" })}</span>
+                  <span>{event.start.toLocaleDateString("en-AU", { month: "short", timeZone: "Australia/Sydney" })}</span>
                 </div>
                 <div className="upcoming-details">
                   <h4>{event.title}</h4>
-                  <p>{event.start.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit", timeZone: "Australia/Sydney" })}</p>
+                  <p>{event.start.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit", timeZone: "Australia/Sydney" })}{event.location ? ` · ${event.location}` : ""}</p>
                 </div>
               </div>
             ))}
@@ -319,23 +339,7 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
               <Link href={`/events/${getEventSlug(selected)}`} className="btn-ghost btn-sm">
                 View Details
               </Link>
-              <div className="calendar-buttons">
-                <a
-                  href={getGoogleCalendarUrl(selected)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-ghost btn-sm"
-                >
-                  Google Calendar
-                </a>
-                <button
-                  type="button"
-                  className="btn-ghost btn-sm"
-                  onClick={() => downloadICS(selected)}
-                >
-                  Add to Calendar
-                </button>
-              </div>
+              {/* Calendar buttons removed per request */}
               {isAdmin && (
                 <>
                   <Link href="/admin/events" className="btn-ghost btn-sm">

@@ -73,6 +73,18 @@ export async function POST(request: Request) {
           startDate: body.startDate ? new Date(body.startDate) : new Date(),
         },
       });
+
+      // Send approval email
+      if (userExists.email) {
+        const memberName = userExists.name || "Member";
+        const memberType = membership.type || "General Member";
+        sendEmail({
+          to: userExists.email,
+          subject: "Welcome to IBA — Your membership has been approved!",
+          text: `Hi ${memberName},\n\nGreat news! Your ${memberType} membership with the Illawarra Bengali Association has been approved.\n\nYou can now log in to access member resources, RSVP to events, and more.\n\nVisit us at https://illawarrabengali.org\n\nWarm regards,\nIllawarra Bengali Association`,
+        }).catch(err => console.error("Approval email failed:", err));
+      }
+
       return NextResponse.json({ ok: true, data: membership });
     }
 

@@ -108,10 +108,7 @@ export function MembershipPanel() {
         return;
       }
 
-      // Sign them in then show application submitted screen
-      try {
-        await signInWithEmail(email, password);
-      } catch { /* ignore — user already created */ }
+      // Show "check your email" screen — user must confirm before logging in
       setApplicationSubmitted(true);
     } catch (error: any) {
       setMessage(error.message || "Signup failed. Please try again.");
@@ -148,42 +145,35 @@ export function MembershipPanel() {
 
   if (applicationSubmitted) {
     return (
-      <section className="glass-panel member-welcome" style={{ textAlign: "center" }}>
-        <div style={{ fontSize: "4rem", marginBottom: "1rem", color: "var(--teal, #2a9d8f)" }}>✓</div>
-        <h2>Application Submitted</h2>
-        <p style={{ marginTop: "1rem", maxWidth: "400px", marginInline: "auto" }}>
-          Your membership application has been submitted to the management team for review.
-          You will be notified once it has been approved.
+      <div style={{ textAlign: "center", padding: "1rem 0" }}>
+        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📧</div>
+        <h2 style={{ marginBottom: "0.75rem" }}>Check your email</h2>
+        <p style={{ color: "rgba(16,16,16,0.65)", lineHeight: 1.7, marginBottom: "0.5rem" }}>
+          We&apos;ve sent a confirmation link to your email address. Click it to verify your account.
         </p>
-        <div className="button-row" style={{ marginTop: "1.5rem" }}>
-          <Link href="/" className="btn-primary">
-            Go to Home
-          </Link>
-          <button className="btn-ghost" onClick={() => logout()} type="button">
-            Log out
-          </button>
-        </div>
-      </section>
+        <p style={{ color: "rgba(16,16,16,0.5)", fontSize: "0.875rem", lineHeight: 1.6, marginBottom: "1.75rem" }}>
+          Once confirmed, your membership application will be reviewed by the committee. You&apos;ll receive another email when it&apos;s approved.
+        </p>
+        <Link href="/" className="btn-primary">Back to Home</Link>
+      </div>
     );
   }
 
   if (user) {
     if (user.role === "ADMIN") {
       return (
-        <section className="glass-panel member-welcome">
-          <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>👑</div>
-          <h2>Welcome, {user.name || "Administrator"}</h2>
-          <p>{user.email}</p>
-          <span className="member-badge" style={{ marginTop: "0.5rem" }}>ADMIN</span>
-          <div className="button-row" style={{ marginTop: "1.5rem" }}>
-            <Link href="/admin" className="btn-primary">
-              Admin Console
-            </Link>
-            <button className="btn-ghost" onClick={() => logout()} type="button">
-              Log out
-            </button>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>👑</div>
+          <p className="eyebrow" style={{ color: "var(--berry)", marginBottom: "0.25rem" }}>Admin Account</p>
+          <h2 style={{ fontSize: "1.75rem", marginBottom: "0.25rem" }}>{user.name || "Administrator"}</h2>
+          <p style={{ color: "rgba(16,16,16,0.5)", fontSize: "0.9rem", marginBottom: "0.75rem" }}>{user.email}</p>
+          <span className="member-badge">ADMIN</span>
+          <div style={{ borderTop: "1px solid rgba(29,35,59,0.08)", margin: "1.25rem 0" }} />
+          <div className="button-row" style={{ justifyContent: "center" }}>
+            <Link href="/admin" className="btn-primary">Admin Console</Link>
+            <button className="btn-ghost" onClick={() => logout()} type="button">Log out</button>
           </div>
-        </section>
+        </div>
       );
     }
 
@@ -191,188 +181,100 @@ export function MembershipPanel() {
     const isPending = membership?.status === "PENDING";
 
     return (
-      <section className="glass-panel member-welcome">
-        <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>{isActive ? "👋" : "⏳"}</div>
-        <h2>Welcome back!</h2>
-        <p>{user.name || user.email}</p>
-        
-        {isActive ? (
-          <div style={{ marginTop: "1.5rem" }}>
-            <p className="status-badge active" style={{ display: "inline-block" }}>Membership Active</p>
-            {membership!.type && <p style={{ marginTop: "0.5rem" }}>Type: <strong>{membership!.type}</strong></p>}
+      <div style={{ padding: "1rem 0" }}>
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <div style={{ width: 72, height: 72, borderRadius: "50%", background: isActive ? "linear-gradient(135deg, var(--teal), #2a9d8f)" : "linear-gradient(135deg, #f9a826, #e07b00)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem", margin: "0 auto 1.5rem" }}>
+            {isActive ? "👋" : "⏳"}
           </div>
-        ) : isPending ? (
-          <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
-            <p className="status-badge" style={{ display: "inline-block", background: "var(--yellow, #e9c46a)", color: "#333" }}>Pending Review</p>
-            <p style={{ marginTop: "1rem" }}>Your application is being reviewed by the management team.</p>
-          </div>
-        ) : (
-          <p style={{ marginTop: "1.5rem", textAlign: "center" }}>No active membership found. Contact the association for assistance.</p>
-        )}
-
-        {isLifeMember && (
-          <section style={{ marginTop: "2rem", paddingTop: "1.5rem", borderTop: "1px solid rgba(29,35,59,0.1)" }}>
-            <h3 style={{ marginBottom: "1rem", fontSize: "1.1rem" }}>Reimbursement Invoices</h3>
-
-            {showForm ? (
-              <form onSubmit={async e => {
-                e.preventDefault(); setFormMsg("");
-                let receiptUrl = "";
-                if (formReceipt) {
-                  const fd = new FormData(); fd.append("file", formReceipt);
-                  const r = await fetch("/api/reimbursements/upload", { method: "POST", body: fd });
-                  const rd = await r.json();
-                  if (!rd.ok) { setFormMsg("Upload failed"); return; }
-                  receiptUrl = rd.url;
-                }
-                const res = await fetch("/api/reimbursements", {
-                  method: "POST", headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    recipientName: formRecipient,
-                    amountCents: Math.round(parseFloat(formAmount) * 100),
-                    description: formDesc,
-                    category: formCategory || undefined,
-                    receiptUrl: receiptUrl || undefined,
-                  }),
-                });
-                const d = await res.json();
-                if (!d.ok) { setFormMsg(d.error || "Failed"); return; }
-                setShowForm(false); setFormRecipient(""); setFormAmount(""); setFormDesc(""); setFormCategory(""); setFormReceipt(null);
-                fetch("/api/reimbursements").then(r => r.json()).then(dd => { if (dd.ok) setInvoices(dd.data || []); });
-              }} style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1rem" }}>
-                <input required placeholder="Recipient name" value={formRecipient} onChange={e => setFormRecipient(e.target.value)} style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit" }} />
-                <input required type="number" step="0.01" placeholder="Amount ($)" value={formAmount} onChange={e => setFormAmount(e.target.value)} style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit" }} />
-                <input placeholder="Category (optional)" value={formCategory} onChange={e => setFormCategory(e.target.value)} style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit" }} />
-                <textarea required placeholder="Description" value={formDesc} onChange={e => setFormDesc(e.target.value)} rows={3} style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit", resize: "vertical" }} />
-                <div>
-                  <label style={{ fontSize: "0.85rem", fontWeight: 600, display: "block", marginBottom: "0.25rem" }}>Receipt (optional)</label>
-                  <input type="file" accept="image/*,application/pdf" onChange={e => setFormReceipt(e.target.files?.[0] || null)} style={{ fontSize: "0.85rem" }} />
-                </div>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button className="btn-primary" type="submit" style={{ fontSize: "0.85rem" }}>Submit Invoice</button>
-                  <button className="btn-ghost" type="button" onClick={() => setShowForm(false)} style={{ fontSize: "0.85rem" }}>Cancel</button>
-                </div>
-                {formMsg && <p style={{ fontSize: "0.85rem", color: "#c42" }}>{formMsg}</p>}
-              </form>
-            ) : (
-              <button className="btn-primary" onClick={() => setShowForm(true)} style={{ fontSize: "0.85rem", marginBottom: "1rem" }}>
-                + New Invoice
-              </button>
-            )}
-
-            {invoices.length > 0 ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                {invoices.map(inv => (
-                  <div key={inv.id} style={{
-                    padding: "0.75rem 1rem", borderRadius: "10px",
-                    background: "rgba(255,255,255,0.5)", border: "1px solid rgba(29,35,59,0.06)",
-                    fontSize: "0.85rem"
-                  }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.25rem" }}>
-                      <strong>{inv.recipientName}</strong>
-                      <span style={{
-                        padding: "2px 10px", borderRadius: "12px", fontSize: "0.7rem", fontWeight: 600,
-                        background: inv.status === "APPROVED" ? "rgba(13,127,120,0.1)" : inv.status === "REJECTED" ? "rgba(220,38,38,0.1)" : "rgba(249,168,38,0.12)",
-                        color: inv.status === "APPROVED" ? "var(--teal)" : inv.status === "REJECTED" ? "#dc2626" : "#b45309",
-                      }}>
-                        {inv.status}
-                      </span>
-                    </div>
-                    <div style={{ opacity: 0.7 }}>${(inv.amountCents / 100).toFixed(2)} — {inv.description}</div>
-                    {inv.category && <span style={{ fontSize: "0.75rem", opacity: 0.5 }}>{inv.category}</span>}
-                    <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-                      {inv.invoicePdfUrl && <a href={inv.invoicePdfUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.75rem", color: "var(--teal)" }}>Invoice PDF ↗</a>}
-                      {inv.receiptUrl && <a href={inv.receiptUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.75rem", color: "var(--teal)" }}>Receipt ↗</a>}
-                    </div>
-                    {inv.adminNotes && <div style={{ marginTop: "0.25rem", fontSize: "0.75rem", fontStyle: "italic", opacity: 0.6 }}>Admin: {inv.adminNotes}</div>}
-                    <div style={{ fontSize: "0.7rem", opacity: 0.4, marginTop: "0.25rem" }}>{new Date(inv.createdAt).toLocaleDateString()}</div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              !showForm && <p style={{ fontSize: "0.85rem", opacity: 0.5 }}>No invoices yet.</p>
-            )}
-          </section>
-        )}
-
-        <section style={{ marginTop: "2rem", paddingTop: "1.5rem", borderTop: "1px solid rgba(29,35,59,0.1)" }}>
-          <h3 style={{ marginBottom: "1rem", fontSize: "1.1rem" }}>Bank Details for Reimbursement</h3>
-          <p style={{ fontSize: "0.85rem", opacity: 0.6, marginBottom: "0.75rem" }}>
-            Enter your bank account details so the association can pay approved reimbursement invoices.
-          </p>
-          <form onSubmit={async e => {
-            e.preventDefault(); setMessage("");
-            const res = await fetch("/api/user/bank-details", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ bankAccountName, bankBsb, bankAccountNumber }) });
-            const d = await res.json(); if (d.ok) setMessage("Bank details saved"); else setMessage("Failed to save");
-          }} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <input name="bankAccountName" placeholder="Account name" value={bankAccountName} onChange={e => setBankAccountName(e.target.value)} style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit", fontSize: "0.85rem" }} />
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              <input name="bankBsb" placeholder="BSB" value={bankBsb} onChange={e => setBankBsb(e.target.value)} style={{ flex: 1, padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit", fontSize: "0.85rem" }} />
-              <input name="bankAccountNumber" placeholder="Account number" value={bankAccountNumber} onChange={e => setBankAccountNumber(e.target.value)} style={{ flex: 2, padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid rgba(29,35,59,0.2)", font: "inherit", fontSize: "0.85rem" }} />
-            </div>
-            <button className="btn-primary" type="submit" style={{ fontSize: "0.85rem", alignSelf: "flex-start" }}>{bankAccountName || bankAccountNumber ? "Edit Bank Details" : "Save Bank Details"}</button>
-          </form>
-        </section>
-
-        <div className="button-row" style={{ marginTop: "1.5rem" }}>
-          <Link href="/" className="btn-primary">Home</Link>
-          <button className="btn-ghost" onClick={() => logout()} type="button">
-            Log out
-          </button>
+          <p className="eyebrow" style={{ color: "var(--berry)", marginBottom: "0.5rem" }}>Member Portal</p>
+          <h2 style={{ fontSize: "1.6rem", marginBottom: "0.4rem" }}>Welcome back, {user.name?.split(" ")[0] || "Member"}!</h2>
+          <p style={{ color: "rgba(16,16,16,0.5)", fontSize: "0.95rem" }}>{user.email}</p>
         </div>
-        {message && <p style={{ marginTop: "1rem" }}>{message}</p>}
 
+        <div style={{ background: "rgba(29,35,59,0.03)", borderRadius: "14px", padding: "1.25rem 1.5rem", marginBottom: "1.5rem" }}>
+          {isActive ? (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(16,16,16,0.45)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.25rem" }}>Membership Status</p>
+                <p style={{ fontWeight: 700, color: "var(--teal)", fontSize: "1rem" }}>Active</p>
+              </div>
+              {membership!.type && (
+                <div style={{ textAlign: "right" }}>
+                  <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(16,16,16,0.45)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.25rem" }}>Type</p>
+                  <p style={{ fontWeight: 600, fontSize: "0.95rem" }}>{membership!.type}</p>
+                </div>
+              )}
+            </div>
+          ) : isPending ? (
+            <div>
+              <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(16,16,16,0.45)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.25rem" }}>Membership Status</p>
+              <p style={{ fontWeight: 700, color: "#b45309", fontSize: "1rem", marginBottom: "0.5rem" }}>Pending Review</p>
+              <p style={{ fontSize: "0.875rem", color: "rgba(16,16,16,0.55)" }}>Your application is being reviewed by the committee. You will receive an email once approved.</p>
+            </div>
+          ) : (
+            <p style={{ fontSize: "0.875rem", color: "rgba(16,16,16,0.55)" }}>No active membership found. Contact us at iba.illawarra@gmail.com for assistance.</p>
+          )}
+        </div>
 
-      </section>
+        <div className="button-row" style={{ marginTop: "1.5rem", justifyContent: "center" }}>
+          <Link href="/" className="btn-primary">Home</Link>
+          <button className="btn-ghost" onClick={() => logout()} type="button">Log out</button>
+        </div>
+        {message && <p style={{ marginTop: "1rem", fontSize: "0.9rem", textAlign: "center" }}>{message}</p>}
+      </div>
     );
   }
 
   return (
-    <div className="panel-stack">
-      <section className="glass-panel">
-        <h2 style={{ marginBottom: "1.5rem" }}>Membership Registration*</h2>
-
-        <form className="grid-form grid-form-auth" onSubmit={handleSignup}>
-          <label>
-            Full name
+    <div className="membership-form-root">
+      {/* Sign up */}
+      <div className="membership-form-section">
+        <h2 className="membership-form-heading">Membership Registration Form</h2>
+        <form className="membership-fields" onSubmit={handleSignup}>
+          <label className="membership-field">
+            <span>Full name</span>
             <input required name="name" placeholder="Your name" />
           </label>
-          <label>
-            Email
+          <label className="membership-field">
+            <span>Email</span>
             <input required type="email" name="email" placeholder="you@example.com" />
           </label>
-          <label>
-            Create password
+          <label className="membership-field">
+            <span>Password</span>
             <span className="password-wrapper">
-              <input required minLength={8} type={showSignupPassword ? "text" : "password"} placeholder="Min 8 characters" name="password" />
+              <input required minLength={8} type={showSignupPassword ? "text" : "password"} placeholder="Min. 8 characters" name="password" />
               <button type="button" className="password-toggle" onClick={() => setShowSignupPassword(!showSignupPassword)} tabIndex={-1}>
                 {showSignupPassword ? "Hide" : "Show"}
               </button>
             </span>
           </label>
-          <label>
-            Phone number
+          <label className="membership-field">
+            <span>Phone <span style={{ fontWeight: 400, opacity: 0.5 }}>(optional)</span></span>
             <input type="tel" name="phone" placeholder="0400000000" />
           </label>
-          <label>
-            Total number of family members (if any)
+          <label className="membership-field">
+            <span>Family size <span style={{ fontWeight: 400, opacity: 0.5 }}>(optional)</span></span>
             <input type="number" name="familyMembers" min="0" max="20" placeholder="0" />
           </label>
-          <div className="span-2 button-row">
-            <button className="btn-primary" type="submit">
-              Submit Application
-            </button>
-          </div>
+          <button className="btn-primary membership-submit" type="submit">Submit Application</button>
         </form>
+      </div>
 
-        <h3 style={{ marginTop: "1.5rem", marginBottom: "1rem" }}>Login to Member Portal</h3>
-        <form className="grid-form grid-form-auth" onSubmit={handleLogin}>
-          <label>
-            Email
+      {/* Divider */}
+      <div className="membership-divider">
+        <span>Already a member?</span>
+      </div>
+
+      {/* Log in */}
+      <div className="membership-form-section">
+        <h2 className="membership-form-heading">Login to Membership Portal</h2>
+        <form className="membership-fields" onSubmit={handleLogin}>
+          <label className="membership-field">
+            <span>Email</span>
             <input required type="email" placeholder="you@example.com" ref={loginEmailRef} />
           </label>
-          <label>
-            Password
+          <label className="membership-field">
+            <span>Password</span>
             <span className="password-wrapper">
               <input required type={showLoginPassword ? "text" : "password"} placeholder="Your password" ref={loginPasswordRef} />
               <button type="button" className="password-toggle" onClick={() => setShowLoginPassword(!showLoginPassword)} tabIndex={-1}>
@@ -380,22 +282,21 @@ export function MembershipPanel() {
               </button>
             </span>
           </label>
-          <div className="span-2 button-row">
-            <button className="btn-ghost" type="submit">
-              Log in
-            </button>
-          </div>
+          <button className="btn-ghost membership-submit" type="submit">Log in</button>
         </form>
+        <div style={{ textAlign: "center", marginTop: "0.75rem" }}>
+          <a href="/forgot-password" style={{ fontSize: "0.8rem", color: "var(--berry)", textDecoration: "none" }}>
+            Forgot password?
+          </a>
+        </div>
+      </div>
 
-        {message && (
-          <p style={{ color: message.includes("created") ? "var(--teal)" : "#c42", marginTop: "0.5rem" }}>
-            {message}
-          </p>
-        )}
-        <p style={{ marginTop: "1.5rem", fontSize: "0.875rem", color: "var(--text-muted, #666)" }}>
-          *Upon submission, your registration will be reviewed by the management team for approval.
-        </p>
-      </section>
+      {message && (
+        <p style={{ color: "#c42", marginTop: "1rem", fontSize: "0.9rem" }}>{message}</p>
+      )}
+      <p style={{ marginTop: "1.25rem", fontSize: "0.8rem", color: "rgba(16,16,16,0.4)", textAlign: "center", lineHeight: 1.6 }}>
+        Your application will be reviewed by the management team before approval.
+      </p>
     </div>
   );
 }

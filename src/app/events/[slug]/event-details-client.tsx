@@ -96,24 +96,7 @@ export function EventDetailsClient({ event }: { event: Event }) {
           <button type="button" className="btn-ghost" onClick={handleShare}>
             {copied ? "Copied!" : "Share"}
           </button>
-          <div className="calendar-buttons">
-            <a
-              href={getGoogleCalendarUrl(event.title, startDate.toISOString(), endDate.toISOString(), event.location, event.description)}
-              target="_blank"
-              rel="noreferrer"
-              className="btn-ghost"
-            >
-              Google Calendar
-            </a>
-            <form method="get" action="/api/calendar" style={{ display: "inline" }}>
-              <input type="hidden" name="title" value={event.title} />
-              <input type="hidden" name="start" value={startDate.toISOString()} />
-              <input type="hidden" name="end" value={endDate.toISOString()} />
-              <input type="hidden" name="location" value={event.location || ""} />
-              <input type="hidden" name="description" value={event.description || ""} />
-              <button type="submit" className="btn-ghost">Add to Calendar</button>
-            </form>
-          </div>
+          {/* Calendar buttons removed per request */}
           <Link className="btn-primary" href={`/events/rsvp?eventId=${event.id}`}>
             RSVP Now
           </Link>
