@@ -16,7 +16,8 @@ export default function ForgotPasswordPage() {
     setError("");
 
     const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback?next=/reset-password`;
+    const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://iba-website-i8fy.vercel.app";
+    const redirectTo = `${siteUrl}/auth/callback?next=/reset-password`;
 
     const { error: err } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
 
