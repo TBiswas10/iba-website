@@ -4,6 +4,93 @@ import { useEffect, useState, useMemo, memo } from "react";
 import { useAuth } from "@/components/supabase-auth-context";
 import { AccessDenied } from "@/components/access-denied";
 
+function downloadMembersPdf(users: UserData[]) {
+  import("jspdf").then(({ jsPDF }) => {
+    const active = users.filter(u => u.memberships[0]?.status === "ACTIVE");
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+    const PAGE_W = 210;
+    const MARGIN = 14;
+    const COL_W = PAGE_W - MARGIN * 2;
+    let y = 20;
+
+    // Header
+    doc.setFillColor(30, 58, 68);
+    doc.rect(0, 0, PAGE_W, 14, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.text("ILLAWARRA BENGALI ASSOCIATION (IBA) INC.", MARGIN, 9);
+    doc.text(`Generated ${new Date().toLocaleDateString("en-AU")}`, PAGE_W - MARGIN, 9, { align: "right" });
+
+    // Title
+    doc.setTextColor(30, 58, 68);
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Active Members", MARGIN, y + 6);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(120, 120, 120);
+    doc.text(`${active.length} member${active.length !== 1 ? "s" : ""}`, MARGIN, y + 12);
+    y += 22;
+
+    // Table header
+    const cols = [
+      { label: "Name", x: MARGIN, w: 48 },
+      { label: "Email", x: MARGIN + 48, w: 62 },
+      { label: "Phone", x: MARGIN + 110, w: 36 },
+      { label: "Type", x: MARGIN + 146, w: 36 },
+    ];
+
+    doc.setFillColor(245, 245, 245);
+    doc.rect(MARGIN, y, COL_W, 8, "F");
+    doc.setFontSize(7.5);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(80, 80, 80);
+    cols.forEach(c => doc.text(c.label.toUpperCase(), c.x + 2, y + 5.5));
+    y += 8;
+
+    // Rows
+    active.forEach((user, i) => {
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+      if (i % 2 === 0) {
+        doc.setFillColor(252, 252, 252);
+        doc.rect(MARGIN, y, COL_W, 8, "F");
+      }
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(30, 30, 30);
+
+      const m = user.memberships[0];
+      const row = [
+        user.name || "—",
+        user.email,
+        user.phone || "—",
+        m?.type || "General Member",
+      ];
+      cols.forEach((c, ci) => {
+        const text = doc.splitTextToSize(row[ci], c.w - 3)[0] || "";
+        doc.text(text, c.x + 2, y + 5.5);
+      });
+
+      // Row border
+      doc.setDrawColor(230, 230, 230);
+      doc.line(MARGIN, y + 8, MARGIN + COL_W, y + 8);
+      y += 8;
+    });
+
+    // Footer
+    doc.setFontSize(7);
+    doc.setTextColor(160, 160, 160);
+    doc.text("Illawarra Bengali Association (IBA) Inc. — Confidential", PAGE_W / 2, 290, { align: "center" });
+
+    doc.save(`IBA_Active_Members_${new Date().toISOString().slice(0, 10)}.pdf`);
+  });
+}
+
 type Membership = {
   id: number;
   status: string;
@@ -331,11 +418,27 @@ export default function AdminMembershipsPage() {
           <h1 className="admin-page-title">Memberships</h1>
           <p className="admin-page-subtitle">Review applications and manage members</p>
         </div>
-        {pendingCount > 0 && (
-          <span style={{ background: "rgba(249,168,38,0.12)", color: "#b45309", fontSize: "0.8rem", fontWeight: 700, padding: "0.3rem 0.85rem", borderRadius: 100 }}>
-            {pendingCount} pending
-          </span>
-        )}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          {pendingCount > 0 && (
+            <span style={{ background: "rgba(249,168,38,0.12)", color: "#b45309", fontSize: "0.8rem", fontWeight: 700, padding: "0.3rem 0.85rem", borderRadius: 100 }}>
+              {pendingCount} pending
+            </span>
+          )}
+          <button
+            onClick={() => downloadMembersPdf(users)}
+            style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.5rem 1rem", fontSize: "0.8rem", fontWeight: 600, background: "white", border: "1.5px solid rgba(29,35,59,0.12)", borderRadius: 10, cursor: "pointer", color: "var(--ink)", transition: "all 0.15s" }}
+            onMouseOver={e => { e.currentTarget.style.borderColor = "var(--berry)"; e.currentTarget.style.color = "var(--berry)"; }}
+            onMouseOut={e => { e.currentTarget.style.borderColor = "rgba(29,35,59,0.12)"; e.currentTarget.style.color = "var(--ink)"; }}
+            title="Download active members as PDF"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ width: 15, height: 15 }}>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export PDF
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
