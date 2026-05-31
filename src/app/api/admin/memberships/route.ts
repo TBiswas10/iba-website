@@ -81,7 +81,7 @@ export async function POST(request: Request) {
         sendEmail({
           to: userExists.email,
           subject: "Welcome to IBA — Your membership has been approved!",
-          text: `Hi ${memberName},\n\nGreat news! Your ${memberType} membership with the Illawarra Bengali Association has been approved.\n\nYou can now log in to access member resources, RSVP to events, and more.\n\nVisit us at https://illawarrabengali.org\n\nWarm regards,\nIllawarra Bengali Association`,
+          text: `Hi ${memberName},\n\nGreat news! Your ${memberType} membership with the Illawarra Bengali Association has been approved.\n\nYou can now log in to access member resources, RSVP to events, and more.\n\nVisit us at https://iba-website-i8fy.vercel.app\n\nWarm regards,\nIllawarra Bengali Association`,
         }).catch(err => console.error("Approval email failed:", err));
       }
 
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
         sendEmail({
           to: updated.email,
           subject: "You've been made an admin — IBA",
-          text: `Hi ${name},\n\nYou have been granted administrator access to the Illawarra Bengali Association website.\n\nYou can now manage members, events, RSVPs, and more via the admin console.\n\nVisit us at https://illawarrabengali.org/admin\n\nWarm regards,\nIllawarra Bengali Association`,
+          text: `Hi ${name},\n\nYou have been granted administrator access to the Illawarra Bengali Association website.\n\nYou can now manage members, events, RSVPs, and more via the admin console.\n\nVisit us at https://iba-website-i8fy.vercel.app/admin\n\nWarm regards,\nIllawarra Bengali Association`,
         }).catch(err => console.error("Admin role email failed:", err));
       }
 
@@ -173,7 +173,7 @@ export async function PUT(request: Request) {
       sendEmail({
         to: before.user.email,
         subject: "Welcome to IBA — Your membership has been approved!",
-        text: `Hi ${memberName},\n\nGreat news! Your ${memberType} membership with the Illawarra Bengali Association has been approved.\n\nYou can now log in to access member resources, RSVP to events, and more.\n\nVisit us at https://illawarrabengali.org\n\nWarm regards,\nIllawarra Bengali Association`,
+        text: `Hi ${memberName},\n\nGreat news! Your ${memberType} membership with the Illawarra Bengali Association has been approved.\n\nYou can now log in to access member resources, RSVP to events, and more.\n\nVisit us at https://iba-website-i8fy.vercel.app\n\nWarm regards,\nIllawarra Bengali Association`,
       }).catch(err => console.error("Approval email failed:", err));
     }
 
@@ -183,7 +183,7 @@ export async function PUT(request: Request) {
       sendEmail({
         to: before.user.email,
         subject: "Congratulations — You're now a Life Member of IBA!",
-        text: `Hi ${memberName},\n\nCongratulations! You have been granted Life Membership with the Illawarra Bengali Association.\n\nThis is a recognition of your ongoing support and contribution to our community. We are grateful to have you with us.\n\nVisit us at https://illawarrabengali.org\n\nWarm regards,\nIllawarra Bengali Association`,
+        text: `Hi ${memberName},\n\nCongratulations! You have been granted Life Membership with the Illawarra Bengali Association.\n\nThis is a recognition of your ongoing support and contribution to our community. We are grateful to have you with us.\n\nVisit us at https://iba-website-i8fy.vercel.app\n\nWarm regards,\nIllawarra Bengali Association`,
       }).catch(err => console.error("Life member email failed:", err));
     }
 
