@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useDrag } from "@use-gesture/react";
+import { useDrag, usePinch } from "@use-gesture/react";
 import Image from "next/image";
 
 /**
@@ -26,7 +26,14 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
   const [mounted, setMounted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
   const thumbRef = useRef<HTMLDivElement>(null);
+  const imageContainerRef = useRef<HTMLDivElement | null>(null);
+  const lastTapRef = useRef<number>(0);
+  const touchState = useRef({
+    startX: 0,
+    startY: 0,
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -44,31 +51,66 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
   const openModal = (i: number) => {
     setIndex(i);
     setIsShowing(true);
+    setTransform({ x: 0, y: 0, scale: 1 });
   };
 
   const closeModal = useCallback(() => {
     setIsShowing(false);
+    setTransform({ x: 0, y: 0, scale: 1 });
     setTimeout(() => setIndex(null), 300);
   }, []);
 
   const next = useCallback((e?: any) => {
     if (e?.stopPropagation) e.stopPropagation();
     setIndex((prev) => (prev !== null && prev < items.length - 1 ? prev + 1 : prev));
+    setTransform({ x: 0, y: 0, scale: 1 });
   }, [items.length]);
 
   const prev = useCallback((e?: any) => {
     if (e?.stopPropagation) e.stopPropagation();
     setIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : prev));
+    setTransform({ x: 0, y: 0, scale: 1 });
   }, []);
 
-  // Swipe Gesture Handler
-  const bind: any = useDrag(({ active, movement: [mx], direction: [xDir], distance: [d], cancel }) => {
-    if (active && d > 50) {
-      if (xDir > 0) prev();
-      else next();
-      cancel();
+  // Gesture refactor: attach handlers to the image container using `target` option
+  const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+
+  usePinch(({ offset: [d], last }) => {
+    const nextScale = Math.max(1, Math.min(3, d / 100 + 1));
+    setTransform((t) => ({ ...t, scale: nextScale }));
+    if (last && nextScale <= 1) {
+      setTransform({ x: 0, y: 0, scale: 1 });
     }
-  });
+  }, { target: imageContainerRef, eventOptions: { passive: false } });
+
+  useDrag(({ active, movement: [mx, my], direction: [xDir], distance: [d], last, cancel }) => {
+    if (transform.scale > 1) {
+      // pan while zoomed with clamping to container bounds
+      const container = imageContainerRef.current;
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        const maxX = Math.max(0, (rect.width * (transform.scale - 1)) / 2);
+        const maxY = Math.max(0, (rect.height * (transform.scale - 1)) / 2);
+        const nx = clamp(mx, -maxX, maxX);
+        const ny = clamp(my, -maxY, maxY);
+        setTransform((t) => ({ ...t, x: nx, y: ny }));
+      } else {
+        setTransform((t) => ({ ...t, x: mx, y: my }));
+      }
+      return;
+    }
+
+    // when not zoomed, use the drag movement as a temporary translate and navigate on release
+    setTransform((t) => ({ ...t, x: mx }));
+    if (last) {
+      // on release, if movement is beyond threshold navigate otherwise snap back
+      if (Math.abs(mx) > 80) {
+        if (mx < 0) next(); else prev();
+      } else {
+        setTransform({ x: 0, y: 0, scale: 1 });
+      }
+    }
+  }, { target: imageContainerRef, eventOptions: { passive: false } });
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -135,17 +177,20 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
       <button className="nav-btn prev" onClick={prev} style={{ opacity: index === 0 ? 0.1 : 0.8 }}>&#10094;</button>
       <button className="nav-btn next" onClick={next} style={{ opacity: index === items.length - 1 ? 0.1 : 0.8 }}>&#10095;</button>
       
-      <div 
-        {...bind()} 
+      <div
         className="image-stage"
         onClick={(e) => e.stopPropagation()}
+        onDoubleClick={() => {
+          setTransform((t) => ({ x: 0, y: 0, scale: t.scale > 1 ? 1 : 2 }));
+        }}
       >
-        <div className="modal-image-container">
-          <Image 
-            src={items[index].mediaUrl} 
-            alt={items[index].title || "Gallery image"} 
+        <div className="modal-image-container" ref={imageContainerRef}>
+          <Image
+            src={items[index].mediaUrl}
+            alt={items[index].title || "Gallery image"}
             fill
             className="modal-image"
+            style={{ transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`, transition: isProcessing ? 'none' : 'transform 140ms ease' }}
             draggable={false}
             unoptimized
           />
@@ -155,12 +200,22 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
       <div className="modal-ui" onClick={(e) => e.stopPropagation()}>
         <div className="info-row">
           <div className="caption">{items[index].title}</div>
-          <button 
+          <button
             onClick={(e) => handleAction(e, items[index].mediaUrl, items[index].title)}
-            className="action-btn"
+            className="action-btn icon-btn"
+            aria-label={isProcessing ? 'Processing' : 'Download image'}
+            title={isProcessing ? 'Processing' : 'Download image'}
             disabled={isProcessing}
           >
-            {isProcessing ? '...' : (isMobile ? 'Save Image' : 'Download')}
+            {isProcessing ? (
+              '...'
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 3v12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M8 11l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M21 21H3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
           </button>
         </div>
 
@@ -256,6 +311,8 @@ export function GalleryViewer({ items }: GalleryViewerProps) {
           border: 1px solid rgba(255,255,255,0.1); transition: 0.2s;
           cursor: pointer;
         }
+        .icon-btn { padding: 8px 10px; display: inline-flex; align-items: center; justify-content: center; }
+        .icon-btn svg { width: 18px; height: 18px; color: white; display: block; }
         .action-btn:hover:not(:disabled) { background: rgba(255,255,255,0.25); }
         .action-btn:disabled { opacity: 0.5; cursor: default; }
 
