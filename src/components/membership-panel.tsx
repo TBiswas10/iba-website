@@ -11,18 +11,6 @@ type Membership = {
   startDate: string;
 };
 
-type Invoice = {
-  id: number;
-  recipientName: string;
-  amountCents: number;
-  description: string;
-  category: string | null;
-  receiptUrl: string | null;
-  invoicePdfUrl: string | null;
-  status: string;
-  adminNotes: string | null;
-  createdAt: string;
-};
 
 export function MembershipPanel() {
   const { user, loading, signInWithEmail, logout } = useAuth();
@@ -34,27 +22,6 @@ export function MembershipPanel() {
   const [applicationSubmitted, setApplicationSubmitted] = useState(false);
   const loginEmailRef = useRef<HTMLInputElement>(null);
   const loginPasswordRef = useRef<HTMLInputElement>(null);
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [showForm, setShowForm] = useState(false);
-  const [formRecipient, setFormRecipient] = useState("");
-  const [formAmount, setFormAmount] = useState("");
-  const [formDesc, setFormDesc] = useState("");
-  const [formCategory, setFormCategory] = useState("");
-  const [formReceipt, setFormReceipt] = useState<File | null>(null);
-  const [formMsg, setFormMsg] = useState("");
-  const [bankAccountName, setBankAccountName] = useState("");
-  const [bankBsb, setBankBsb] = useState("");
-  const [bankAccountNumber, setBankAccountNumber] = useState("");
-
-  useEffect(() => {
-    if (user?.email) {
-      fetch("/api/user/bank-details", { method: "POST" })
-        .then(r => r.json())
-        .then(d => { if (d.ok) { setBankAccountName(d.data.bankAccountName || ""); setBankBsb(d.data.bankBsb || ""); setBankAccountNumber(d.data.bankAccountNumber || ""); } })
-        .catch(() => {});
-    }
-  }, [user]);
-
   useEffect(() => {
     if (user?.email) {
       setIsChecking(true);
@@ -73,16 +40,6 @@ export function MembershipPanel() {
       setIsChecking(false);
     }
   }, [user]);
-
-  useEffect(() => {
-    if (!user?.email) return;
-    fetch("/api/reimbursements")
-      .then(r => r.json())
-      .then(d => { if (d.ok) setInvoices(d.data || []); })
-      .catch(() => {});
-  }, [user]);
-
-  const isLifeMember = membership?.type === "Life Member" && membership?.status === "ACTIVE";
 
   async function handleSignup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -108,7 +65,10 @@ export function MembershipPanel() {
         return;
       }
 
-      // Show "check your email" screen — user must confirm before logging in
+      // Sign them in then show application submitted screen
+      try {
+        await signInWithEmail(email, password);
+      } catch { /* ignore — user already created */ }
       setApplicationSubmitted(true);
     } catch (error: any) {
       setMessage(error.message || "Signup failed. Please try again.");

@@ -97,6 +97,17 @@ export async function POST(request: Request) {
         where: { id: userId },
         data: { role },
       });
+
+      // Email when granted admin access
+      if (role === "ADMIN" && updated.email) {
+        const name = updated.name || "Member";
+        sendEmail({
+          to: updated.email,
+          subject: "You've been made an admin — IBA",
+          text: `Hi ${name},\n\nYou have been granted administrator access to the Illawarra Bengali Association website.\n\nYou can now manage members, events, RSVPs, and more via the admin console.\n\nVisit us at https://illawarrabengali.org/admin\n\nWarm regards,\nIllawarra Bengali Association`,
+        }).catch(err => console.error("Admin role email failed:", err));
+      }
+
       return NextResponse.json({ ok: true, data: updated });
     }
 
@@ -155,7 +166,7 @@ export async function PUT(request: Request) {
       },
     });
 
-    // Send approval email when status is set to ACTIVE for the first time
+    // Email when status is set to ACTIVE for the first time
     if (status === "ACTIVE" && before?.status !== "ACTIVE" && before?.user?.email) {
       const memberName = before.user.name || "Member";
       const memberType = membership.type || "General Member";
@@ -164,6 +175,16 @@ export async function PUT(request: Request) {
         subject: "Welcome to IBA — Your membership has been approved!",
         text: `Hi ${memberName},\n\nGreat news! Your ${memberType} membership with the Illawarra Bengali Association has been approved.\n\nYou can now log in to access member resources, RSVP to events, and more.\n\nVisit us at https://illawarrabengali.org\n\nWarm regards,\nIllawarra Bengali Association`,
       }).catch(err => console.error("Approval email failed:", err));
+    }
+
+    // Email when upgraded to Life Member
+    if (type === "Life Member" && before?.type !== "Life Member" && before?.user?.email) {
+      const memberName = before.user.name || "Member";
+      sendEmail({
+        to: before.user.email,
+        subject: "Congratulations — You're now a Life Member of IBA!",
+        text: `Hi ${memberName},\n\nCongratulations! You have been granted Life Membership with the Illawarra Bengali Association.\n\nThis is a recognition of your ongoing support and contribution to our community. We are grateful to have you with us.\n\nVisit us at https://illawarrabengali.org\n\nWarm regards,\nIllawarra Bengali Association`,
+      }).catch(err => console.error("Life member email failed:", err));
     }
 
     return NextResponse.json({ ok: true, data: membership });
