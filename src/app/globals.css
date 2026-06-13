@@ -1371,17 +1371,27 @@ h4 { font-size: 1.1rem; }
   .admin-panels-row { grid-template-columns: 1fr; }
   .admin-main { padding: 1.25rem 1rem; }
 
-  /* Bottom tab bar */
+  /* Bottom tab bar — liquid glass pill */
   .admin-bottom-nav {
     display: flex;
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 50;
-    background: #1E3A44;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    width: auto;
+    min-width: min(92vw, 420px);
+    max-width: 96vw;
+    padding: 6px 10px;
+    border-radius: 9999px;
+    background: rgba(30, 30, 40, 0.45);
+    backdrop-filter: blur(28px) saturate(1.8);
+    -webkit-backdrop-filter: blur(28px) saturate(1.8);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.35),
+      0 2px 8px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
   .admin-bottom-tab {
     flex: 1;
@@ -1390,19 +1400,27 @@ h4 { font-size: 1.1rem; }
     align-items: center;
     justify-content: center;
     gap: 3px;
-    padding: 0.6rem 0.25rem;
-    color: rgba(255,255,255,0.45);
+    padding: 0.55rem 0.4rem;
+    color: rgba(255, 255, 255, 0.5);
     text-decoration: none;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 600;
-    transition: color 0.15s;
+    letter-spacing: 0.02em;
+    border-radius: 9999px;
+    transition: color 0.18s, background 0.18s;
+    background: transparent;
+    border: none;
+    cursor: pointer;
   }
-  .admin-bottom-tab svg { width: 20px; height: 20px; }
-  .admin-bottom-tab.active { color: #f4a98a; }
-  .admin-bottom-tab:hover { color: rgba(255,255,255,0.8); }
+  .admin-bottom-tab svg { width: 21px; height: 21px; }
+  .admin-bottom-tab.active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.14);
+  }
+  .admin-bottom-tab:hover { color: rgba(255, 255, 255, 0.85); }
 
-  /* Space so content doesn't hide behind tab bar */
-  .admin-bottom-spacer { display: block; height: 72px; }
+  /* Space so content doesn't hide behind floating pill */
+  .admin-bottom-spacer { display: block; height: 88px; }
 }
 
 /* Admin Pages (old, kept for compat) */
