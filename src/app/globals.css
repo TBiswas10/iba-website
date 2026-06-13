@@ -1371,29 +1371,31 @@ h4 { font-size: 1.1rem; }
   .admin-panels-row { grid-template-columns: 1fr; }
   .admin-main { padding: 1.25rem 1rem; }
 
-  /* Bottom tab bar — liquid glass pill */
+  /* Bottom tab bar — dark liquid glass pill */
   .admin-bottom-nav {
     display: flex;
     position: fixed;
-    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
     z-index: 50;
     width: auto;
-    min-width: min(92vw, 420px);
-    max-width: 96vw;
-    padding: 5px 8px;
+    min-width: min(88vw, 400px);
+    max-width: 94vw;
+    padding: 5px 6px;
     border-radius: 9999px;
-    /* lighter, more translucent so the glass effect shows */
-    background: rgba(120, 120, 135, 0.28);
-    backdrop-filter: blur(40px) saturate(2.2) brightness(1.1);
-    -webkit-backdrop-filter: blur(40px) saturate(2.2) brightness(1.1);
-    border: 1px solid rgba(255, 255, 255, 0.32);
+    /* dark tint — works on any background */
+    background: rgba(18, 20, 26, 0.78);
+    backdrop-filter: blur(32px) saturate(1.6);
+    -webkit-backdrop-filter: blur(32px) saturate(1.6);
+    border: 1px solid rgba(255, 255, 255, 0.10);
     box-shadow:
-      0 12px 40px rgba(0, 0, 0, 0.22),
-      0 2px 6px rgba(0, 0, 0, 0.12),
-      inset 0 1.5px 0 rgba(255, 255, 255, 0.35),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+      0 16px 48px rgba(0, 0, 0, 0.30),
+      0 4px 12px rgba(0, 0, 0, 0.18),
+      /* top glass edge highlight */
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      /* bottom shadow edge for depth */
+      inset 0 -1px 0 rgba(0, 0, 0, 0.25);
   }
   .admin-bottom-tab {
     flex: 1;
@@ -1401,30 +1403,31 @@ h4 { font-size: 1.1rem; }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3px;
-    padding: 0.5rem 0.35rem;
-    color: rgba(255, 255, 255, 0.6);
+    gap: 4px;
+    padding: 0.5rem 0.25rem;
+    color: rgba(255, 255, 255, 0.42);
     text-decoration: none;
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     font-weight: 600;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.03em;
     border-radius: 9999px;
-    transition: color 0.18s, background 0.18s;
+    transition: color 0.15s, background 0.15s;
     background: transparent;
     border: none;
     cursor: pointer;
   }
-  .admin-bottom-tab svg { width: 21px; height: 21px; }
+  .admin-bottom-tab svg { width: 20px; height: 20px; stroke-width: 1.6; }
   .admin-bottom-tab.active {
-    color: #fff;
-    /* soft white pill — not a filled circle */
-    background: rgba(255, 255, 255, 0.18);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+    color: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.11);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.12);
   }
-  .admin-bottom-tab:hover { color: rgba(255, 255, 255, 0.9); }
+  .admin-bottom-tab:hover:not(.active) { color: rgba(255, 255, 255, 0.7); }
 
   /* Space so content doesn't hide behind floating pill */
-  .admin-bottom-spacer { display: block; height: 88px; }
+  .admin-bottom-spacer { display: block; height: 90px; }
 }
 
 /* Admin Pages (old, kept for compat) */
