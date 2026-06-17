@@ -280,16 +280,16 @@ export function LandingPage({ nextEvent }: LandingPageProps) {
         <motion.aside className="hero-aside glass-panel" variants={fadeUpVariant}>
           <div className="hero-photo-grid" aria-label="Event photos">
             <div className="photo-tile photo-tile-v1">
-              <Image src="/hero1.png" alt="Event 1" width={300} height={400} priority sizes="(max-width: 768px) 0px, 200px" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+              <Image src="/hero1.webp" alt="Event 1" width={300} height={400} priority sizes="(max-width: 768px) 45vw, 200px" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
             <div className="photo-tile photo-tile-h1">
-              <Image src="/hero2.jpeg" alt="Event 2" width={400} height={300} sizes="(max-width: 768px) 0px, 250px" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+              <Image src="/hero2.webp" alt="Event 2" width={400} height={300} sizes="(max-width: 768px) 45vw, 250px" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
             <div className="photo-tile photo-tile-v2">
-              <Image src="/hero3.jpeg" alt="Event 3" width={300} height={400} sizes="(max-width: 768px) 0px, 200px" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+              <Image src="/hero3.webp" alt="Event 3" width={300} height={400} sizes="(max-width: 768px) 45vw, 200px" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
             <div className="photo-tile photo-tile-h2">
-              <Image src="/hero4.jpeg" alt="Event 4" width={400} height={300} sizes="(max-width: 768px) 0px, 250px" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+              <Image src="/hero4.webp" alt="Event 4" width={400} height={300} sizes="(max-width: 768px) 45vw, 250px" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
           </div>
           
