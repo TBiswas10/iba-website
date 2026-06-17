@@ -81,10 +81,29 @@ const NAV = [
   },
 ];
 
-export function AdminSidebar() {
+export function AdminSidebar({ skeleton }: { skeleton?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+
+  if (skeleton) {
+    return (
+      <aside className="admin-sidebar">
+        <div className="admin-sidebar-top">
+          <div className="admin-sidebar-brand">IBA Inc.</div>
+          <div className="admin-sidebar-title">Admin Console</div>
+        </div>
+        <nav className="admin-sidebar-nav">
+          {[1,2,3,4,5,6,7].map(i => (
+            <div key={i} className="skeleton" style={{ height: 40, borderRadius: 10, margin: "2px 0" }} />
+          ))}
+        </nav>
+        <div className="admin-sidebar-bottom">
+          <div className="skeleton skeleton-circle" style={{ width: 36, height: 36 }} />
+        </div>
+      </aside>
+    );
+  }
 
   const initials = user?.name
     ? user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()

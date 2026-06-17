@@ -1,8 +1,7 @@
 import { prisma } from "@/lib/prisma";
+import { LandingPage } from "@/components/landing-page";
 
 export const revalidate = 300;
-
-import { LandingPage } from "@/components/landing-page";
 
 async function getNextEvent() {
   const now = new Date();
