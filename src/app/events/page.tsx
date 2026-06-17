@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { EventsBoard } from "@/components/events-board";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 async function getNextEvent() {
   const now = new Date();

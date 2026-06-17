@@ -65,7 +65,7 @@ export default function MembershipPage() {
           </div>
           <div className="membership-hero-image">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/hero3.jpeg" alt="IBA community" />
+            <img src="/hero3.webp" alt="IBA community" />
             <div className="membership-hero-overlay" />
           </div>
         </div>

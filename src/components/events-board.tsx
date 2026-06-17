@@ -3,12 +3,18 @@
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { FormEvent, useEffect, useMemo, useState, useTransition } from "react";
-import { Calendar, momentLocalizer, Views } from "react-big-calendar";
-import moment from "moment";
+import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
+import { format, parse, startOfWeek, getDay, addMonths, subMonths } from "date-fns";
+import { enAU } from "date-fns/locale";
 import Link from "next/link";
 
-moment.locale("en-au");
-const localizer = momentLocalizer(moment);
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
+  getDay,
+  locales: { "en-AU": enAU },
+});
 
 type ApiEvent = {
   id: number;
@@ -208,16 +214,16 @@ export function EventsBoard({ isAdmin }: { isAdmin: boolean }) {
             type="button"
             className="calendar-nav-btn"
             aria-label="Previous month"
-            onClick={() => setDate(moment(date).subtract(1, "month").toDate())}
+            onClick={() => setDate(subMonths(date, 1))}
           >
             ‹
           </button>
-          <div className="calendar-header-label">{moment(date).format("MMMM YYYY")}</div>
+          <div className="calendar-header-label">{format(date, "MMMM yyyy")}</div>
           <button
             type="button"
             className="calendar-nav-btn"
             aria-label="Next month"
-            onClick={() => setDate(moment(date).add(1, "month").toDate())}
+            onClick={() => setDate(addMonths(date, 1))}
           >
             ›
           </button>
